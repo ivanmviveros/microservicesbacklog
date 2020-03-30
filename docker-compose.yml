@@ -1,0 +1,25 @@
+version: "2"
+
+services:
+  db-equipos:
+    extends:
+      file: base.yml
+      service: db-msbacklog            
+  web:
+    extends:
+      file: base.yml
+      service: web
+    build:
+      args:
+        - DJANGO_ENV=dev    
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./msbacklog:/msbacklog
+    ports:
+      - "8009:8000"
+    depends_on:
+      - db-msbacklog
+
+volumes:
+  db_data_msbacklog:
+    external: true

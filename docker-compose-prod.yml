@@ -1,0 +1,28 @@
+version: "2"
+
+services:
+  db-msbacklog-prod:
+    image: postgres:9.5    
+    env_file: .env_prod    
+    volumes:
+      - db_data_msbacklog_prod:/var/lib/postgresql/data/pgdata
+
+  apache2-msbacklog:
+    container_name: apache2-msbacklog
+    build:
+      context: ./code/msbacklog
+      args:
+        - DJANGO_ENV=production 
+    env_file: .env_prod           
+    ports:
+      - '8090:80'
+      - '3509:3500'
+      - '8091:81'
+    volumes: 
+      - ./code:/var/www/html
+    depends_on:
+      - db-msbacklog-prod
+  
+volumes:
+  db_data_msbacklog_prod:
+    external: true

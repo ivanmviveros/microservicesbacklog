@@ -18,4 +18,8 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^$', index, name='index'),
+    url(r'^home/$', home, name='home'),
 ]
+
+urlpatterns += static(base.MEDIA_URL, document_root=base.MEDIA_ROOT)

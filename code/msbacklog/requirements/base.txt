@@ -9,7 +9,7 @@ oauthlib
 olefile
 packaging
 Pillow
-psycopg2
+psycopg2==2.7.3.1
 PyJWT
 pyparsing
 python3-openid

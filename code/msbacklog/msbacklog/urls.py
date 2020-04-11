@@ -15,11 +15,17 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from historiasUsuario.views import index, home, landing, contactos
+from django.conf.urls.static import static
+from msbacklog.settings import base
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', index, name='index'),
+    url(r'^index/$', index, name='index'),
+    url(r'^$', landing, name='landing'),
     url(r'^home/$', home, name='home'),
+    url(r'^contacto/$', contactos, name='contacto'),
 ]
 
 urlpatterns += static(base.MEDIA_URL, document_root=base.MEDIA_ROOT)

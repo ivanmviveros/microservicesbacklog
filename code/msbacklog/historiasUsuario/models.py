@@ -2,9 +2,16 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from microservicios import Microservicio
+from microservicios.models import Microservicio
 
 # Create your models here.
+class Usuario(models.Model):
+    nombre = models.CharField(max_length=50)
+    password = models.CharField(max_length=10)
+    email = models.EmailField()
+    direccion = models.TextField()
+    telefono = models.CharField(max_length=12)
+
 class Proyecto (models.Model):
     nombre = models.CharField(max_length=255)
     sigla = models.CharField(max_length=20)
@@ -27,12 +34,11 @@ class HistoriaUsuario (models.Model):
     prioridad = models.IntegerField()
     puntos_estimados = models.IntegerField()
     tiempo_estimado = models.FloatField()
-    escenario = models.CharField(max_length=500)
-    observaciones = models.CharField(max_length=500)
+    escenario = models.CharField(max_length=500, null=True)
+    observaciones = models.CharField(max_length=500, null=True)
     fecha_creacion = models.DateField(auto_now_add=True)
 
     proyecto = models.ForeignKey(Proyecto, on_delete=models.PROTECT)
-    dependencias = models.ManyToManyField(HistoriaUsuario, through='Dependencia_Historia')
     microservicio = models.ForeignKey(Microservicio, on_delete=models.PROTECT, null=True)
 
     def __str__(self): # __unicode__ en Python 2 
@@ -43,15 +49,10 @@ class HistoriaUsuario (models.Model):
         default_permissions = ('add', 'change', 'delete', 'view')
 
 class Dependencia_Historia(models.Model):
-    historiaUsuario = models.ForeignKey(HistoriaUsuario, on_delete=models.PROTECT)
-    dependencia = models.ForeignKey(HistoriaUsuario, on_delete=models.PROTECT)
-
-class Usuario(models.Model):
-    nombre = models.CharField(max_length=50)
-    password = models.CharField(max_length=10)
-    email = models.EmailField()
-    direccion = models.TextField()
-    telefono = models.CharField(max_length=12)
+    historia = models.ForeignKey(HistoriaUsuario, on_delete=models.PROTECT, related_name='historia_usuario',  
+                                    db_column='historia_usuario')
+    dependencia = models.ForeignKey(HistoriaUsuario, on_delete=models.PROTECT, related_name='dependencia_historia',  
+                                    db_column='dependencia_historia')
 
 
     

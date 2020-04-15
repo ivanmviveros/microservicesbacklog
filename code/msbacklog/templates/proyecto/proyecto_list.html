@@ -1,0 +1,76 @@
+{% extends "base_list.html" %}
+{# Load the tag library #}
+{% load staticfiles %}
+{% load bootstrap3 %}
+
+{% block page-title %}Microservices Backlog{% endblock %}
+{% block page-description %}Create and manage the projects{% endblock %}
+
+<div class="box box-primary">    
+    <div class="box-body">        
+        <div class="row">            
+            {% block cabecera_tabla %}
+            <div class="box-header blue-border">
+                <h2 class="box-title"><strong>User: {{ usuario.nombre }}</strong></h2>
+                <div class="box-title pull-right">                
+                    <img class="img-circle" src="{% static 'images/perfil_defecto.png' %}" alt="Escudo" width="40" height="40">                
+                </div>
+            </div>        
+            <a href="{% url 'historias:create-proyecto' usuario.id %}" title="Add Project">
+                    <img src="{% static 'images/add_16.png'%}"/> Add Project
+            </a>
+            <br>    
+            <br>
+            <thead>
+                <tr>
+                    <th>Abbr.</th>
+                    <th>Name</th>        
+                    <th>Public</th>        
+                    <th>Options</th>
+                </tr>
+                </thead>
+            {% endblock cabecera_tabla %}
+            {% block cuerpo_tabla %}                
+                {%  if listaProyecto %}
+                <tbody>
+                    {% for proyecto in listaProyecto %}
+                    
+                        <tr>
+                            <td><a href="{% url 'historias:detail-proyecto' proyecto.id %}" title="Details">{{ proyecto.sigla }}</a></td>                            
+                            <td>{{ proyecto.nombre }}</td>
+                            <td>{{ proyecto.es_publico }}</td>                            
+                            <td>
+                                <a href="{% url 'historias:edit-proyecto' usuario.id proyecto.id %}" title="Edit">
+                                    <img src="{% static 'images/edit_16.png'%}"></img>
+                                </a>
+                                <a href="{% url 'historias:delete-proyecto' usuario.id proyecto.id %}" title="Delete">
+                                    <img src="{% static 'images/delete_16.png'%}"></img>
+                                </a>
+                                <a href="{% url 'historias:list-historia' proyecto.id %}" title="User stories">
+                                    <img src="{% static 'images/historias_16.png'%}" height="24" width="24"></img>
+                                </a>                                
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                {% else %}
+                <tbody>
+                    <tr>
+                        <td>There are not projects</td>
+                        <td></td>                        
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+                {% endif %}                               
+            {% endblock cuerpo_tabla %}
+            <div class="box-footer">
+                <center>                                    
+                    <a href="/index/">
+                            {% bootstrap_button "Index" button_type="button" button_class="btn-primary"%}
+                    </a>
+                </center>                         
+            </div>
+        </div>
+    </div>    
+</div>

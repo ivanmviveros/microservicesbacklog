@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{# Load the tag library #}
+{% load staticfiles %}
+{% load bootstrap3 %}
+
+{% block page-title %}Microservices Backlog{% endblock %}
+{% block page-description %}Project details{% endblock %}
+
+{% block content %}
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <h2 class="box-title">{{ historia.nombre }}</h2>            
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        <div class="box-body">
+            <div class="row">                
+                <div class="col-md-8">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td><strong>Id:</strong></td>
+                                <td>
+                                    <input type="text" id="iden" name="iden" value="{{ historia.id }}" readonly="readonly" class="form-control"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Priority:</strong></td>
+                                <td>
+                                    <input type="text" id="prioridad" name="prioridad" value="{{ historia.prioridad }}" readonly="readonly" class="form-control"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Estimated Points:</strong></td>
+                                <td>
+                                    <input type="text" id="puntos" name="puntos" value="{{ historia.puntos_estimados }}" readonly="readonly" class="form-control"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Estimated Dev. Time:</strong></td>
+                                <td>
+                                    <input type="text" id="dev_time" name="dev_time" value="{{ historia.tiempo_estimado }}" readonly="readonly" class="form-control"/>
+                                </td>
+                            </tr>                            
+                            <tr>
+                                <td><strong>Creation Date:</strong></td>
+                                <td>
+                                    <input type="text" id="fecha" name="fecha" value="{{ historia.fecha_creacion }}" readonly="readonly" class="form-control"/>
+                                </td>
+                            </tr>                                                        
+                            <tr>
+                                <td><strong>Description:</strong></td>
+                                <td>
+                                    <textarea id="descripcion" name="descripcion" rows="3" cols="50" readonly="readonly" class="form-control">{{ historia.descripcion }}
+                                    </textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Scene:</strong></td>
+                                <td>
+                                    <textarea id="escenario" name="escenario" rows="3" cols="50" readonly="readonly" class="form-control">{{ historia.escenario }}
+                                    </textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Observations:</strong></td>
+                                <td>
+                                    <textarea id="observaciones" name="observaciones" rows="3" cols="50" readonly="readonly" class="form-control">{{ historia.observaciones }}
+                                    </textarea>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>                                                                                                                        
+                </div>
+            </div>
+        </div>
+        <!-- /.box-body -->
+
+        <div class="box-footer">
+            <center>                                    
+                <a href="/historias/historia-list/{{ proyecto.id }}">
+                        {% bootstrap_button "Back" button_type="button" button_class="btn-primary"%}
+                </a>
+            </center>                         
+        </div>        
+    </div>
+{% endblock %}

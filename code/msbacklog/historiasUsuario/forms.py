@@ -7,10 +7,12 @@ class ProyectoForm(ModelForm):
     class Meta: 
         model = Proyecto
         fields = ['nombre', 'sigla', 'descripcion', 'usuario', 'es_publico']
-        widgets = { 'usuario':forms.HiddenInput(attrs={'readonly':'readonly'}),
-                    'nombre':forms.HiddenInput(attrs={'name':'project_name'}),
+        labels = {
+            'nombre':'Name', 'sigla':'Abbreviation', 'descripcion':'Description', 'es_publico':'Is public'
+        }
+        widgets = { 'usuario':forms.HiddenInput(attrs={'readonly':'readonly'}),                    
                     'descripcion':forms.Textarea(),                    
-                  }
+        }
 
     def clean(self):
         cleaned_data = super(ProyectoForm, self).clean()
@@ -20,6 +22,11 @@ class HistoriaUsuarioForm(ModelForm):
         model = HistoriaUsuario
         fields = ['nombre', 'descripcion', 'prioridad', 'puntos_estimados', 'tiempo_estimado',
                     'escenario', 'observaciones', 'proyecto']
+        labels = {
+            'nombre':'Name', 'prioridad':'Priority', 'descripcion':'Description', 
+            'puntos_estimados':'Estimated points', 'tiempo_estimado':'Estimated time', 'escenario':'Scenario',
+            'observaciones':'Observations',
+        }
         widgets = { 'proyecto':forms.HiddenInput(attrs={'readonly':'readonly'}),                    
                     'descripcion':forms.Textarea(),
                     'escenario':forms.Textarea(),

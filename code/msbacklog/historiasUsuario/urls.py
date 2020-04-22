@@ -23,7 +23,7 @@ urlpatterns = [
 
     url(r'^historias-list/(?P<id_proyecto>\d+)$', HistoriaUsuarioListView.as_view(), name='list-historias'),
     url(r'^crear-historia/(?P<id_proyecto>\d+)$', HistoriaUsuarioCrearView.as_view(), name='create-historia'),    
-    url(r'^editar-historia/(?P<id_proyecto>\d+)/(?P<pk>\d+)$', ProyectoEditarView.as_view(), name='edit-historia'),
+    url(r'^editar-historia/(?P<id_proyecto>\d+)/(?P<pk>\d+)$', HistoriaUsuarioEditarView.as_view(), name='edit-historia'),
     url(r'^eliminar-historia/(?P<id_proyecto>\d+)/(?P<pk>\d+)$', HistoriaUsuarioDeleteView.as_view(), name='delete-historia'),
     url(r'^detalle-historia/(?P<pk>\d+)$', HistoriaUsuarioDetailView.as_view(), name='detail-historia'),    
     

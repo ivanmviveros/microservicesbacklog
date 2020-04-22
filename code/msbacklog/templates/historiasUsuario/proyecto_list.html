@@ -46,7 +46,7 @@
                                 <a href="{% url 'historias:delete-proyecto' usuario.id proyecto.id %}" title="Delete">
                                     <img src="{% static 'images/delete_16.png'%}"></img>
                                 </a>
-                                <a href="{% url 'historias:list-historia' proyecto.id %}" title="User stories">
+                                <a href="{% url 'historias:list-historias' proyecto.id %}" title="User stories">
                                     <img src="{% static 'images/historias_16.png'%}" height="24" width="24"></img>
                                 </a>                                
                             </td>
@@ -64,13 +64,18 @@
                 </tbody>
                 {% endif %}                               
             {% endblock cuerpo_tabla %}
-            <div class="box-footer">
-                <center>                                    
+            {% block secondary_content %}
+            <div class="panel panel-info"> 
+                <div class="panel-body">   
+                <center>
+                    
                     <a href="/index/">
-                            {% bootstrap_button "Index" button_type="button" button_class="btn-primary"%}
+                            {% bootstrap_button "Return to index" button_type="button" button_class="btn-primary"%}
                     </a>
                 </center>                         
+                </div>
             </div>
+            {% endblock secondary_content %}
         </div>
     </div>    
 </div>

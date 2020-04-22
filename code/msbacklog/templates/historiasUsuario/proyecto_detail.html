@@ -52,8 +52,8 @@
 
         <div class="box-footer">
             <center>                                    
-                <a href="/historias/proyecto-list/{{ usuario.id }}">
-                        {% bootstrap_button "Projects" button_type="button" button_class="btn-primary"%}
+                <a href="{% url 'historias:list-proyecto' proyecto.usuario.id %}">
+                    {% bootstrap_button "Cancel" button_type="button" button_class="btn-primary"%}
                 </a>
             </center>                         
         </div>        

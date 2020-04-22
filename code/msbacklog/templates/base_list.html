@@ -4,8 +4,7 @@
 {% load bootstrap3 %}
 
 {% block specific-css %}
-    <link href="{% static 'AdminLTE-2.3.11/plugins/datatables/dataTables.bootstrap.css' %}" rel="stylesheet">
-    <link href="{% static 'AdminLTE-2.3.11/plugins/datatables/extensions/Buttons/buttons.dataTables.min.css' %}" rel="stylesheet">
+    <link href="{% static 'AdminLTE-2.3.11/plugins/datatables/dataTables.bootstrap.css' %}" rel="stylesheet">    
 {% endblock %}
 
 {% block page-title %}{% endblock %}
@@ -35,42 +34,10 @@
 {% block specific-js %}
     <script src="{% static 'AdminLTE-2.3.11/plugins/datatables/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'AdminLTE-2.3.11/plugins/datatables/dataTables.bootstrap.min.js' %}"></script>
-    <script src="{% static 'AdminLTE-2.3.11/plugins/datatables/extensions/Buttons/buttons.html5.min.js' %}"></script>
-    <script src="{% static 'AdminLTE-2.3.11/plugins/datatables/extensions/Buttons/buttons.print.min.js' %}"></script>
-    <script src="{% static 'AdminLTE-2.3.11/plugins/datatables/extensions/Buttons/dataTables.buttons.min.js' %}"></script>
-    <script src="{% static 'AdminLTE-2.3.11/plugins/datatables/extensions/Buttons/jszip.min.js' %}"></script>
-    <script src="{% static 'AdminLTE-2.3.11/plugins/datatables/extensions/Buttons/pdfmake.min.js' %}"></script>
-    <script src="{% static 'AdminLTE-2.3.11/plugins/datatables/extensions/Buttons/vfs_fonts.js' %}"></script>
-    <script>
+     <script>
         $(document).ready(function() {
             $('#lista-data-table').DataTable({
-                "dom": 'Bfrtip',
-                "buttons": [
-                    'copy', 'csv', 'excel', 'pdf', 'print'
-                ],
-                "language": {
-                    "decimal": ",",
-                    "lengthMenu": "Mostrar _MENU_ filas por página",
-                    "zeroRecords": "No se encontraron registros que coincidan con la búsqueda",
-                    "info": "Mostrando desde _START_ hasta _END_ de _TOTAL_ registros en total",
-                    "infoEmpty": "Información no disponible",
-                    "infoFiltered": "(filtrado de _MAX_ registros en total)",
-                    "emptyTable":     "No hay datos disponibles en la tabla",
-                    "thousands":      ".",
-                    "loadingRecords": "Cargando...",
-                    "processing":     "Procesando...",
-                    "search":         "Filtrar:",
-                    "paginate": {
-                        "first":      "Primera",
-                        "last":       "Última",
-                        "next":       "Siguiente",
-                        "previous":   "Anterior"
-                    },
-                    "aria": {
-                        "sortAscending":  ": activar para ordernar ascedentemente",
-                        "sortDescending": ": activar para ordernar descendentemente"
-                    }
-                },
+                "dom": 'Bfrtip',                
                 "order": [[ 0, "desc" ]]
             });
         } );

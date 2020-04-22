@@ -78,7 +78,7 @@
 
         <div class="box-footer">
             <center>                                    
-                <a href="/historias/historia-list/{{ proyecto.id }}">
+                <a href="{% url 'historias:list-historias' historia.proyecto.id %}">
                         {% bootstrap_button "Back" button_type="button" button_class="btn-primary"%}
                 </a>
             </center>                         

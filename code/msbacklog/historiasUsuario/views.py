@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from subprocess import call
 
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect
 from .models import Proyecto, HistoriaUsuario, Usuario
 from django.core.urlresolvers import reverse_lazy
 from django.contrib import messages
+from django.db import IntegrityError
 from django.views.generic.edit import (
     CreateView,
     UpdateView,    
@@ -12,8 +14,10 @@ from django.views.generic.edit import (
 )
 from django.views.generic import ListView, DetailView
 from django import forms
-from .forms import ProyectoForm, HistoriaUsuarioForm
+from .forms import ProyectoForm, HistoriaUsuarioForm, UploadFileForm
 import requests
+import csv
+import os
 
 # Create your views here.
 def contactos(request):
@@ -136,7 +140,8 @@ class HistoriaUsuarioListView(ListView):
 class HistoriaUsuarioCrearView(CreateView):
     model = HistoriaUsuario
     form_class = HistoriaUsuarioForm    
-    success_msg = "User Storie saved"
+    success_msg = "User Story saved"
+    exists_msg = "User Story already exists"
 
     def get_context_data(self, **kwargs): 
         self.proyecto = get_object_or_404(Proyecto, id=self.kwargs['id_proyecto'])               
@@ -150,17 +155,22 @@ class HistoriaUsuarioCrearView(CreateView):
     
     def form_valid(self, form):
         self.proyecto = get_object_or_404(Proyecto, id=self.kwargs['id_proyecto'])
-        historia = HistoriaUsuario(
-            nombre = form.cleaned_data['nombre'],
-            descripcion = form.cleaned_data['descripcion'],
-            prioridad = form.cleaned_data['prioridad'],
-            puntos_estimados = form.cleaned_data['puntos_estimados'],
-            tiempo_estimado = form.cleaned_data['tiempo_estimado'],
-            escenario = form.cleaned_data['escenario'],
-            observaciones = form.cleaned_data['observaciones'],
-            proyecto = self.proyecto,                        
-        )
-        historia.save()
+        try:
+            historia = HistoriaUsuario.objects.get(identificador=form.cleaned_data['identificador'])
+            messages.error(self.request, self.exists_msg)
+        except HistoriaUsuario.DoesNotExist:
+            historia = HistoriaUsuario(
+                identificador = form.cleaned_data['identificador'],
+                nombre = form.cleaned_data['nombre'],
+                descripcion = form.cleaned_data['descripcion'],
+                prioridad = form.cleaned_data['prioridad'],
+                puntos_estimados = form.cleaned_data['puntos_estimados'],
+                tiempo_estimado = form.cleaned_data['tiempo_estimado'],
+                escenario = form.cleaned_data['escenario'],
+                observaciones = form.cleaned_data['observaciones'],
+                proyecto = self.proyecto,                        
+            )
+            historia.save()
         return HttpResponseRedirect(self.get_success_url())
     
     def get_success_url(self):
@@ -172,7 +182,7 @@ class HistoriaUsuarioEditarView(UpdateView):
     model = HistoriaUsuario
     form_class = HistoriaUsuarioForm
     context_object_name = 'historia'    
-    success_msg = "User Storie updated"
+    success_msg = "User Story updated"
 
     def get_context_data(self, **kwargs):
         self.proyecto = get_object_or_404(Proyecto, id=self.kwargs['id_proyecto'])        
@@ -191,7 +201,7 @@ class HistoriaUsuarioEditarView(UpdateView):
 
 class HistoriaUsuarioDeleteView(DeleteView):
     model = HistoriaUsuario 
-    success_msg = "User Storie Deleted"   
+    success_msg = "User Story Deleted"   
 
     def get_context_data(self, **kwargs):
         self.proyecto = get_object_or_404(Proyecto, id=self.kwargs['id_proyecto'])        
@@ -201,7 +211,7 @@ class HistoriaUsuarioDeleteView(DeleteView):
     
     def get_initial(self):
         self.proyecto = get_object_or_404(Proyecto, id=self.kwargs['id_proyecto'])        
-        return { 'proyecto': self.usuario }
+        return { 'proyecto': self.proyecto }
         
     def get_success_url(self):
         self.proyecto = get_object_or_404(Proyecto, id=self.kwargs['id_proyecto'])
@@ -211,3 +221,48 @@ class HistoriaUsuarioDeleteView(DeleteView):
 class HistoriaUsuarioDetailView(DetailView):
     model = HistoriaUsuario
     context_object_name = 'historia'
+
+def historiaUsuario_uploadfile(request, **kwargs):            
+    proyectoCarga = get_object_or_404(Proyecto, id= kwargs['id_proyecto'])
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            f = request.FILES['file']
+            #fname = 'historias-' + str(proyectoCarga.id) + '.cvs'
+            #call('sudo touch -m ' + fname)
+            fname = 'historias-load.cvs'
+            with open(fname,'wb+') as destino:
+                for chunk in f.chunks():
+                    destino.write(chunk)
+            destino.close()
+            with open(fname, encoding='utf-8') as cvsfile:
+                reader = csv.DictReader(cvsfile)
+                cont=0
+                existen=0
+                for row in reader:
+                    try:
+                        historia = HistoriaUsuario.objects.get(identificador = row['id'])
+                        existen = existen + 1                        
+                    except HistoriaUsuario.DoesNotExist:
+                        historia_add = HistoriaUsuario(
+                            identificador = row['id'],
+                            nombre = row['name'],
+                            descripcion = row['description'],
+                            prioridad = row['priority'],
+                            puntos_estimados = row['points'],
+                            tiempo_estimado = row['time'],
+                            escenario = row['scenario'],
+                            observaciones = row['observations'],
+                            proyecto = proyectoCarga,                        
+                        )
+                        historia_add.save()            
+                        cont = cont +1                                                                        
+                mensaje = 'User stories saved: ' + str(cont) + ' \n' + 'User stories already exist: ' + str(existen)
+                messages.success(request, mensaje)            
+            #os.remove(fname)
+            #all('sudo rm ' + fname)
+            cvsfile.close()            
+            return HttpResponseRedirect('/historias/historias-list/%s' % (proyectoCarga.id),{'messages':messages})
+    else:        
+        form = UploadFileForm()    
+    return render(request, 'historiasUsuario/historiausuario_upload.html', {'form': form, 'proyecto':proyectoCarga})

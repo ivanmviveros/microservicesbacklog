@@ -1,0 +1,46 @@
+id,name,description,points,time,scenario,observations,priority
+HU1,Crear viaje de carga,"Como Operador deseo crear un viaje (Voyage) para una carga dada, especificando los movimientos necesarios para llegar a su destino para registrar cargas en el sistema.",3,5,"1. Especificar el número del viaje y su información 
+2. Adicionar los movimientos del transportista necesarios para el viaje desde su inicio hasta su final. 
+3. Guardar datos del viaje y su movimiento. ",,1
+HU2,Gestionar evento de carga,Como operador deseo registrar o crear un evento en una localización indicando la fecha cuando termina el evento.,3,5,"1. Especificar la localización 
+2. Especificar la fecha de terminación del evento. 
+3. Guardar los datos ",,2
+HU3,Agregar movimiento del transportista,"Como operador deseo agregar un movimiento de transportista para un viaje creado, especifica en donde se encuentra el transportista en una fecha dada.",5,7,"1. Especificar el viaje al que pertenece 
+2. Especificar la localización de llegada y partida 
+3. Especificar las fechas de partida y de llegada 
+4. Guardar los datos. ",,3
+HU4,Crear localización,Como operador deseo crear una localización especificando su nombre e identificador.,2,3,"1. Especificar el nombre e identificador de la localizacion
+2. Guardar los datos.",,4
+HU5,Ver seguimiento del viaje o carga enviada,Como operador deseo consultar el seguimiento del viaje o carga según el “TrackinId”,3,5,"1. Especificar el “TrackinId” 
+2. Buscar y presentar los eventos registrados para ese “TrackinId ",,5
+HU6,Crear carga,"Como operador deseo crear una carga a transportar. Se genera un “TrackinId. Se asocia un itinerario (Itinerary), una especificación de ruta (Route specification) y una entrega (Delivery).",7,10,"1. Generar un TrackinId 
+2. Especificar el itinerario 
+3. Especificar la especificación de ruta 
+4. Especificar la entrega 
+5. Guardar datos ",,6
+HU7,Crear itinerario de la carga,Como operador deseo crear un itinerario de una carga especificando sus paradas.,5,7,"1. Especificar la carga 
+2. Generar número de itinerario. 
+3. Crear y asociar las paradas 
+4. Guardar datos del itinerario y las paradas. ",,7
+HU8,Crear Parada,Como operador deseo crear una parada para un itinerario,2,3,"1. Especificar la localización de carga y de descarga 
+2. Especificar los tiempos de carga y descarga. 
+3. Guardar datos de la parada y asociar a itinerario. ",,8
+HU9,Programar carga – crear especificación de ruta,"Como operador deseo crear el envío de la carga, se especifica la ruta ingresando una localización origen y destino y se establece una fecha límite de entrega.",5,7,"1. Especificar o asociar la carga 
+2. Especificar las localizaciones de origen y destino 
+3. Establecer la fecha límite de entrega 
+4. Guardar datos de la especificación de ruta y asociar a Carga ",,9
+HU10,Cambiar destino de carga,Como operador deseo modificar el destino de una carga enviada.,1,2,"1. Especificar la nueva Localización de descarga 
+2. Especificar la nueva fecha limite 
+3. Guardar datos con los cambios realizados ",,10
+HU11,Crear entrega,"Como operador deseo crear y asociar al cargo una entrega, calcula una fecha estimada de entrega teniendo en cuanta el estado de los transportistas y el estado de las rutas.",7,10,"1. Asociar carga 
+2. Consultar estado de transportistas 
+3. Consultar estado de rutas 
+4. Consultar eventos 
+5. Calcular fecha estimada de entrega 
+6. Guardar datos de la entrega. ",,11
+HU12,Obtener localizaciones,Como operador deseo obtener el listado de las localizaciones disponibles,2,3,"1. Consultar las localizaciones disponibles 
+2. Devolver un listado con las localizaciones. ",,12
+HU13,Consultar estado de transportistas,Como operador deseo obtener el estado de los transportistas,3,5,"1. Consultar en que localización se encuentran los transportistas 
+2. Devolver el estado del transportista. ",,13
+HU14,Consultar estado de rutas,Como operador deseo obtener el estado de las rutas.,3,5,"1. Consultar el estado de las rutas 
+2. Devolver el estado de las rutas ",,14

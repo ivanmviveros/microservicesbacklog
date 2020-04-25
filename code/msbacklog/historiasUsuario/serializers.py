@@ -10,7 +10,7 @@ class ProyectoSerializer(serializers.ModelSerializer):
 class HistoriaUsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = HistoriaUsuario
-        fields = ('id','nombre', 'descripcion','prioridad','puntos_estimados',
+        fields = ('id','identificador','nombre', 'descripcion','prioridad','puntos_estimados',
                   'tiempo_estimado','escenario', 'observaciones', 'fecha_creacion',
                   'proyecto', 'microservicio')  
 

@@ -4,18 +4,19 @@
 {% load bootstrap3 %}
 
 {% block page-title %}Microservices Backlog{% endblock %}
-{% block page-description %}Create or update user storie {% endblock %}
+{% block page-description %}Load user storie from file{% endblock %}
 
 {% block content %}
 
     <div class="box box-info">
         <div class="box-header with-border">
-            <h3 class="box-title">Please insert the required data</h3>
+            <h3 class="box-title">Please upload CVS file.</h3>
         </div>
         <!-- /.box-header -->
         <!-- form start -->
         <form method="post" class="form-horizontal" enctype="multipart/form-data">
             <div class="box-body">
+                <strong>Proyecto: {{ proyecto.sigla }}</strong>
                 {% csrf_token %}
                 {% bootstrap_form form layout="horizontal" %}
             </div>

@@ -13,6 +13,7 @@ class MicroservicioApp (models.Model):
     cohesion = models.FloatField()
     avg_calls = models.FloatField()
     valor_GM = models.FloatField()
+    metodo = models.CharField(max_length=255)
 
     def __str__(self): # __unicode__ en Python 2 
         return self.nombre

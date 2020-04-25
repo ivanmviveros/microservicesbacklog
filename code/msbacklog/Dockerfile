@@ -17,8 +17,8 @@ ENV PYTHONUNBUFFERED=1
 ENV WEBAPP_DIR=/var/www/html/msbacklog
 
 RUN groupadd varwwwusers
-RUN chgrp -R varwwwusers /var/www/
 RUN adduser www-data varwwwusers
+RUN chgrp -R varwwwusers /var/www/
 RUN usermod -a -G varwwwusers root
 RUN chmod -R 770 /var/www/
 

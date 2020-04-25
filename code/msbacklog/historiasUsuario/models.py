@@ -29,6 +29,7 @@ class Proyecto (models.Model):
         default_permissions = ('add', 'change', 'delete', 'view')
 
 class HistoriaUsuario (models.Model):
+    identificador = models.CharField(max_length=10)
     nombre = models.CharField(max_length=255)
     descripcion = models.CharField(max_length=500)
     prioridad = models.IntegerField()
@@ -45,7 +46,7 @@ class HistoriaUsuario (models.Model):
         return self.nombre
 
     class Meta:
-        ordering = ["nombre"]
+        ordering = ["prioridad"]
         default_permissions = ('add', 'change', 'delete', 'view')
 
 class Dependencia_Historia(models.Model):
@@ -54,7 +55,16 @@ class Dependencia_Historia(models.Model):
     dependencia = models.ForeignKey(HistoriaUsuario, on_delete=models.PROTECT, related_name='dependencia_historia',  
                                     db_column='dependencia_historia')
 
+class TipoProyecto (models.Model):
+    nombre = models.CharField(max_length=255)
+    descripcion = models.CharField(max_length=500)
 
+    def __str__(self): # __unicode__ en Python 2 
+        return self.nombre
+    
+    class Meta:
+        ordering = ["nombre"]
+        default_permissions = ('add', 'change', 'delete', 'view')
     
 
 

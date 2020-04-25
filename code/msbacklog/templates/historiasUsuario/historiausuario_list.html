@@ -13,11 +13,17 @@
             <div class="box-header blue-border">
                 <h2 class="box-title"><strong>Project: {{ proyecto.sigla }}</strong></h2>                
             </div>        
-            <a href="{% url 'historias:create-historia' proyecto.id %}" title="Add User Storie">
-                    <img src="{% static 'images/add_16.png'%}"/> Add User Storie
-            </a>
-            <br>    
-            <br>
+            <div class="panel panel-info"> 
+                <div class="panel-body"> 
+                    <a href="{% url 'historias:create-historia' proyecto.id %}" title="Add User Storie">
+                            <img src="{% static 'images/add_16.png'%}" width="24" height="24"/> Add User Storie
+                    </a>  
+                    <img src="{% static 'images/separator.png'%}"/>
+                    <a href="{% url 'historias:load-historias' proyecto.id %}" title="Load User Storie from file">
+                        <img src="{% static 'images/load-file.png'%}" width="24" height="24"/> Load from file
+                    </a>
+                </div>
+            </div>            
             <thead>
                 <tr>
                     <th>Id.</th>
@@ -35,7 +41,7 @@
                     {% for historia in listaHistorias %}  
                     
                         <tr>
-                            <td><a href="{% url 'historias:detail-historia' historia.id %}" title="Details">{{ historia.id }}</a></td>                            
+                            <td><a href="{% url 'historias:detail-historia' historia.id %}" title="Details">{{ historia.identificador }}</a></td>                            
                             <td>{{ historia.nombre }}</td>
                             <td>{{ historia.prioridad }}</td>
                             <td>{{ historia.puntos_estimados }}</td>

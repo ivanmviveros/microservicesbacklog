@@ -19,11 +19,11 @@ class ProyectoForm(ModelForm):
 
 class HistoriaUsuarioForm(ModelForm):
     class Meta: 
-        model = HistoriaUsuario
-        fields = ['nombre', 'descripcion', 'prioridad', 'puntos_estimados', 'tiempo_estimado',
+        model = HistoriaUsuario  
+        fields = ['identificador', 'nombre', 'descripcion', 'prioridad', 'puntos_estimados', 'tiempo_estimado',
                     'escenario', 'observaciones', 'proyecto']
         labels = {
-            'nombre':'Name', 'prioridad':'Priority', 'descripcion':'Description', 
+            'identificador':'ID','nombre':'Name', 'prioridad':'Priority', 'descripcion':'Description', 
             'puntos_estimados':'Estimated points', 'tiempo_estimado':'Estimated time', 'escenario':'Scenario',
             'observaciones':'Observations',
         }
@@ -35,3 +35,7 @@ class HistoriaUsuarioForm(ModelForm):
 
     def clean(self):
         cleaned_data = super(HistoriaUsuarioForm, self).clean() 
+
+class UploadFileForm(forms.Form):    
+    file = forms.FileField()
+

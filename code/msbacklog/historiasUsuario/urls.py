@@ -12,6 +12,7 @@ from .views import (
     HistoriaUsuarioListView,        
     HistoriaUsuarioDeleteView,
     historiaUsuario_uploadfile,
+    HistoriaDependenciaUdpateView,
 )  
 
 urlpatterns = [
@@ -28,6 +29,7 @@ urlpatterns = [
     url(r'^eliminar-historia/(?P<id_proyecto>\d+)/(?P<pk>\d+)$', HistoriaUsuarioDeleteView.as_view(), name='delete-historia'),
     url(r'^detalle-historia/(?P<pk>\d+)$', HistoriaUsuarioDetailView.as_view(), name='detail-historia'),    
     url(r'^cargar-historias/(?P<id_proyecto>\d+)$', historiaUsuario_uploadfile, name='load-historias'),
+    url(r'^dependencias-historias/(?P<pk>\d+)$', HistoriaDependenciaUdpateView.as_view(), name='dependencias-historias'),
     
     #Rest Api        
     url(r'^api/proyectos/(?P<id_usuario>[0-9]+)/$', restviews.proyecto_list),

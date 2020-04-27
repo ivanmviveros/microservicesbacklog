@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{# Load the tag library #}
+{% load staticfiles %}
+{% load bootstrap3 %}
+
+{% block page-title %}Microservices Backlog{% endblock %}
+{% block page-description %}Create or update user storie dependencies {% endblock %}
+
+{% block specific-css %}
+    <link href="{% static 'AdminLTE-2.3.11/plugins/datatables/dataTables.bootstrap.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h3 class="box-title">Please select the dependencies for the user storie</h3>
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        <form method="post" class="form-horizontal" enctype="multipart/form-data">            
+            <div class="box-body">
+                <div class="panel panel-info"> 
+                    <div class="panel-heading">{{ historia.identificador }} - {{historia.nombre }}</div>                              
+                    <div class="panel-body">       
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label class="col-md-3 control-label" for="descripcion">Description</label>
+                            <div class="col-md-9">                                                
+                                <textarea id="descripcion" name="descripcion" rows="3" cols="50" readonly="readonly" class="form-control">{{ historia.descripcion }}
+                                </textarea>
+                            </div>                  
+                        </div>                              
+                        {% bootstrap_form form layout="horizontal" %}
+                    </div>
+                </div>                
+                <div class="panel panel-info"> 
+                    <div class="panel-heading">User story dependencies</div>                              
+                    <div class="panel-body">
+                        <div class="col-md-6">
+                            <div id="divHUDisponibles" class="panel panel-primary">                                                                        
+                                <div class="panel-heading">Available</div>
+                                <div class="panel-body">
+                                    <table id="tblHUDisponibles" class="table">
+                                        <thead>
+                                            <tr>
+                                                <td>User stories</td>
+                                                <td>-</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {%  if historias %}
+                                                {% for hu in historias %}
+                                                <tr>
+                                                    <td>                                                                
+                                                        {{ hu.identificador }} - {{ hu.nombre }}
+                                                    </td>
+                                                    <td>
+                                                        <a href="#"><img class="img-circle" src="{% static 'images/add_16.png' %}" alt="Add dependency">                                                                                    
+                                                        </a>
+                                                    </td>                                                                                                                
+                                                </tr>
+                                                {% endfor %}
+                                            {% else %}
+                                                <tr>
+                                                    <td>
+                                                        There are not user stories.
+                                                    </td>                                                                                                                
+                                                    <td></td>
+                                                </tr>
+                                            {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6"> 
+                            <div id="divHUSeleccionadas" class="panel panel-primary">
+                                <div class="panel-heading">Selected</div>
+                                <div class="panel-body">
+                                    <table id="tblHUSeleccionadas" class="table">
+                                        <thead>
+                                            <tr>
+                                                <td>-</td>
+                                                <td>User stories</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {%  if dependencias %}
+                                                {% for dep in dependencias %}
+                                                <tr>
+                                                    <td>
+                                                        <img class="img-circle" src="{% static 'images/delete_16.png' %}" alt="Delete dependency" width="16" height="16">
+                                                    </td>
+                                                    <td>                                                                
+                                                        {{ dep.identificador}} - {{dep.nombre }}                                                                                                                                    
+                                                    </td>                                                                                                                
+                                                </tr>
+                                                {% endfor %}
+                                            {% else %}
+                                                <tr>
+                                                    <td></td>
+                                                    <td>
+                                                        There are not dependencies.
+                                                    </td>                                                                                                                
+                                                </tr>
+                                            {% endif %}
+                                        </tbody>
+                                    </table>                                           
+                                </div> 
+                            </div>
+                        </div>                                    
+                    </div>
+                </div>
+            </div>
+            <!-- /.box-body -->
+            <center>
+                <div class="box-footer">
+                    <input type="submit" value="Save" class="btn btn-primary"/>
+                    <a href="{% url 'historias:list-historias' historia.proyecto.id %}">
+                        {% bootstrap_button "Cancel" button_type="button" button_class="btn-primary"%}
+                    </a>
+                </div>
+            </center>
+            <!-- /.box-footer -->
+        </form>
+    </div>
+{% endblock %}
+{% block specific-js %}
+    <script src="{% static 'AdminLTE-2.3.11/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE-2.3.11/plugins/datatables/dataTables.bootstrap.min.js' %}"></script>
+    <script>
+        $(document).ready(function() {
+            $('#tblHUDisponibles').DataTable({
+                "dom": 'Bfrtip',                
+                "order": [[ 0, "desc" ]]
+            });
+        } );
+    </script>
+{% endblock %}

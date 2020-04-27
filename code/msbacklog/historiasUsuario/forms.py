@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Proyecto, HistoriaUsuario
+from .models import Proyecto, HistoriaUsuario, Dependencia_Historia
 from django.forms import ModelForm
 
 class ProyectoForm(ModelForm):
@@ -39,3 +39,15 @@ class HistoriaUsuarioForm(ModelForm):
 class UploadFileForm(forms.Form):    
     file = forms.FileField()
 
+class HistoriaDependenciasForm(ModelForm):
+    class Meta: 
+        model = HistoriaUsuario 
+        fields = ['escenario']
+        labels = {
+            'escenario':'Scenario',
+        }
+        widgets = { 'escenario':forms.Textarea(),                                        
+                  }
+
+    def clean(self):
+        cleaned_data = super(HistoriaUsuarioDependenciasForm, self).clean()

@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from subprocess import call
 
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect
-from .models import Proyecto, HistoriaUsuario, Usuario
+from .models import Proyecto, HistoriaUsuario, Usuario, Dependencia_Historia
 from django.core.urlresolvers import reverse_lazy
 from django.contrib import messages
 from django.db import IntegrityError
@@ -14,7 +14,7 @@ from django.views.generic.edit import (
 )
 from django.views.generic import ListView, DetailView
 from django import forms
-from .forms import ProyectoForm, HistoriaUsuarioForm, UploadFileForm
+from .forms import ProyectoForm, HistoriaUsuarioForm, UploadFileForm, HistoriaDependenciasForm
 import requests
 import csv
 import os
@@ -266,3 +266,34 @@ def historiaUsuario_uploadfile(request, **kwargs):
     else:        
         form = UploadFileForm()    
     return render(request, 'historiasUsuario/historiausuario_upload.html', {'form': form, 'proyecto':proyectoCarga})
+
+class HistoriaDependenciaUdpateView(UpdateView):
+    model = HistoriaUsuario
+    form_class = HistoriaDependenciasForm
+    context_object_name = 'historia'
+    template_name = 'historiasUsuario/historiadependencia_form.html'
+    success_msg = "User story dependencies saved."
+
+    def get_context_data(self, **kwargs):               
+        self.historia = get_object_or_404(HistoriaUsuario, id=self.kwargs['pk'])
+        self.historias = HistoriaUsuario.objects.order_by('prioridad')
+        self.dependencias = Dependencia_Historia.objects.filter(historia = self.historia).order_by('id')
+        context = super(HistoriaDependenciaUdpateView, self).get_context_data(**kwargs)              
+        context['historia'] = self.historia
+        context['historias'] = self.historias
+        context['dependencias'] = self.dependencias
+        return context
+    
+    def get_initial(self):        
+        self.historia = get_object_or_404(HistoriaUsuario, id=self.kwargs['pk'])
+        self.historias = HistoriaUsuario.objects.order_by('prioridad')
+        self.dependencias = Dependencia_Historia.objects.filter(historia = self.historia).order_by('id')
+        return { 'historia': self.historia, 'historias':self.historias, 'dependencias':self.dependencias }
+                
+    def get_success_url(self):
+        self.historia = get_object_or_404(HistoriaUsuario, id=self.kwargs['pk'])
+        messages.success(self.request, self.success_msg)
+        return  '/historias/historias-list/%s' % (self.historia.proyecto.id)
+
+
+

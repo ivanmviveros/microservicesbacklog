@@ -53,6 +53,9 @@
                                 <a href="{% url 'historias:delete-historia' proyecto.id historia.id %}" title="Delete">
                                     <img src="{% static 'images/delete_16.png'%}"></img>
                                 </a>                                                                
+                                <a href="{% url 'historias:dependencias-historias' historia.id %}" title="Dependencies">
+                                    <img src="{% static 'images/dependencia.png'%}" width="16" height="16"/>
+                                </a>
                             </td>
                         </tr>
                     {% endfor %}
@@ -60,7 +63,7 @@
                 {% else %}
                 <tbody>
                     <tr>
-                        <td>There are not user stories</td>
+                        <td>There are not user stories.</td>
                         <td></td>                        
                         <td></td>
                         <td></td>

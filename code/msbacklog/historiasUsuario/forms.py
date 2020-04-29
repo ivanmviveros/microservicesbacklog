@@ -50,4 +50,4 @@ class HistoriaDependenciasForm(ModelForm):
                   }
 
     def clean(self):
-        cleaned_data = super(HistoriaUsuarioDependenciasForm, self).clean()
+        cleaned_data = super(HistoriaDependenciasForm, self).clean()

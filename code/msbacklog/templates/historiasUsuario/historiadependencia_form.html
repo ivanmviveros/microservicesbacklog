@@ -34,13 +34,14 @@
                         {% bootstrap_form form layout="horizontal" %}
                     </div>
                 </div>                
-                <div class="panel panel-info"> 
+                <div class="panel panel-info" id="divDependencias"> 
                     <div class="panel-heading">User story dependencies</div>                              
                     <div class="panel-body">
                         <div class="col-md-6">
                             <div id="divHUDisponibles" class="panel panel-primary">                                                                        
                                 <div class="panel-heading">Available</div>
                                 <div class="panel-body">
+                                    
                                     <table id="tblHUDisponibles" class="table">
                                         <thead>
                                             <tr>
@@ -53,10 +54,10 @@
                                                 {% for hu in historias %}
                                                 <tr>
                                                     <td>                                                                
-                                                        {{ hu.identificador }} - {{ hu.nombre }}
+                                                        {{ hu.identificador }} - {{ hu.nombre }}                                                        
                                                     </td>
                                                     <td>
-                                                        <a href="#"><img class="img-circle" src="{% static 'images/add_16.png' %}" alt="Add dependency">                                                                                    
+                                                        <a href="#divDependencias" onclick="adicionar('{{hu.id}} - {{ hu.identificador }} - {{ hu.nombre }}')"><img class="img-circle" src="{% static 'images/add_16.png' %}" alt="Add dependency">                                                                                    
                                                         </a>
                                                     </td>                                                                                                                
                                                 </tr>
@@ -78,35 +79,37 @@
                             <div id="divHUSeleccionadas" class="panel panel-primary">
                                 <div class="panel-heading">Selected</div>
                                 <div class="panel-body">
-                                    <table id="tblHUSeleccionadas" class="table">
-                                        <thead>
-                                            <tr>
-                                                <td>-</td>
-                                                <td>User stories</td>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {%  if dependencias %}
-                                                {% for dep in dependencias %}
+                                    <div id="divDatosTabla">
+                                        <table id="tblHUSeleccionadas" class="table">
+                                            <thead>
                                                 <tr>
-                                                    <td>
-                                                        <img class="img-circle" src="{% static 'images/delete_16.png' %}" alt="Delete dependency" width="16" height="16">
-                                                    </td>
-                                                    <td>                                                                
-                                                        {{ dep.identificador}} - {{dep.nombre }}                                                                                                                                    
-                                                    </td>                                                                                                                
+                                                    <td>-</td>
+                                                    <td>User stories</td>
                                                 </tr>
-                                                {% endfor %}
-                                            {% else %}
-                                                <tr>
-                                                    <td></td>
-                                                    <td>
-                                                        There are not dependencies.
-                                                    </td>                                                                                                                
-                                                </tr>
-                                            {% endif %}
-                                        </tbody>
-                                    </table>                                           
+                                            </thead>
+                                            <tbody>
+                                                {%  if dependencias %}
+                                                    {% for dep in dependencias %}
+                                                    <tr>
+                                                        <td>
+                                                            <a href="#divDependencias" onclick="eliminarItem('{{ dep.dependencia.id }}')"><img class="img-circle" src="{% static 'images/delete_16.png' %}" alt="Delete dependency" width="16" height="16"></a>
+                                                        </td>
+                                                        <td>                                                                
+                                                            {{ dep.dependencia.identificador}} - {{dep.dependencia.nombre }}                                                                                                                                                                                                
+                                                        </td>                                                                                                                
+                                                    </tr>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <tr>
+                                                        <td></td>
+                                                        <td>
+                                                            There are not dependencies.
+                                                        </td>                                                                                                                
+                                                    </tr>
+                                                {% endif %}
+                                            </tbody>
+                                        </table>                                           
+                                    </div>
                                 </div> 
                             </div>
                         </div>                                    
@@ -116,6 +119,7 @@
             <!-- /.box-body -->
             <center>
                 <div class="box-footer">
+                    <input type="hidden" id="itemsSelecciona" name="itemsSelecciona">
                     <input type="submit" value="Save" class="btn btn-primary"/>
                     <a href="{% url 'historias:list-historias' historia.proyecto.id %}">
                         {% bootstrap_button "Cancel" button_type="button" button_class="btn-primary"%}
@@ -136,5 +140,102 @@
                 "order": [[ 0, "desc" ]]
             });
         } );
+
+        function adicionar(item){                                                
+            if(existeItem(item)==false){                
+                document.getElementById('itemsSelecciona').value = item  + ',' + document.getElementById('itemsSelecciona').value;                
+                // pintar de nuevo la tabla                
+                var tabla = pintarTabla();
+                document.getElementById('divDatosTabla').innerHTML = tabla;                
+            }                                    
+        }
+
+        function pintarTabla(){
+            var datos = document.getElementById('itemsSelecciona').value;
+            var historias = datos.split(',');
+            
+            var tabla = "<table id='tblHUSeleccionadas' class='table'>";
+            tabla += "<thead><tr><td>-</td><td>User stories</td></tr></thead>";
+            tabla += "<tbody>";
+            
+            if (historias.length>0){
+                for (i=0; i<historias.length; i++) {
+                    if(historias[i]!=""){
+                        var item_m = historias[i].split('-');
+                        var item_str = item_m[0];
+                        tabla += "<tr>";
+                        tabla += "<td>";
+                        tabla += "<a href='#divHUDisponibles' alt='Delete dependency' onclick='eliminarItem(" + item_str + ")'>";
+                        tabla += "<img class='img-circle' alt='Delete dependency' src='/static/images/delete_16.png' width='16' height='16'></a>";
+                        tabla += "</td>";
+                        tabla += "<td>";                                                                
+                        tabla += item_m[1] + " - " + item_m[2];                                                                                                                                                                                            
+                        tabla += "</td>";                                                                                                               
+                        tabla += "</tr>";
+                    }
+                }
+            } else {
+                tabla += "<tr>";
+                tabla += "<td></td>";
+                tabla += "<td>";
+                tabla += "There are not dependencies.";
+                tabla += "</td>"
+                tabla += "</tr>";
+                tabla += "</tbody>";
+                tabla += "</table>";
+            }                                    
+
+            return tabla;
+        }
+
+        function cargarSeleccionados(item){
+            document.getElementById('itemsSelecciona').value = item  + ',' + document.getElementById('itemsSelecciona').value;
+        }
+
+        function eliminarItem(item){            
+            var datos = document.getElementById('itemsSelecciona').value;
+            var historias = datos.split(",");                        
+            document.getElementById('itemsSelecciona').value="";
+
+            for (i=0; i<historias.length; i++){
+                var item_m = historias[i].split('-');
+                var id = item_m[0];
+                id = parseInt(id.trim());
+                
+                if (id!=item){
+                    document.getElementById('itemsSelecciona').value= historias[i] + ',' + document.getElementById('itemsSelecciona').value;
+                }
+            }
+            
+            var tabla = pintarTabla();
+            document.getElementById('divDatosTabla').innerHTML = tabla;
+        }
+
+        function existeItem(item){
+            var datos = document.getElementById('itemsSelecciona').value;
+            var historias = datos.split(",");
+            var historia = item.split("-");
+            var idBuscar = historia[0];
+            idBuscar = idBuscar.trim();
+            var existe = false;
+            
+            for (i=0; i<historias.length; i++){
+                var item_m = historias[i].split('-');
+                var id = item_m[0];
+                id = id.trim();
+                if (id==idBuscar){
+                    existe = true;
+                    break;
+                }
+            }
+            return existe;
+        }
     </script>
+    {%  if dependencias %}
+        {% for dep in dependencias %}
+            <script>
+                cargarSeleccionados('{{ dep.dependencia.id }} - {{ dep.dependencia.identificador}} - {{dep.dependencia.nombre}}');
+            </script>
+        {% endfor %}
+    {% endif %}    
 {% endblock %}

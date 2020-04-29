@@ -290,6 +290,32 @@ class HistoriaDependenciaUdpateView(UpdateView):
         self.dependencias = Dependencia_Historia.objects.filter(historia = self.historia).order_by('id')
         return { 'historia': self.historia, 'historias':self.historias, 'dependencias':self.dependencias }
                 
+    def form_valid(self, form):
+        self.historia = get_object_or_404(HistoriaUsuario, id=self.kwargs['pk'])
+        self.historia.escenario = form.cleaned_data['escenario']
+        self.historia.save()
+
+        Dependencia_Historia.objects.filter(historia= self.historia).delete()
+
+        if self.request.method == 'POST':
+            datos = self.request.POST['itemsSelecciona']
+            historias = datos.split(",")
+
+            for h in historias:
+                if h!="":
+                    item = h.split("-")                    
+                    idHistoria = item[0]
+                    idHistoria = idHistoria.strip()                    
+                    if idHistoria!="":
+                        depende = HistoriaUsuario.objects.get(id= int(idHistoria))
+                        dependencia_his = Dependencia_Historia(
+                            historia = self.historia,
+                            dependencia = depende
+                        )
+                        dependencia_his.save()
+
+        return HttpResponseRedirect(self.get_success_url())
+        
     def get_success_url(self):
         self.historia = get_object_or_404(HistoriaUsuario, id=self.kwargs['pk'])
         messages.success(self.request, self.success_msg)

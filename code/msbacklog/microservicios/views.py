@@ -78,7 +78,7 @@ class MicroservicioAppEditarView(UpdateView):
 
     def get_context_data(self, **kwargs):
         self.usuario = get_object_or_404(Usuario, id=self.kwargs['id_usuario'])        
-        context = super(MicroserivicioAppEditarView, self).get_context_data(**kwargs)              
+        context = super(MicroservicioAppEditarView, self).get_context_data(**kwargs)              
         context['usuario'] = self.usuario
         return context
     
@@ -115,18 +115,30 @@ class MicroservicioAppDetailView(DetailView):
     model = MicroservicioApp
     context_object_name = 'msapp'
 
+    def get_context_data(self, **kwargs):
+        msapp = get_object_or_404(MicroservicioApp, id=self.kwargs['pk'])
+        self.microservicios = Microservicio.objects.filter(aplicacion = msapp)        
+        context = super(MicroservicioAppDetailView, self).get_context_data(**kwargs)              
+        context['microservicios'] = self.microservicios
+        return context
+    
+    def get_initial(self):
+        msapp = get_object_or_404(MicroservicioApp, id=self.kwargs['pk'])
+        self.microservicios = Microservicio.objects.filter(aplicacion = msapp)
+        return { 'microservicios': self.microservicios }
+
 class MicroserviciosListView(ListView):
     model = Microservicio
     context_object_name = 'listams'
 
     def get_context_data(self, **kwargs): 
-        self.aplicacion = get_object_or_404(MicroservicioApp, id=self.kwargs['id_msapp'])               
+        self.aplicacion = get_object_or_404(MicroservicioApp, id=self.kwargs['id_aplicacion'])               
         context = super(MicroserviciosListView, self).get_context_data(**kwargs)      
         context['aplicacion'] = self.aplicacion       
         return context
     
     def get_initial(self):    
-        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_msapp'])            
+        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_aplicacion'])            
         return { 'aplicacion': self.aplicacion}
 
 class MicroservicioCrearView(CreateView):
@@ -136,17 +148,17 @@ class MicroservicioCrearView(CreateView):
     exists_msg = "Microservice already exists"
 
     def get_context_data(self, **kwargs): 
-        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_msapp'])               
+        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_aplicacion'])               
         context = super(MicroservicioCrearView, self).get_context_data(**kwargs)      
         context['aplicacion'] = self.aplicacion        
         return context
 
     def get_initial(self):    
-        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_msapp'])            
+        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_aplicacion'])            
         return { 'aplicacion': self.aplicacion}
     
     def form_valid(self, form):
-        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_msapp'])        
+        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_aplicacion'])        
         
         ms = Microservicio(            
             nombre = form.cleaned_data['nombre'],
@@ -157,9 +169,9 @@ class MicroservicioCrearView(CreateView):
         return HttpResponseRedirect(self.get_success_url())
     
     def get_success_url(self):
-        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_msapp'])
+        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_aplicacion'])
         messages.success(self.request, self.success_msg)
-        return  '/microservicios/msapp-list/%s' % (self.aplicacion.id)    
+        return  '/microservicios/microservicios-list/%s' % (self.aplicacion.id)    
 
 class MicroservicioEditarView(UpdateView):
     model = Microservicio
@@ -168,38 +180,38 @@ class MicroservicioEditarView(UpdateView):
     success_msg = "Microservice updated"
 
     def get_context_data(self, **kwargs):
-        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_msapp'])        
+        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_aplicacion'])        
         context = super(MicroservicioEditarView, self).get_context_data(**kwargs)              
         context['aplicacion'] = self.aplicacion
         return context
     
     def get_initial(self):
-        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_msapp'])        
+        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_aplicacion'])        
         return { 'aplicacion': self.aplicacion }    
     
     def get_success_url(self):
-        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_msapp'])
+        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_aplicacion'])
         messages.success(self.request, self.success_msg)
-        return  '/microservicios/msapp-list/%s' % (self.aplicacion.id)
+        return  '/microservicios/microservicios-list/%s' % (self.aplicacion.id)
 
 class MicroservicioDeleteView(DeleteView):
     model = Microservicio 
     success_msg = "Microservice Deleted"   
 
     def get_context_data(self, **kwargs):
-        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_msapp'])        
+        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_aplicacion'])        
         context = super(HistoriaUsuarioDeleteView, self).get_context_data(**kwargs)              
         context['aplicacion'] = self.aplicacion
         return context
     
     def get_initial(self):
-        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_msapp'])        
+        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_aplicacion'])        
         return { 'aplicacion': self.aplicacion }
         
     def get_success_url(self):
-        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_msapp'])
+        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_aplicacion'])
         messages.success(self.request, self.success_msg)
-        return  '/microservicios/msapp-list/%s' % (self.aplicacion.id)
+        return  '/microservicios/microservicios-list/%s' % (self.aplicacion.id)
 
 class MicroservicioDetailView(DetailView):
     model = Microservicio
@@ -263,4 +275,4 @@ class MicroserviciosHistoriaUdpateView(UpdateView):
     def get_success_url(self):
         self.microservicio = get_object_or_404(Microservicio, id=self.kwargs['pk'])
         messages.success(self.request, self.success_msg)
-        return  '/microservicios/msapp-list/%s' % (self.microservicio.aplicacion.id)
+        return  '/microservicios/microservicios-list/%s' % (self.microservicio.aplicacion.id)

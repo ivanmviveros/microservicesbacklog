@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{# Load the tag library #}
+{% load staticfiles %}
+{% load bootstrap3 %}
+
+{% block page-title %}Microservices Backlog{% endblock %}
+{% block page-description %}Microser details{% endblock %}
+
+{% block content %}
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <h2 class="box-title">{{ proyecto.nombre }}</h2>            
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        <div class="box-body">
+            <div class="row">                
+                <div class="col-md-8">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td><strong>Abbreviation:</strong></td>
+                                <td>
+                                    <input type="text" id="abbr" name="abbr" value="{{ proyecto.sigla }}" readonly="readonly" class="form-control"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Public:</strong></td>
+                                <td>
+                                    <input type="text" id="es_publico" name="es_publico" value="{{ proyecto.es_publico }}" readonly="readonly" class="form-control"/>
+                                </td>
+                            </tr>                            
+                            <tr>
+                                <td><strong>Creation Date:</strong></td>
+                                <td>
+                                    <input type="text" id="fecha" name="fecha" value="{{ proyecto.fecha_creacion }}" readonly="readonly" class="form-control"/>
+                                </td>
+                            </tr>                                                        
+                            <tr>
+                                <td><strong>Description:</strong></td>
+                                <td>
+                                    <textarea id="descripcion" name="descripcion" rows="3" cols="50" readonly="readonly" class="form-control">{{ proyecto.descripcion }}
+                                    </textarea>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>                                                                                                                        
+                </div>
+            </div>
+        </div>
+        <!-- /.box-body -->
+
+        <div class="box-footer">
+            <center>                                    
+                <a href="{% url 'historias:list-proyecto' proyecto.usuario.id %}">
+                    {% bootstrap_button "Cancel" button_type="button" button_class="btn-primary"%}
+                </a>
+            </center>                         
+        </div>        
+    </div>
+{% endblock %}

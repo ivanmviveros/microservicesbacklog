@@ -8,7 +8,7 @@
             <li class="header">Menu</li>
             <!-- Optionally, you can add icons to the links -->
             <li class="treeview">
-                <a href="#"><i class="fa fa-calendar"></i> <span>Project</span>
+                <a href="#"><i class="fa fa-calendar"></i> <span>Parameterize</span>
                     <span class="pull-right-container">
                     <i class="fa fa-angle-left pull-right"></i>
                     </span>
@@ -19,14 +19,14 @@
                 </ul>
             </li>
             <li class="treeview">
-                <a href="#"><i class="fa fa-share-alt-square"></i> <span>Microservices</span>
+                <a href="#"><i class="fa fa-share-alt-square"></i> <span>Grouper</span>
                     <span class="pull-right-container">
                     <i class="fa fa-angle-left pull-right"></i>
                 </span>
                 </a>
                 <ul class="treeview-menu">
-                    <li><a href="#">Add Microservices-based App.</a></li>
-                    <li><a href="#">List Microservices-based Apps</a></li>
+                    <li><a href="{% url 'microservicios:create-msapp' 1 %}">Add Microservices decomposition</a></li>
+                    <li><a href="{% url 'microservicios:list-msapp' 1 %}">List Microservices decompositions</a></li>
                 </ul>
             </li>  
             <li>

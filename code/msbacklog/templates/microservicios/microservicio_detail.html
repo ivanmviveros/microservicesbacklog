@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{# Load the tag library #}
+{% load staticfiles %}
+{% load bootstrap3 %}
+
+{% block page-title %}Microservices Backlog{% endblock %}
+{% block page-description %}Microservice details{% endblock %}
+
+{% block content %}
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <h2 class="box-title">{{ microservicio.nombre }}</h2>            
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        <div class="box-body">
+            <div class="row">                
+                <div class="col-md-8">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td><strong>Id:</strong></td>
+                                <td>
+                                    <input type="text" id="iden" name="iden" value="{{ microservicio.id }}" readonly="readonly" class="form-control"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Project:</strong></td>
+                                <td>
+                                    <input type="text" id="proyecto" name="proyecto" value="{{ microservicio.aplicacion.proyecto.sigla }}" readonly="readonly" class="form-control"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Microservices-based App:</strong></td>
+                                <td>
+                                    <input type="text" id="aplicacion" name="aplicacion" value="{{ microservicio.aplicacion.nombre }}" readonly="readonly" class="form-control"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Number of operations:</strong></td>
+                                <td>
+                                    <input type="text" id="operaciones" name="operaciones" value="{{ microservicio.numero_operaciones }}" readonly="readonly" class="form-control"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Numbero of user stories:</strong></td>
+                                <td>
+                                    <input type="text" id="historias" name="historias" value="{{ microservicio.numero_historias }}" readonly="readonly" class="form-control"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Points:</strong></td>
+                                <td>
+                                    <input type="text" id="puntos" name="puntos" value="{{ microservicio.total_puntos }}" readonly="readonly" class="form-control"/>
+                                </td>
+                            </tr>                            
+                            <tr>
+                                <td><strong>Development time (estimated):</strong></td>
+                                <td>
+                                    <input type="text" id="time" name="time" value="{{ microservicio.tiempo_estimado_desarrollo }}" readonly="readonly" class="form-control"/>
+                                </td>
+                            </tr>                                                        
+                            <tr>
+                                <td><strong>Description:</strong></td>
+                                <td>
+                                    <textarea id="descripcion" name="descripcion" rows="3" cols="50" readonly="readonly" class="form-control">{{ historia.descripcion }}
+                                    </textarea>
+                                </td>
+                            </tr>                            
+                        </tbody>
+                    </table>    
+                    <div id="divHUAsociadas" class="panel panel-primary">
+                        <div class="panel-heading">User stories</div>
+                        <div class="panel-body">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Id.</th>
+                                        <th>Name</th>
+                                        <th>Priority</th>        
+                                        <th>Points</th>        
+                                        <th>Dev. time</th>                                        
+                                    </tr>
+                                </thead>
+                                {%  if historias %}
+                                    <tbody>
+                                        {% for historia in historias %}  
+                                        
+                                            <tr>
+                                                <td>{{ historia.identificador }}</td>                            
+                                                <td>{{ historia.nombre }}</td>
+                                                <td>{{ historia.prioridad }}</td>
+                                                <td>{{ historia.puntos_estimados }}</td>
+                                                <td>{{ historia.tiempo_estimado }}</td>                                                                            
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                {% else %}
+                                    <tbody>
+                                        <tr>
+                                            <td>There are not user stories.</td>
+                                            <td></td>                        
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>                                            
+                                        </tr>
+                                    </tbody>
+                                {% endif %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.box-body -->
+
+        <div class="box-footer">
+            <center>                                    
+                <a href="{% url 'microservicios:list-microservicios' microservicio.aplicacion.id %}">
+                        {% bootstrap_button "Back" button_type="button" button_class="btn-primary"%}
+                </a>
+            </center>                         
+        </div>        
+    </div>
+{% endblock %}

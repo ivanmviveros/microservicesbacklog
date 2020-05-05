@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from microservicios.models import Microservicio
 
 # Create your models here.
 class Usuario(models.Model):
@@ -39,8 +38,7 @@ class HistoriaUsuario (models.Model):
     observaciones = models.CharField(max_length=500, null=True)
     fecha_creacion = models.DateField(auto_now_add=True)
 
-    proyecto = models.ForeignKey(Proyecto, on_delete=models.PROTECT)
-    microservicio = models.ForeignKey(Microservicio, on_delete=models.PROTECT, null=True)
+    proyecto = models.ForeignKey(Proyecto, on_delete=models.PROTECT)    
 
     def __str__(self): # __unicode__ en Python 2 
         return self.nombre
@@ -54,17 +52,9 @@ class Dependencia_Historia(models.Model):
                                     db_column='historia_usuario')
     dependencia = models.ForeignKey(HistoriaUsuario, on_delete=models.PROTECT, related_name='dependencia_historia',  
                                     db_column='dependencia_historia')
-
-class TipoProyecto (models.Model):
-    nombre = models.CharField(max_length=255)
-    descripcion = models.CharField(max_length=500)
-
+    
     def __str__(self): # __unicode__ en Python 2 
-        return self.nombre
-    
-    class Meta:
-        ordering = ["nombre"]
+        return self.historia.identificador + ' ' + self.dependencia.identificador
+
+    class Meta:        
         default_permissions = ('add', 'change', 'delete', 'view')
-    
-
-

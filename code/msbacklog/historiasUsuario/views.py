@@ -36,6 +36,10 @@ class ProyectoListView(ListView):
     model = Proyecto
     context_object_name = 'listaProyecto'
 
+    def get_queryset(self):
+        self.usuario = get_object_or_404(Usuario, id=self.kwargs['id_usuario'])
+        return Proyecto.objects.filter(usuario=self.usuario)
+
     def get_context_data(self, **kwargs): 
         self.usuario = get_object_or_404(Usuario, id=self.kwargs['id_usuario'])               
         context = super(ProyectoListView, self).get_context_data(**kwargs)      
@@ -126,6 +130,10 @@ class ProyectoDetailView(DetailView):
 class HistoriaUsuarioListView(ListView):
     model = HistoriaUsuario
     context_object_name = 'listaHistorias'
+
+    def get_queryset(self):
+        self.proyecto = get_object_or_404(Proyecto, id=self.kwargs['id_proyecto'])                      
+        return HistoriaUsuario.objects.filter(proyecto = self.proyecto) 
 
     def get_context_data(self, **kwargs): 
         self.proyecto = get_object_or_404(Proyecto, id=self.kwargs['id_proyecto'])               

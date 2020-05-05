@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{# Load the tag library #}
+{% load staticfiles %}
+{% load bootstrap3 %}
+
+{% block page-title %}Microservices Backlog{% endblock %}
+{% block page-description %}Create or update microservices-based application {% endblock %}
+
+{% block content %}
+
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h3 class="box-title">Please insert the required data</h3>
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        <form method="post" class="form-horizontal" enctype="multipart/form-data">
+            <div class="box-body">
+                {% csrf_token %}
+                {% bootstrap_form form layout="horizontal" %}
+            </div>
+            <!-- /.box-body -->
+            <center>
+                <div class="box-footer">
+                    <input type="submit" value="Save" class="btn btn-primary"/>
+                    <a href="{% url 'microservicios:list-msapp' usuario.id %}">
+                        {% bootstrap_button "Cancel" button_type="button" button_class="btn-primary"%}
+                    </a>
+                </div>
+            </center>
+            <!-- /.box-footer -->
+        </form>
+    </div>
+{% endblock %}

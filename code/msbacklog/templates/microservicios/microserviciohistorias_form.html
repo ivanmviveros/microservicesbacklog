@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+{# Load the tag library #}
+{% load staticfiles %}
+{% load bootstrap3 %}
+
+{% block page-title %}Microservices Backlog{% endblock %}
+{% block page-description %}Create or update user storie of the microservice {% endblock %}
+
+{% block specific-css %}
+    <link href="{% static 'AdminLTE-2.3.11/plugins/datatables/dataTables.bootstrap.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h3 class="box-title">Please select the user stories for the microservice</h3>
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        <form method="post" class="form-horizontal" enctype="multipart/form-data">            
+            <div class="box-body">
+                <div class="panel panel-info"> 
+                    <div class="panel-heading">{{ microservicio.id }} - {{microservicio.nombre }}</div>                              
+                    <div class="panel-body">       
+                        {% csrf_token %}                                                      
+                        {% bootstrap_form form layout="horizontal" %}
+                    </div>
+                </div>                
+                <div class="panel panel-info" id="divHistorias"> 
+                    <div class="panel-heading">User story of the microservice</div>                              
+                    <div class="panel-body">
+                        <div class="col-md-6">
+                            <div id="divHUDisponibles" class="panel panel-primary">                                                                        
+                                <div class="panel-heading">Available</div>
+                                <div class="panel-body">
+                                    
+                                    <table id="tblHUDisponibles" class="table">
+                                        <thead>
+                                            <tr>
+                                                <td>User stories</td>
+                                                <td>-</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {%  if historias %}
+                                                {% for hu in historias %}
+                                                <tr>
+                                                    <td>                                                                
+                                                        {{ hu.identificador }} - {{ hu.nombre }}                                                        
+                                                    </td>
+                                                    <td>
+                                                        <a href="#divHUDisponibles" onclick="adicionar('{{hu.id}} - {{ hu.identificador }} - {{ hu.nombre }}')"><img class="img-circle" src="{% static 'images/add_16.png' %}" alt="Add user story">                                                                                    
+                                                        </a>
+                                                    </td>                                                                                                                
+                                                </tr>
+                                                {% endfor %}
+                                            {% else %}
+                                                <tr>
+                                                    <td>
+                                                        There are not user stories.
+                                                    </td>                                                                                                                
+                                                    <td></td>
+                                                </tr>
+                                            {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6"> 
+                            <div id="divHUSeleccionadas" class="panel panel-primary">
+                                <div class="panel-heading">Selected</div>
+                                <div class="panel-body">
+                                    <div id="divDatosTabla">
+                                        <table id="tblHUSeleccionadas" class="table">
+                                            <thead>
+                                                <tr>
+                                                    <td>-</td>
+                                                    <td>User stories</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {%  if asociadas %}
+                                                    {% for aso in asociadas %}
+                                                    <tr>
+                                                        <td>
+                                                            <a href="#divHUDisponibles" onclick="eliminarItem('{{ aso.historia.id }}')"><img class="img-circle" src="{% static 'images/delete_16.png' %}" alt="Delete dependency" width="16" height="16"></a>
+                                                        </td>
+                                                        <td>                                                                
+                                                            {{ aso.historia.identificador}} - {{aso.historia.nombre }}                                                                                                                                                                                                
+                                                        </td>                                                                                                                
+                                                    </tr>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <tr>
+                                                        <td></td>
+                                                        <td>
+                                                            There are not user strories.
+                                                        </td>                                                                                                                
+                                                    </tr>
+                                                {% endif %}
+                                            </tbody>
+                                        </table>                                           
+                                    </div>
+                                </div> 
+                            </div>
+                        </div>                                    
+                    </div>
+                </div>
+            </div>
+            <!-- /.box-body -->
+            <center>
+                <div class="box-footer">
+                    <input type="hidden" id="itemsSelecciona" name="itemsSelecciona">
+                    <input type="submit" value="Save" class="btn btn-primary"/>
+                    <a href="{% url 'microservicios:list-microservicios' microservicio.aplicacion.id %}">
+                        {% bootstrap_button "Cancel" button_type="button" button_class="btn-primary"%}
+                    </a>
+                </div>
+            </center>
+            <!-- /.box-footer -->
+        </form>
+    </div>
+{% endblock %}
+{% block specific-js %}
+    <script src="{% static 'AdminLTE-2.3.11/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE-2.3.11/plugins/datatables/dataTables.bootstrap.min.js' %}"></script>
+    <script>
+        $(document).ready(function() {
+            $('#tblHUDisponibles').DataTable({
+                "dom": 'Bfrtip',                
+                "order": [[ 0, "desc" ]]
+            });
+        } );
+
+        function adicionar(item){                                                
+            if(existeItem(item)==false){                
+                document.getElementById('itemsSelecciona').value = item  + ',' + document.getElementById('itemsSelecciona').value;                
+                // pintar de nuevo la tabla                
+                var tabla = pintarTabla();
+                document.getElementById('divDatosTabla').innerHTML = tabla;                
+            }                                    
+        }
+
+        function pintarTabla(){
+            var datos = document.getElementById('itemsSelecciona').value;
+            var historias = datos.split(',');
+            
+            var tabla = "<table id='tblHUSeleccionadas' class='table'>";
+            tabla += "<thead><tr><td>-</td><td>User stories</td></tr></thead>";
+            tabla += "<tbody>";
+            
+            if (historias.length>0){
+                for (i=0; i<historias.length; i++) {
+                    if(historias[i]!=""){
+                        var item_m = historias[i].split('-');
+                        var item_str = item_m[0];
+                        tabla += "<tr>";
+                        tabla += "<td>";
+                        tabla += "<a href='#divHUDisponibles' alt='Delete user story' onclick='eliminarItem(" + item_str + ")'>";
+                        tabla += "<img class='img-circle' alt='Delete user story' src='/static/images/delete_16.png' width='16' height='16'></a>";
+                        tabla += "</td>";
+                        tabla += "<td>";                                                                
+                        tabla += item_m[1] + " - " + item_m[2];                                                                                                                                                                                            
+                        tabla += "</td>";                                                                                                               
+                        tabla += "</tr>";
+                    }
+                }
+            } else {
+                tabla += "<tr>";
+                tabla += "<td></td>";
+                tabla += "<td>";
+                tabla += "There are not user stories.";
+                tabla += "</td>"
+                tabla += "</tr>";
+                tabla += "</tbody>";
+                tabla += "</table>";
+            }                                    
+
+            return tabla;
+        }
+
+        function cargarSeleccionados(item){
+            document.getElementById('itemsSelecciona').value = item  + ',' + document.getElementById('itemsSelecciona').value;
+        }
+
+        function eliminarItem(item){            
+            var datos = document.getElementById('itemsSelecciona').value;
+            var historias = datos.split(",");                        
+            document.getElementById('itemsSelecciona').value="";
+
+            for (i=0; i<historias.length; i++){
+                var item_m = historias[i].split('-');
+                var id = item_m[0];
+                id = parseInt(id.trim());
+                
+                if (id!=item){
+                    document.getElementById('itemsSelecciona').value= historias[i] + ',' + document.getElementById('itemsSelecciona').value;
+                }
+            }
+            
+            var tabla = pintarTabla();
+            document.getElementById('divDatosTabla').innerHTML = tabla;
+        }
+
+        function existeItem(item){
+            var datos = document.getElementById('itemsSelecciona').value;
+            var historias = datos.split(",");
+            var historia = item.split("-");
+            var idBuscar = historia[0];
+            idBuscar = idBuscar.trim();
+            var existe = false;
+            
+            for (i=0; i<historias.length; i++){
+                var item_m = historias[i].split('-');
+                var id = item_m[0];
+                id = id.trim();
+                if (id==idBuscar){
+                    existe = true;
+                    break;
+                }
+            }
+            return existe;
+        }
+    </script>
+    {%  if asociadas %}
+        {% for aso in asociadas %}
+            <script>
+                cargarSeleccionados('{{ aso.historia.id }} - {{ aso.historia.identificador}} - {{aso.historia.nombre}}');
+            </script>
+        {% endfor %}
+    {% endif %}    
+{% endblock %}

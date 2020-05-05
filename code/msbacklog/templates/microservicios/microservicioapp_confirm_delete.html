@@ -4,24 +4,24 @@
 {% load bootstrap3 %}
 
 {% block page-title %}Microservices Backlog{% endblock %}
-{% block page-description %}Delete project {% endblock %}
+{% block page-description %}Delete Microservices-based Application or decompositon {% endblock %}
 
 {% block content %}
     <div class="box box-info">
         <div class="box-header with-border">
-            <h3 class="box-title">Delete project</h3>
+            <h3 class="box-title">Delete </h3>
         </div>
         <!-- /.box-header -->
         <!-- form start -->
         <form method="post" class="form-horizontal" enctype="multipart/form-data">            
             <div class="box-body">
-                <strong>Project: {{ object.nombre }}</strong>
+                <strong>Project: {{ object.proyecto.nombre }}</strong>
                 {% csrf_token %}                
             
                 <!-- /.box-body -->
                 <br>
                 <br>                            
-                <p>Are you sure to delete the project: <strong> {{ object.sigla }} ? </strong></p>
+                <p>Are you sure to delete the Microservices-based application: <strong> {{ object.nombre }} ? </strong></p>
                 <br>
                 
             </div>
@@ -30,7 +30,7 @@
                 <center>
                     {% bootstrap_button "Confirm" button_type="submit" button_class="btn-primary"%}                                
                     
-                    <a href="{% url 'historias:list-proyecto' object.usuario.id %}">
+                    <a href="{% url 'microservicios:list-msapp' object.proyecto.usuario.id %}">
                             {% bootstrap_button "Cancel" button_type="button" button_class="btn-primary"%}
                     </a>                                                              
                 </center>

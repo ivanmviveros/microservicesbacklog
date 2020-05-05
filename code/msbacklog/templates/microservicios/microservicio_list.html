@@ -1,0 +1,86 @@
+{% extends "base_list.html" %}
+{# Load the tag library #}
+{% load staticfiles %}
+{% load bootstrap3 %}
+
+{% block page-title %}Microservices Backlog{% endblock %}
+{% block page-description %}Create and manage the microservices of the application{% endblock %}
+
+<div class="box box-primary">    
+    <div class="box-body">        
+        <div class="row">            
+            <div class="box-header blue-border">                
+                <h2 class="box-title">
+                    <strong>Project: {{ aplicacion.proyecto.id }} - {{ aplicacion.proyecto.sigla }}</strong><br>
+                    <strong>Application: {{ aplicacion.id }} - {{ aplicacion.nombre }}</strong>
+                </h2>                
+            </div>        
+            <div class="panel panel-info"> 
+                <div class="panel-body"> 
+                    <a href="{% url 'microservicios:create-microservicio' aplicacion.id %}" title="Add Microservice">
+                            <img src="{% static 'images/add_16.png'%}" width="24" height="24"/> Add Microservice
+                    </a>                      
+                </div>
+            </div>
+            {% block cabecera_tabla %}                        
+            <thead>
+                <tr>
+                    <th>Id.</th>
+                    <th>Name</th>
+                    <th>User stories</th>        
+                    <th>Points</th>        
+                    <th>Dev. time</th>
+                    <th>Options</th>
+                </tr>
+                </thead>
+            {% endblock cabecera_tabla %}
+            {% block cuerpo_tabla %}                
+                {%  if listams %}
+                <tbody>
+                    {% for ms in listams %}  
+                    
+                        <tr>
+                            <td><a href="{% url 'microservicios:detail-microservicio' microservicio.id %}" title="Details">{{ ms.id }}</a></td>                            
+                            <td>{{ ms.nombre }}</td>
+                            <td>{{ ms.numero_historias }}</td>
+                            <td>{{ ms.total_puntos }}</td>
+                            <td>{{ ms.tiempo_estimado_desarrollo }}</td>                            
+                            <td>
+                                <a href="{% url 'microservicios:edit-microservicio' aplicacion.id ms.id %}" title="Edit">
+                                    <img src="{% static 'images/edit_16.png'%}"></img>
+                                </a>
+                                <a href="{% url 'microservicios:delete-microservicio' aplicacion.id ms.id %}" title="Delete">
+                                    <img src="{% static 'images/delete_16.png'%}"></img>
+                                </a>                                                                                                
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                {% else %}
+                <tbody>
+                    <tr>
+                        <td>There are not microservices.</td>
+                        <td></td>                        
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+                {% endif %}                               
+            {% endblock cuerpo_tabla %}            
+            {% block secondary_content %}
+            <div class="panel panel-info"> 
+                <div class="panel-body">   
+                <center>      
+                    <a href="{% url 'microservicios:list-msapp' aplicacion.proyecto.usuario.id %}">
+                            {% bootstrap_button "Return to projects" button_type="button" button_class="btn-primary"%}
+                    </a>                      
+                </center>
+                </div>
+            </div>
+            {% endblock secondary_content %}
+        </div>        
+    </div>    
+            
+</div>

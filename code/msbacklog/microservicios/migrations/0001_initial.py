@@ -44,19 +44,7 @@ class Migration(migrations.Migration):
                 'ordering': ['nombre'],
                 'default_permissions': ('add', 'change', 'delete', 'view'),
             },
-        ),
-        migrations.CreateModel(
-            name='Microservicio_Historia',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('historia', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='historiasUsuario.HistoriaUsuario')),
-                ('microservicio', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='microservicios.Microservicio')),
-            ],
-            options={
-                'ordering': ['microservicio'],
-                'default_permissions': ('add', 'change', 'delete', 'view'),
-            },
-        ),
+        ),        
         migrations.CreateModel(
             name='MicroservicioApp',
             fields=[

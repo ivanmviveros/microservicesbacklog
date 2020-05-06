@@ -8,11 +8,12 @@
 
 <div class="box box-primary">    
     <div class="box-body">        
-        <div class="row">            
+        <div class="row">                        
+            {% block cabecera_tabla %}                        
             <div class="box-header blue-border">                
                 <h2 class="box-title">
-                    <strong>Project: {{ aplicacion.proyecto.id }} - {{ aplicacion.proyecto.sigla }}</strong><br>
-                    <strong>Application: {{ aplicacion.id }} - {{ aplicacion.nombre }}</strong>
+                    <strong>Project: {{ aplicacion.proyecto.sigla }}</strong><br>
+                    <strong>Application: {{ aplicacion.nombre }}</strong>
                 </h2>                
             </div>        
             <div class="panel panel-info"> 
@@ -22,7 +23,6 @@
                     </a>                      
                 </div>
             </div>
-            {% block cabecera_tabla %}                        
             <thead>
                 <tr>
                     <th>Id.</th>
@@ -39,8 +39,8 @@
                 <tbody>
                     {% for ms in listams %}  
                     
-                        <tr>
-                            <td><a href="{% url 'microservicios:detail-microservicio' microservicio.id %}" title="Details">{{ ms.id }}</a></td>                            
+                        <tr> 
+                            <td><a href="{% url 'microservicios:detail-microservicio' ms.id %}" title="Details">{{ ms.id }}</a></td>                            
                             <td>{{ ms.nombre }}</td>
                             <td>{{ ms.numero_historias }}</td>
                             <td>{{ ms.total_puntos }}</td>
@@ -51,6 +51,9 @@
                                 </a>
                                 <a href="{% url 'microservicios:delete-microservicio' aplicacion.id ms.id %}" title="Delete">
                                     <img src="{% static 'images/delete_16.png'%}"></img>
+                                </a>
+                                <a href="{% url 'microservicios:microservicios-historias' ms.id %}" title="User stories">
+                                    <img src="{% static 'images/historias_16.png'%}" height="24" width="24"></img>
                                 </a>                                                                                                
                             </td>
                         </tr>
@@ -74,7 +77,7 @@
                 <div class="panel-body">   
                 <center>      
                     <a href="{% url 'microservicios:list-msapp' aplicacion.proyecto.usuario.id %}">
-                            {% bootstrap_button "Return to projects" button_type="button" button_class="btn-primary"%}
+                            {% bootstrap_button "Return" button_type="button" button_class="btn-primary"%}
                     </a>                      
                 </center>
                 </div>

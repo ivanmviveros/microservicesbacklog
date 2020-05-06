@@ -59,6 +59,7 @@ class Operacion (models.Model):
     signatura = models.CharField(max_length=255)
     entrada = models.CharField(max_length=255)
     salida = models.CharField(max_length=255)
+    observaciones = models.CharField(max_length=255, null= True)
 
     microservicio = models.ForeignKey(Microservicio, on_delete=models.PROTECT, null = True)    
 

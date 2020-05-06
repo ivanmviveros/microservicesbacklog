@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Microservicio, MicroservicioApp
+from .models import Microservicio, MicroservicioApp, Microservicio_Historia
 from django.forms import ModelForm
 
 class MicroservicioAppForm(ModelForm):
@@ -32,3 +32,16 @@ class MicroservicioForm(ModelForm):
 
     def clean(self):
         cleaned_data = super(MicroservicioForm, self).clean()
+
+class MicroservicioHistoriasForm(ModelForm):
+    class Meta: 
+        model = Microservicio 
+        fields = ['descripcion']
+        labels = {
+            'descripcion':'Description',
+        }
+        widgets = { 'descripcion':forms.Textarea(),                                        
+                  }
+
+    def clean(self):
+        cleaned_data = super(MicroservicioHistoriasForm, self).clean()

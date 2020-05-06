@@ -14,8 +14,8 @@
         <!-- /.box-header -->
         <!-- form start -->
         <div class="box-body">
-            <div class="row">                
-                <div class="col-md-8">
+            <div class="panel panel-info">                                                       
+                <div class="panel-body"> 
                     <table class="table">
                         <tbody>
                             <tr>
@@ -63,7 +63,7 @@
                             <tr>
                                 <td><strong>Description:</strong></td>
                                 <td>
-                                    <textarea id="descripcion" name="descripcion" rows="3" cols="50" readonly="readonly" class="form-control">{{ historia.descripcion }}
+                                <textarea id="descripcion" name="descripcion" rows="3" cols="50" readonly="readonly" class="form-control">{{ microservicio.descripcion }}
                                     </textarea>
                                 </td>
                             </tr>                            
@@ -72,7 +72,7 @@
                     <div id="divHUAsociadas" class="panel panel-primary">
                         <div class="panel-heading">User stories</div>
                         <div class="panel-body">
-                            <table>
+                            <table class="table table-striped table-bordered"> 
                                 <thead>
                                     <tr>
                                         <th>Id.</th>

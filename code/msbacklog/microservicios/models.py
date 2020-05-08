@@ -20,10 +20,20 @@ class MicroservicioApp (models.Model):
     nombre = models.CharField(max_length=255)    
     descripcion = models.CharField(max_length=500, null= True)
     tiempo_estimado_desarrollo = models.FloatField(null= True)
+    
     coupling = models.FloatField(null= True)
+    aist = models.FloatField(null= True)
+    adst = models.FloatField(null= True)
+    siyt = models.FloatField(null= True)
+
     cohesion = models.FloatField(null= True)
+    wsict = models.FloatField(null= True)
+    
     avg_calls = models.FloatField(null= True)
-    valor_GM = models.FloatField(null= True)    
+    avg_request = models.FloatField(null= True)
+    valor_GM = models.FloatField(null= True)   
+
+    numero_microservicios = models.IntegerField(null= True)
 
     metodo = models.ForeignKey(MetodoDescomposicion, on_delete=models.PROTECT, null=True)
     proyecto = models.ForeignKey(Proyecto, on_delete=models.PROTECT, null=True)
@@ -37,11 +47,22 @@ class MicroservicioApp (models.Model):
 class Microservicio (models.Model):
     nombre = models.CharField(max_length=255)    
     descripcion = models.CharField(max_length=500, null= True)
+    
     numero_operaciones = models.IntegerField(null= True)
     numero_historias = models.IntegerField(null= True)
     total_puntos = models.IntegerField(null= True)
     tiempo_estimado_desarrollo = models.FloatField(null= True)
     complejidad_cognitiva = models.FloatField(null= True)
+    
+    ais = models.FloatField(null= True)
+    ads = models.FloatField(null= True)
+    siy = models.FloatField(null= True)
+    
+    lack = models.FloatField(null= True)
+    grado_cohesion = models.FloatField(null= True)
+    
+    calls = models.FloatField(null= True)
+    request = models.FloatField(null= True)  
     
     aplicacion = models.ForeignKey(MicroservicioApp, on_delete=models.PROTECT, null = True)
 

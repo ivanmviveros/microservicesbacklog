@@ -84,14 +84,14 @@
                                 </thead>
                                 {%  if historias %}
                                     <tbody>
-                                        {% for historia in historias %}  
+                                        {% for mh in historias %}  
                                         
                                             <tr>
-                                                <td>{{ historia.identificador }}</td>                            
-                                                <td>{{ historia.nombre }}</td>
-                                                <td>{{ historia.prioridad }}</td>
-                                                <td>{{ historia.puntos_estimados }}</td>
-                                                <td>{{ historia.tiempo_estimado }}</td>                                                                            
+                                                <td>{{ mh.historia.identificador }}</td>                            
+                                                <td>{{ mh.historia.nombre }}</td>
+                                                <td>{{ mh.historia.prioridad }}</td>
+                                                <td>{{ mh.historia.puntos_estimados }}</td>
+                                                <td>{{ mh.historia.tiempo_estimado }}</td>                                                                            
                                             </tr>
                                         {% endfor %}
                                     </tbody>

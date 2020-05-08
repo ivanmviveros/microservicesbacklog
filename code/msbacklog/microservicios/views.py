@@ -195,7 +195,7 @@ class MicroservicioEditarView(UpdateView):
         return  '/microservicios/microservicios-list/%s' % (self.aplicacion.id)
 
 class MicroservicioDeleteView(DeleteView):
-    model = Microservicio 
+    model = Microservicio  
     success_msg = "Microservice Deleted"   
 
     def get_context_data(self, **kwargs):

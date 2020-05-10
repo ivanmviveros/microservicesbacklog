@@ -6,11 +6,12 @@ from django.forms import ModelForm
 class MetricasUpdateForm(ModelForm):
     class Meta: 
         model = MicroservicioApp
-        fields = ['tiempo_estimado', 'coupling', 'aist', 'adst', 'siyt', 'cohesion', 'wsict', 'avg_calls',
-                'avg_request', 'valor_GM', 'numero_microservicios',
+        fields = ['nombre','tiempo_estimado_desarrollo', 'coupling', 'aist', 'adst', 'siyt', 'cohesion', 'wsict', 
+            'avg_calls', 'avg_request', 'valor_GM', 'numero_microservicios'
         ]        
         widgets = {    
-            'tiempo_estimado':forms.HiddenInput(attrs={'readonly':'readonly'}),
+            'nombre':forms.HiddenInput(attrs={'readonly':'readonly'}),
+            'tiempo_estimado_desarrollo':forms.HiddenInput(attrs={'readonly':'readonly'}),
             'coupling':forms.HiddenInput(attrs={'readonly':'readonly'}),
             'aist':forms.HiddenInput(attrs={'readonly':'readonly'}),
             'adst':forms.HiddenInput(attrs={'readonly':'readonly'}),

@@ -42,7 +42,7 @@
                             <td><a href="{% url 'microservicios:detail-msapp' msapp.id  %}" title="Details">{{ msapp.nombre }}</a></td>                            
                             <td>{{ msapp.proyecto.nombre }}</td>
                             <td>{{ msapp.metodo.nombre }}</td>
-                            <td>{{ msapp.valor_GM }}</td>                            
+                            <td>{{ msapp.valor_GM|floatformat:2 }}</td>                            
                             <td>
                                 <a href="{% url 'microservicios:edit-msapp' usuario.id msapp.id %}" title="Edit">
                                     <img src="{% static 'images/edit_16.png'%}"></img>
@@ -53,12 +53,19 @@
                                 <a href="{% url 'microservicios:list-microservicios' msapp.id %}" title="Microservices">
                                     <img src="{% static 'images/servicios.png'%}"></img>
                                 </a>
+                                <a href="{% url 'metricas:calculate-metrics' msapp.id %}" title="Metrics">
+                                    <img src="{% static 'images/metrics.png'%}"></img>
+                                </a>
+                                {%  if msapp.metodo.id == 1 %}
                                 <a href="#" title="Genetic programming">
                                     <img src="{% static 'images/genetico.png'%}"></img>
                                 </a>
+                                {% endif %}
+                                {%  if msapp.metodo.id == 2 %}
                                 <a href="#" title="Clustering">
                                     <img src="{% static 'images/cluster.png'%}"></img>
-                                </a>                                                                
+                                </a>       
+                                {% endif %}                                                         
                             </td>
                         </tr>
                     {% endfor %}

@@ -44,13 +44,14 @@ class MicroservicioAppCrearView(CreateView):
     metodo=""    
 
     def get_context_data(self, **kwargs): 
-        self.usuario = get_object_or_404(Usuario, id=self.kwargs['id_usuario'])               
+        self.usuario = get_object_or_404(Usuario, id=self.kwargs['id_usuario'])        
         context = super(MicroservicioAppCrearView, self).get_context_data(**kwargs)      
         context['usuario'] = self.usuario        
         return context
 
     def get_initial(self):    
         self.usuario = get_object_or_404(Usuario, id=self.kwargs['id_usuario'])            
+        self.proyectos = Proyecto.objects.filter(usuario = self.usuario)               
         return { 'usuario': self.usuario}
     
     def form_valid(self, form):
@@ -131,15 +132,21 @@ class MicroserviciosListView(ListView):
     model = Microservicio
     context_object_name = 'listams'
 
+    def get_queryset(self):
+        self.aplicacion = get_object_or_404(MicroservicioApp, id=self.kwargs['id_aplicacion'])        
+        return Microservicio.objects.filter(aplicacion = self.aplicacion) 
+
     def get_context_data(self, **kwargs): 
-        self.aplicacion = get_object_or_404(MicroservicioApp, id=self.kwargs['id_aplicacion'])               
+        self.aplicacion = get_object_or_404(MicroservicioApp, id=self.kwargs['id_aplicacion'])                  
         context = super(MicroserviciosListView, self).get_context_data(**kwargs)      
+        listams = Microservicio.objects.filter(aplicacion = self.aplicacion)
         context['aplicacion'] = self.aplicacion       
         return context
     
     def get_initial(self):    
-        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_aplicacion'])            
-        return { 'aplicacion': self.aplicacion}
+        self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_aplicacion'])         
+        listams = Microservicio.objects.filter(aplicacion = self.aplicacion)
+        return { 'aplicacion': self.aplicacion, 'listams': listams}
 
 class MicroservicioCrearView(CreateView):
     model = Microservicio

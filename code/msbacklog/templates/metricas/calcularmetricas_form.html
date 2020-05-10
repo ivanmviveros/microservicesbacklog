@@ -10,8 +10,9 @@
 
     <div class="box box-info">
         <div class="box-header with-border">
-            <h2 class="box-title">Project: {{ msapp.proyecto.sigla }}</h3>
-            <h2 class="box-title">Application: {{ msapp.nombre }}</h2>
+            <h2 class="box-title">Project: {{ msapp.proyecto.sigla }}</h2><br><br>
+            <h2 class="box-title">Application: {{ msapp.nombre }}</h2><br><br>
+            <h2 class="box-title">Method: {{ msapp.metodo.nombre }}
         </div>
         <!-- /.box-header -->
         <!-- form start -->
@@ -35,15 +36,15 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>{{ msapp.aist }}</td>
-                                    <td>{{ msapp.adst }}</td>
-                                    <td>{{ msapp.siyt }}</td>
-                                    <td>{{ msapp.coupling }}</td>
-                                    <td>{{ msapp.cohesion }}</td>                                                                
+                                    <td>{{ msapp.aist|floatformat:2 }}</td>
+                                    <td>{{ msapp.adst|floatformat:2 }}</td>
+                                    <td>{{ msapp.siyt|floatformat:2 }}</td>
+                                    <td>{{ msapp.coupling|floatformat:2 }}</td>
+                                    <td>{{ msapp.cohesion|floatformat:2 }}</td>                                                                
                                     <td>{{ msapp.wsict }}</td>
-                                    <td>{{ msapp.avg_calls }}</td>
-                                    <td>{{ msapp.avg_request }}</td>
-                                    <td>{{ msapp.valor_GM }}</td>                                                                            
+                                    <td>{{ msapp.avg_calls|floatformat:2 }}</td>
+                                    <td>{{ msapp.avg_request|floatformat:2 }}</td>
+                                    <th>{{ msapp.valor_GM|floatformat:2 }}</th>                                                                            
                                 </tr>
                             </tbody>
                         </table>
@@ -76,15 +77,15 @@
                                             <td>{{ ms.nombre }}</td>
                                             <td>{{ ms.numero_historias }}</td>
                                             <td>{{ ms.total_puntos }}</td>
-                                            <td>{{ ms.tiempo_estimado_desarrollo }}</td>
-                                            <th>{{ ms.ais }}</th>
-                                            <th>{{ ms.ads }}</th>
-                                            <th>{{ ms.siy }}</th>
-                                            <th>{{ ms.lack }}</th>
-                                            <th>{{ ms.grado_cohesion }}</th>
-                                            <th>{{ ms.calls }}</th>
-                                            <th>{{ ms.request }}</th>
-                                            <td>{{ ms.complejidad_cognitiva }}</td>                                                                            
+                                            <td>{{ ms.tiempo_estimado_desarrollo|floatformat:2 }}</td>
+                                            <td>{{ ms.ais|floatformat:2 }}</td>
+                                            <td>{{ ms.ads|floatformat:2 }}</td>
+                                            <td>{{ ms.siy|floatformat:2 }}</td>
+                                            <td>{{ ms.lack|floatformat:2 }}</td>
+                                            <td>{{ ms.grado_cohesion|floatformat:2 }}</td>
+                                            <td>{{ ms.calls|floatformat:2 }}</td>
+                                            <td>{{ ms.request|floatformat:2 }}</td>
+                                            <td>{{ ms.complejidad_cognitiva|floatformat:2 }}</td>                                                                            
                                         </tr>
                                     {% endfor %}
                                 </tbody>
@@ -108,10 +109,7 @@
             </div>
             <!-- /.box-body -->
             <center>
-                <div class="box-footer">
-                    {%  if msapp.metodo.id == 3 %}
-                    <input type="submit" value="Calculate" class="btn btn-primary"/>
-                    {% endif %} 
+                <div class="box-footer">                    
                     <a href="{% url 'microservicios:list-msapp' msapp.proyecto.usuario.id %}">
                         {% bootstrap_button "Cancel" button_type="button" button_class="btn-primary"%}
                     </a>

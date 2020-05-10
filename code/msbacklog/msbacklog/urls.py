@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^contacto/$', contactos, name='contacto'),
     url(r'^historias/', include('historiasUsuario.urls', namespace='historias')),
     url(r'^microservicios/', include('microservicios.urls', namespace='microservicios')),
+    url(r'^metricas/', include('metricas.urls', namespace='metricas')),
 ]
 
 urlpatterns += static(base.MEDIA_URL, document_root=base.MEDIA_ROOT)

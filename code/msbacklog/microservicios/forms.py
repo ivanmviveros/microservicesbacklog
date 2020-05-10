@@ -1,6 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from .models import Microservicio, MicroservicioApp, Microservicio_Historia
+from historiasUsuario.models import Proyecto
 from django.forms import ModelForm
 
 class MicroservicioAppForm(ModelForm):
@@ -16,6 +17,11 @@ class MicroservicioAppForm(ModelForm):
 
     def clean(self):
         cleaned_data = super(MicroservicioAppForm, self).clean()
+    
+    def __init__(self, *args, **kwargs):
+        super(MicroservicioAppForm, self).__init__(*args, **kwargs)
+        initial = kwargs['initial']
+        self.fields['proyecto'].queryset = Proyecto.objects.filter(usuario=initial['usuario'])
 
 class MicroservicioForm(ModelForm):
     class Meta: 

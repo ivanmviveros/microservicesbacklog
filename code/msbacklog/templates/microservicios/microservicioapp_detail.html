@@ -28,25 +28,25 @@
                             <tr>
                                 <td><strong>Coupling:</strong></td>
                                 <td>
-                                    <input type="text" id="coupling" name="coupling" value="{{ msapp.coupling }}" readonly="readonly" class="form-control"/>
+                                    <input type="text" id="coupling" name="coupling" value="{{ msapp.coupling|floatformat:2 }}" readonly="readonly" class="form-control"/>
                                 </td>
                             </tr>                            
                             <tr>
                                 <td><strong>Cohesion:</strong></td>
                                 <td>
-                                    <input type="text" id="cohesion" name="cohesion" value="{{ msapp.cohesion }}" readonly="readonly" class="form-control"/>
+                                    <input type="text" id="cohesion" name="cohesion" value="{{ msapp.cohesion|floatformat:2 }}" readonly="readonly" class="form-control"/>
                                 </td>
                             </tr>         
                             <tr>
                                 <td><strong>Avg. Calls:</strong></td>
                                 <td>
-                                    <input type="text" id="calls" name="calls" value="{{ msapp.avg_calls }}" readonly="readonly" class="form-control"/>
+                                    <input type="text" id="calls" name="calls" value="{{ msapp.avg_calls|floatformat:2 }}" readonly="readonly" class="form-control"/>
                                 </td>
                             </tr>                    
                             <tr>
                                 <td><strong>Granularity Metric (GM):</strong></td>
                                 <td>
-                                    <input type="text" id="gm" name="gm" value="{{ msapp.valor_GM }}" readonly="readonly" class="form-control"/>
+                                    <input type="text" id="gm" name="gm" value="{{ msapp.valor_GM|floatformat:2 }}" readonly="readonly" class="form-control"/>
                                 </td>
                             </tr>                                                        
                             <tr>
@@ -81,8 +81,8 @@
                                                 <td>{{ ms.nombre }}</td>
                                                 <td>{{ ms.numero_historias }}</td>
                                                 <td>{{ ms.total_puntos }}</td>
-                                                <td>{{ ms.tiempo_estimado_desarrollo }}</td>
-                                                <td>{{ ms.complejidad_cognitiva }}</td>                                                                            
+                                                <td>{{ ms.tiempo_estimado_desarrollo|floatformat:2 }}</td>
+                                                <td>{{ ms.complejidad_cognitiva|floatformat:2 }}</td>                                                                            
                                             </tr>
                                         {% endfor %}
                                     </tbody>

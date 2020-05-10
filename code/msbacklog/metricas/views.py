@@ -13,7 +13,7 @@ from django.views.generic.edit import (
 from django.views.generic import ListView, DetailView
 from django import forms 
 from .forms import MetricasUpdateForm
-from .models import Metrica, Metrica_Microservicio, Metrica_MicroservicioApp
+from .models import Metrica
 import requests
 
 # Create your views here.
@@ -22,20 +22,28 @@ class MetricasEditarView(UpdateView):
     form_class = MetricasUpdateForm
     context_object_name = 'msapp'  
     template_name = 'metricas/calcularmetricas_form.html'  
-    success_msg = "Microservice App metrics were saved"    
+    success_msg = "Microservice App metrics were calculated"    
 
     def get_context_data(self, **kwargs):
         msapp = get_object_or_404(MicroservicioApp, id=self.kwargs['pk'])
+        if msapp.metodo == 3 :
+            metrica = Metrica()
+            metrica.calcularMetricas(msapp)
         self.microservicios = Microservicio.objects.filter(aplicacion = msapp)        
         context = super(MetricasEditarView, self).get_context_data(**kwargs)              
         context['microservicios'] = self.microservicios
+        context['msapp'] = msapp
         return context
 
     def get_initial(self):
-        msapp = get_object_or_404(MicroservicioApp, id=self.kwargs['pk'])
+        msapp = get_object_or_404(MicroservicioApp, id=self.kwargs['pk'])        
+        if msapp.metodo == 3 :
+            metrica = Metrica()
+            metrica.calcularMetricas(msapp)
         self.microservicios = Microservicio.objects.filter(aplicacion = msapp)
-        return { 'microservicios': self.microservicios }
-
+        return { 'microservicios': self.microservicios, 'msapp': msapp }
+            
     def get_success_url(self):        
+        msapp = get_object_or_404(MicroservicioApp, id=self.kwargs['pk'])
         messages.success(self.request, self.success_msg)
-        return  '/metricas/metricas-calcular/%s' % (self.kwargs['pk'])
+        return  '/microservicios/microservicios-list/%s' % (msapp.proyecto.usuario.id)

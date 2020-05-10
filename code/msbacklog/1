@@ -1,0 +1,5 @@
+AH00557: apache2: Could not reliably determine the server's fully qualified domain name, using 172.18.0.3. Set the 'ServerName' directive globally to suppress this message
+[Sat May 09 03:30:42.349695 2020] [mpm_event:notice] [pid 7:tid 140105600302016] AH00489: Apache/2.4.29 (Ubuntu) mod_wsgi/4.5.17 Python/3.6 configured -- resuming normal operations
+[Sat May 09 03:30:42.349819 2020] [core:notice] [pid 7:tid 140105600302016] AH00094: Command line: '/usr/sbin/apache2 -D FOREGROUND'
+[Sat May 09 03:30:50.576573 2020] [wsgi:error] [pid 9:tid 140105490962176] [client 172.18.0.1:37974] Not Found: /robots.txt
+[Sat May 09 03:30:52.026213 2020] [wsgi:error] [pid 8:tid 140105499354880] [client 172.18.0.1:37980] Not Found: /favicon.ico, referer: http://localhost:8090/

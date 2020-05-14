@@ -62,7 +62,7 @@
                                 </a>
                                 {% endif %}
                                 {%  if msapp.metodo.id == 2 %}
-                                <a href="#" title="Clustering">
+                                <a href="{% url 'algoritmos:clustering-algoritmo' msapp.id %}" title="Clustering">
                                     <img src="{% static 'images/cluster.png'%}"></img>
                                 </a>       
                                 {% endif %}                                                         

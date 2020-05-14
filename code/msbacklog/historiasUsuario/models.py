@@ -41,7 +41,7 @@ class HistoriaUsuario (models.Model):
     proyecto = models.ForeignKey(Proyecto, on_delete=models.PROTECT)    
 
     def __str__(self): # __unicode__ en Python 2 
-        return self.nombre
+        return self.identificador
 
     class Meta:
         ordering = ["prioridad"]

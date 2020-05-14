@@ -29,6 +29,10 @@ ADD requirements/$DJANGO_ENV.txt $WEBAPP_DIR/
 
 RUN pip install -r $DJANGO_ENV.txt
 
+RUN python -m spacy download es_core_news_sm
+RUN python -m spacy download en_core_web_sm
+
+
 ADD . $WEBAPP_DIR/
 
 CMD ["apache2ctl", "-D", "FOREGROUND"]

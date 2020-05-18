@@ -9,7 +9,7 @@ class Clustering():
     npl=None
     def __init__(self, lenguaje):
         if lenguaje == 'es':
-            self.nlp = spacy.load("es_core_news_sm")
+            self.nlp = spacy.load("es_core_news_md")
         if lenguaje == 'en':
             self.nlp = spacy.load("en_core_news_sm")
     
@@ -53,19 +53,123 @@ class Clustering():
                 similitudes.append(dicc)
             
             matrizSimilitud.append(similitudes)
-        return matrizSimilitud
+        return matrizSimilitud 
     
     def agruparHistorias(self, mastrizSimilitud, n, pAgrupar):
-        # for i in range(0, n):
-        #     for j in range (i+1, n):
-        #         dato = mastrizSimilitud[i][j]
-        #         similitud = dato[1]
-        #         if similitud > pAgrupar:
-        dato = mastrizSimilitud[0]
-        return dato
-
-
-
-
-
-    
+        lista=[]                
+        idUsados=[]
+        usados=[]
+        for i in range(0, n):
+            listaHU = mastrizSimilitud[i]
+            historia = listaHU[i+1]            
+            ms = []
+            cont=0
+            for j in range (i+2, n):                
+                dato = mastrizSimilitud[i][j]
+                similitud = dato[1]
+                if similitud > pAgrupar:
+                    huAdd = dato[0]
+                    if huAdd.id in idUsados:
+                        index = idUsados.index(huAdd.id)
+                        valorComp = usados[index]   # [hu, i, j, similitud]
+                        simiCom = valorComp[3]
+                        if similitud > simiCom: 
+                            # Se reemplaza el valor y se elimina del MS
+                            #lista[valorComp[1]].pop(valorComp[2])  # Quitarlo de la Lista anterior
+                            valElim = [valorComp[0],valorComp[3]]
+                            lista[valorComp[1]].remove(valElim)
+                            usados.pop(index) # quitar de usados
+                            idUsados.pop(index)
+                            # Agregar el nuevo valor
+                            vector = [huAdd, similitud]            
+                            ms.append(vector)                                                                                
+                            vectorId= [huAdd.id]
+                            idUsados.extend(vectorId)
+                            datoUsa = [huAdd, i, cont, similitud]
+                            usados.append(datoUsa)                        
+                            cont += 1
+                    else:
+                        vectorId= [huAdd.id]    
+                        idUsados.extend(vectorId)
+                        datoUsa = [huAdd, i, cont, similitud]
+                        usados.append(datoUsa)
+                        vector = [huAdd, similitud]                    
+                        ms.append(vector)
+                        cont += 1
+            #if cont>1:
+            lista.append(ms)        
+        idUsados=[]
+        usados=[]
+        i=0
+        cont=0
+        microservicios=[]        
+        for lt in lista: 
+            ms=[]                                   
+            numeroHU = len(lt)
+            if numeroHU>0 :
+                # Agregar la historia de usuario padre 
+                dato = mastrizSimilitud[i][i+1]
+                huini = dato[0]
+                similitud = dato[1]
+                if huini.id in idUsados:
+                    index = idUsados.index(huini.id)
+                    valorComp = usados[index]   # [hu, similitud]
+                    simiCom = valorComp[2]
+                    if similitud > simiCom: 
+                        # Se reemplaza el valor y se elimina del MS
+                        #lista[valorComp[1]].pop(valorComp[2])  # Quitarlo de la Lista anterior
+                        valElim = [valorComp[0], valorComp[2]]
+                        microservicios[valorComp[1]].remove(valElim)
+                        # quitar de usados
+                        usados.pop(index) 
+                        idUsados.pop(index)
+                        # Agregar el nuevo valor
+                        vector = [huini, similitud]            
+                        ms.append(vector)                                                                                
+                        vectorId= [huini.id]
+                        idUsados.extend(vectorId)
+                        datoUsa = [huini, i, similitud]
+                        usados.append(datoUsa)                                                        
+                else:
+                    vector = [huini, similitud]            
+                    ms.append(vector)                                                                                
+                    vectorId= [huini.id]
+                    idUsados.extend(vectorId)
+                    datoUsa = [huini, i, similitud]
+                    usados.append(datoUsa)
+                # Agregar las historias de con similitud semantica a huini
+                for j in range (0, numeroHU):                 
+                    huadd = lt[j]
+                    hu = huadd[0]
+                    similitud = huAdd[1]
+                    if hu.id in idUsados:
+                        index = idUsados.index(hu.id)
+                        valorComp = usados[index]   # [hu, similitud]
+                        simiCom = valorComp[2]
+                        if similitud > simiCom: 
+                            # Se reemplaza el valor y se elimina del MS
+                            #lista[valorComp[1]].pop(valorComp[2])  # Quitarlo de la Lista anterior
+                            valElim = [valorComp[0], valorComp[2]]
+                            microservicios[valorComp[1]].remove(valElim)
+                            # quitar de usados
+                            usados.pop(index) 
+                            idUsados.pop(index)
+                            # Agregar el nuevo valor
+                            vector = [hu, similitud]            
+                            ms.append(vector)                                                                                
+                            vectorId= [hu.id]
+                            idUsados.extend(vectorId)
+                            datoUsa = [hu, i,similitud]
+                            usados.append(datoUsa)
+                       # comparar la similitud y dejar el de  mayor similaridad
+                    else:
+                         # Agregar HU al microservicios
+                        vectorId = [huAdd.id]
+                        idUsados.extend(vectorId)
+                        datoUsa = [huAdd[0], huAdd[1] ]
+                        usados.append(datoUsa)
+                        vector = [huAdd[0], i, huadd[1]]
+                        ms.append(vector)            
+            microservicios.append(ms)
+            i += 1
+        return microservicios    

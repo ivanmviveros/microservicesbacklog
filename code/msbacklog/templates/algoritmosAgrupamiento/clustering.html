@@ -28,36 +28,38 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Coupling:</strong></td>
+                                    <td><strong>Grouper parameter:</strong></td>
                                     <td>
-                                        <input type="text" id="coupling" name="coupling" value="{{ msapp.coupling|floatformat:2 }}" readonly="readonly" class="form-control"/>
+                                        <input type="number" id="parameter" name="parameter"  min="0.50" max="1.00" step="0.05" value="0.85" class="form-control"/>
                                     </td>
                                 </tr>                            
                                 <tr>
-                                    <td><strong>Cohesion:</strong></td>
+                                    <td><strong>Text language:</strong></td>
                                     <td>
-                                        <input type="text" id="cohesion" name="cohesion" value="{{ msapp.cohesion|floatformat:2 }}" readonly="readonly" class="form-control"/>
-                                    </td>
-                                </tr>         
-                                <tr>
-                                    <td><strong>Avg. Calls:</strong></td>
-                                    <td>
-                                        <input type="text" id="calls" name="calls" value="{{ msapp.avg_calls|floatformat:2 }}" readonly="readonly" class="form-control"/>
-                                    </td>
-                                </tr>                    
-                                <tr>
-                                    <td><strong>Granularity Metric (GM):</strong></td>
-                                    <td>
-                                        <input type="text" id="gm" name="gm" value="{{ msapp.valor_GM|floatformat:2 }}" readonly="readonly" class="form-control"/>
-                                    </td>
-                                </tr>                                                        
-                                <tr>
-                                    <td><strong>Description:</strong></td>
-                                    <td>
-                                        <textarea id="descripcion" name="descripcion" rows="3" cols="50" readonly="readonly" class="form-control">{{ msapp.descripcion }}
-                                        </textarea>
+                                        <select id="lenguaje" name="lenguaje" class="form-control" >
+                                            <option value="es" selected>Spanish</option>
+                                            <option value="en">English</option>                                            
+                                        </select>                                
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td><strong>Semantic similarity on:</strong></td>
+                                    <td>
+                                        <select id="semantic" name="semantic" class="form-control" >
+                                            <option value="lemma" selected>Lemmatization of entities</option>
+                                            <option value="text" >Text of entities</option>                                                                                        
+                                        </select>                                
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Spacy module: </strong></td>
+                                    <td>
+                                        <select id="modulo" name="modulo" class="form-control" >
+                                            <option value="sm" selected>Small (Faster)</option>
+                                            <option value="md" >Medium (More precise)</option>                                                                                        
+                                        </select>                                
+                                    </td>
+                                </tr>                                         
                             </tbody>
                         </table>
                         <center>

@@ -7,11 +7,18 @@ import spacy
 # Create your models here.
 class Clustering():
     npl=None
-    def __init__(self, lenguaje):
+    def __init__(self, lenguaje, modulo):
         if lenguaje == 'es':
-            self.nlp = spacy.load("es_core_news_md")
+            if modulo == 'md':
+                self.nlp = spacy.load("es_core_news_md")
+            if modulo == 'sm':
+                self.nlp = spacy.load("es_core_news_sm")
         if lenguaje == 'en':
-            self.nlp = spacy.load("en_core_news_sm")
+            if modulo == 'md':
+                self.nlp = spacy.load("en_core_web_md")
+            if modulo == 'sm':
+                self.nlp = spacy.load("en_core_web_sm")
+            
     
     def identificarVerbosEntidades(self, historiaUsuario):
         texto = historiaUsuario.nombre + ": " + historiaUsuario.descripcion
@@ -29,7 +36,7 @@ class Clustering():
         lista = [historiaUsuario, listaText, listLemmas]
         return lista
 
-    def calcularSimilitud(self, listaHistorias):
+    def calcularSimilitud(self, listaHistorias, aplicarEn ):
         matrizSimilitud=[]
         textos=[]
         for historia in listaHistorias:
@@ -37,17 +44,23 @@ class Clustering():
             textos.append(lista)
         
         for texto in textos:
-            hu = texto[0]
+            hu = texto[0]            
             tex = texto[1]
-            lem = texto[2]            
-            doc1 = self.nlp(lem)            
+            lem = texto[2]
+            if aplicarEn == 'lemma':
+                doc1 = self.nlp(lem)                
+            if aplicarEn == 'text':
+                doc1 = self.nlp(tex)            
             similitudes=[hu]
 
             for tex_hu in textos:                
                 hu2 = tex_hu[0]
                 texto2 = tex_hu[1]
                 lemma2 = tex_hu[2]
-                doc2 = self.nlp(lemma2)
+                if aplicarEn == 'lemma':
+                    doc2 = self.nlp(lemma2)
+                if aplicarEn == 'text':
+                    doc2 = self.nlp(texto2)
                 similitud = doc1.similarity(doc2)                
                 dicc = [hu2, similitud]
                 similitudes.append(dicc)
@@ -128,20 +141,20 @@ class Clustering():
                         ms.append(vector)                                                                                
                         vectorId= [huini.id]
                         idUsados.extend(vectorId)
-                        datoUsa = [huini, i, similitud]
+                        datoUsa = [huini, cont, similitud]
                         usados.append(datoUsa)                                                        
                 else:
                     vector = [huini, similitud]            
                     ms.append(vector)                                                                                
                     vectorId= [huini.id]
                     idUsados.extend(vectorId)
-                    datoUsa = [huini, i, similitud]
+                    datoUsa = [huini, cont, similitud]
                     usados.append(datoUsa)
                 # Agregar las historias de con similitud semantica a huini
                 for j in range (0, numeroHU):                 
                     huadd = lt[j]
                     hu = huadd[0]
-                    similitud = huAdd[1]
+                    similitud = huadd[1]
                     if hu.id in idUsados:
                         index = idUsados.index(hu.id)
                         valorComp = usados[index]   # [hu, similitud]
@@ -159,17 +172,32 @@ class Clustering():
                             ms.append(vector)                                                                                
                             vectorId= [hu.id]
                             idUsados.extend(vectorId)
-                            datoUsa = [hu, i,similitud]
+                            datoUsa = [hu, cont,similitud]
                             usados.append(datoUsa)
                        # comparar la similitud y dejar el de  mayor similaridad
                     else:
                          # Agregar HU al microservicios
-                        vectorId = [huAdd.id]
+                        vectorId = [huadd[0].id]
                         idUsados.extend(vectorId)
-                        datoUsa = [huAdd[0], huAdd[1] ]
+                        datoUsa = [huadd[0], cont, huadd[1] ]
                         usados.append(datoUsa)
-                        vector = [huAdd[0], i, huadd[1]]
-                        ms.append(vector)            
-            microservicios.append(ms)
+                        vector = [huadd[0], huadd[1]]
+                        ms.append(vector)
+            else:
+                # Agregar la historia de usuario cuando no tuvo similitud con ninguna otra
+                dato = mastrizSimilitud[i][i+1]
+                huini = dato[0]
+                similitud = dato[1]
+                if huini.id not in idUsados:
+                    vector = [huini, similitud]            
+                    ms.append(vector)                                                                                
+                    vectorId= [huini.id]
+                    idUsados.extend(vectorId)
+                    datoUsa = [huini, cont, similitud]
+                    usados.append(datoUsa)                    
+            if len(ms) > 0:
+                microservicios.append(ms)
+                cont += 1
             i += 1
         return microservicios    
+        

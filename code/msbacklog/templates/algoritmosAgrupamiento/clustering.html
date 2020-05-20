@@ -16,8 +16,9 @@
         <!-- form start -->
         <div class="box-body">                                            
             <div class="panel panel-info">                                                       
+                <div class="panel-heading"><strong> Clustering Algorithm parameters </strong></div>
                 <div class="panel-body">                    
-                    <form method="post" action="{% url 'algoritmos:clustering-algoritmo' msapp.id %}" class="form-horizontal" enctype="multipart/form-data">
+                    <form method="post" id="frmClustering" name="frmClustering" data-post-url="{% url 'algoritmos:clustering-algoritmo' msapp.id %}" class="form-horizontal" enctype="multipart/form-data">
                         {% csrf_token %}
                         <table class="table">
                             <tbody>
@@ -55,8 +56,8 @@
                                     <td><strong>Spacy module: </strong></td>
                                     <td>
                                         <select id="modulo" name="modulo" class="form-control" >
-                                            <option value="sm" selected>Small (Faster)</option>
-                                            <option value="md" >Medium (More precise)</option>                                                                                        
+                                            <option value="sm" >Small (Faster)</option>
+                                            <option value="md" selected>Medium (More precise)</option>                                                                                        
                                         </select>                                
                                     </td>
                                 </tr>                                         
@@ -64,85 +65,50 @@
                         </table>
                         <center>
                             <div class="box-footer">
-                                <input type="submit" value="Generate" class="btn btn-primary"/>
+                                <input type="submit" id="btnGenerar" name="btnGenerar" value="Generate" class="btn btn-primary"/>
                                 <a href="{% url 'microservicios:list-msapp' msapp.proyecto.usuario.id %}">
                                     {% bootstrap_button "Cancel" button_type="button" button_class="btn-primary"%}
                                 </a>
                             </div>
                         </center>
-                    </form>
-                    {%  if lista %}
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>User Storie</th>
-                                <th>Similarity</th>                                                                       
-                            </tr>
-                        </thead>
-                        <tbody> 
-                            
-                            <tr>
-                                
-                                <td>{{ dato }}</td>          
-                                                          
-                            </tr>                            
-                            
-                        </tbody>
-                    </table>
-                    {% endif %}
-                    <div id="divHUAsociadas" class="panel panel-primary">
-                        <div class="panel-heading">Microservices</div>
-                        <div class="panel-body">
-                            <table class="table table-striped table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Id.</th>
-                                        <th>Name</th>
-                                        <th>User stories</th>        
-                                        <th>Points</th>        
-                                        <th>Dev. time</th>
-                                        <th>Complexity</th>                                        
-                                    </tr>
-                                </thead>
-                                {%  if microservicios %}
-                                    <tbody>
-                                        {% for ms in microservicios %}  
-                                        
-                                            <tr>
-                                                <td>{{ ms.id }}</td>                            
-                                                <td>{{ ms.nombre }}</td>
-                                                <td>{{ ms.numero_historias }}</td>
-                                                <td>{{ ms.total_puntos }}</td>
-                                                <td>{{ ms.tiempo_estimado_desarrollo|floatformat:2 }}</td>
-                                                <td>{{ ms.complejidad_cognitiva|floatformat:2 }}</td>                                                                            
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                {% else %}
-                                    <tbody>
-                                        <tr>
-                                            <td>There are not microservices.</td>
-                                            <td></td>                        
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>                                            
-                                        </tr>
-                                    </tbody>
-                                {% endif %}
-                            </table>                        
-                        </div>
-                    </div> 
+                    </form>                                                            
                 </div>
             </div>            
-        </div>
-        <!-- /.box-body -->
-        <div class="box-footer">
-            <center>                                    
-                <a href="{% url 'microservicios:list-msapp' msapp.proyecto.usuario.id %}">
-                    {% bootstrap_button "Cancel" button_type="button" button_class="btn-primary"%}
-                </a>
-            </center>                         
-        </div>        
+            <div id="divResultado">
+
+            </div>
+        </div>                        
     </div>
+{% endblock %}
+{% block specific-js %}
+    <script>
+        
+        $('#frmClustering').on( 'submit', function(){
+            $('#divResultado').html("<center>Grouping user stories...<br><img class='img-circle' alt='Loading' src='/static/images/cargando.gif' width='50' height='50'><br></center>");
+            
+            var post_url = $('#frmClustering').data("post-url");
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: post_url,
+                type: "POST", 
+                data: formData,
+                processData: false,
+                contentType: false,
+
+                success:function(response){
+                    $('#divResultado').html(response.content.message);
+                }
+
+            })
+
+            return false;
+        });
+                
+    </script>    
+    <script>
+        function regresar(){            
+            location.href = "{% url 'microservicios:list-msapp' msapp.proyecto.usuario.id %}";
+        }
+    </script>
 {% endblock %}

@@ -53,6 +53,7 @@ class Microservicio (models.Model):
     total_puntos = models.IntegerField(null= True)
     tiempo_estimado_desarrollo = models.FloatField(null= True)
     complejidad_cognitiva = models.FloatField(null= True)
+    similitud_semantica = models.FloatField(null= True)
     
     ais = models.FloatField(null= True)
     ads = models.FloatField(null= True)

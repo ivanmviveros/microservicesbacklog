@@ -6,7 +6,7 @@ import spacy
 
 # Create your models here.
 class Clustering():
-    npl=None
+    nlp=None
     def __init__(self, lenguaje, modulo):
         if lenguaje == 'es':
             if modulo == 'md':
@@ -200,4 +200,37 @@ class Clustering():
                 cont += 1
             i += 1
         return microservicios    
+    
+    def calcularDistanciaCalls(self, msapp):
+        matrizDistancias=[]
+        matrizCalls=[]
+        listMS = Microservicios.objects.filter(aplicacion= msapp)
+        vector=[]
+        if listMS:
+            for ms in listMS:
+                call=0       
+                vector = []         
+                for ms2 in listMS:
+                    if ms.id == ms2.id:
+                        call=0
+                        vector = [ms, call]
+                    else:
+                        historias = Microservicio_Historia.objects.filter(microservicio = ms)
+                        historiasmscal = Microservicio_Historia.objects.filter(microservicio = ms2)
+                        valor=0
+                        for hu in historias:                        
+                            for hums in historiasmscal:
+                                cont = Dependencia_Historia.objects.filter(historia = hu.historia, dependencia = hus.historia).count()
+                                if cont>0:
+                                    valor+=1
+                        call = valor
+                    dato = [ms2, call]                                        
+                    vector.append(dato)
+                matrizCalls.append(vector)        
+        
+        return matrizCalls
+
+
+
+
         

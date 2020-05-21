@@ -25,7 +25,7 @@
                                 <tr>
                                     <td><strong>Method:</strong></td>
                                     <td>
-                                        <input type="text" id="metodo" name="metodo" value="{{ msapp.metodo.nombre }}" readonly="readonly" class="form-control"/>
+                                        <input type="text" id="metodo" name="metodo" value="{{ msapp.metodo.nombre }}" readonly="readonly" class="form-control"/>                                        
                                     </td>
                                 </tr>
                                 <tr>
@@ -65,6 +65,7 @@
                         </table>
                         <center>
                             <div class="box-footer">
+                                <input type="hidden" id="token" name="token" value="{{ csrf_token }}" readonly="readonly" class="form-control"/>
                                 <input type="submit" id="btnGenerar" name="btnGenerar" value="Generate" class="btn btn-primary"/>
                                 <a href="{% url 'microservicios:list-msapp' msapp.proyecto.usuario.id %}">
                                     {% bootstrap_button "Cancel" button_type="button" button_class="btn-primary"%}
@@ -84,7 +85,18 @@
     <script>
         
         $('#frmClustering').on( 'submit', function(){
-            $('#divResultado').html("<center>Grouping user stories...<br><img class='img-circle' alt='Loading' src='/static/images/cargando.gif' width='50' height='50'><br></center>");
+            txtHtml = "<center>";
+            txtHtml += "<div class='panel panel-warning'>";
+            txtHtml += "<div class='panel-heading'>"
+            txtHtml += "Grouping user stories by semantic similarity...";
+            txtHtml += "</div>";
+            txtHtml += "<div class='panel-body'>";
+            txtHtml += "<img class='img-circle' alt='Loading' src='/static/images/cargando.gif' width='50' height='50'>";            
+            txtHtml += "</div>";
+            txtHtml += "</div>";
+            txtHtml += "</center>";
+
+            $('#divResultado').html(txtHtml);            
             
             var post_url = $('#frmClustering').data("post-url");
             var formData = new FormData(this);
@@ -100,7 +112,7 @@
                     $('#divResultado').html(response.content.message);
                 }
 
-            })
+            });
 
             return false;
         });
@@ -109,6 +121,41 @@
     <script>
         function regresar(){            
             location.href = "{% url 'microservicios:list-msapp' msapp.proyecto.usuario.id %}";
+        }        
+
+        function clustercalls(){
+            alert("Hello!!");
+            txtHtml = "<center>";
+            txtHtml += "<div class='panel panel-warning'>";
+            txtHtml += "<div class='panel-heading'>"
+            txtHtml += "Calculating calls between Microservices then group them...";
+            txtHtml += "</div>";
+            txtHtml += "<div class='panel-body'>";
+            txtHtml += "<img class='img-circle' alt='Loading' src='/static/images/cargando.gif' width='50' height='50'>";            
+            txtHtml += "</div>";
+            txtHtml += "</div>";
+            txtHtml += "</center>";
+
+            $('#divResultado').html(txtHtml);            
+            
+            var post_url = $('#frmClusteringCalls').data("post-url");
+            var formulario = document.getElementById("frmClusteringCalls");
+            var formData = new FormData(formulario);
+
+            $.ajax({
+                url: post_url,
+                type: "POST", 
+                data: formData,
+                processData: false,
+                contentType: false,
+
+                success:function(response){
+                    $('#divResultado').html(response.content.message);
+                }
+
+            });
+
+            return false;
         }
     </script>
 {% endblock %}

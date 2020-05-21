@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect
 from django.core.urlresolvers import reverse_lazy
 from django.contrib import messages
-from microservicios.models import MicroservicioApp
+from microservicios.models import MicroservicioApp, Microservicio, Microservicio_Historia
 from historiasUsuario.models import HistoriaUsuario
 from .models import Clustering
 from django.http import JsonResponse
@@ -12,20 +12,30 @@ from django.http import JsonResponse
 # Create your views here.  
 def algoritmoClustering(request, **kwargs):
     if request.method == 'GET':
-        aplicacion = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
+        msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
         lista=[]
-        return render(request, 'algoritmosAgrupamiento/clustering.html', {'msapp': aplicacion, 'lista':lista})
+        return render(request, 'algoritmosAgrupamiento/clustering.html', {'msapp': msapp, 'lista':lista})
 
     if request.method == 'POST':
-        aplicacion = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
-        historias = HistoriaUsuario.objects.filter(proyecto = aplicacion.proyecto)        
+        msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
+        historias = HistoriaUsuario.objects.filter(proyecto = msapp.proyecto)        
         parametro = request.POST.get('parameter')
         lenguaje = request.POST.get('lenguaje') 
         semantica_en = request.POST.get('semantic')
         modulo = request.POST.get('modulo')
+        token = request.POST.get('token')
 
-        cluster = Clustering(lenguaje, modulo)
+        # Borrar las historias de los microservicios
+        listMs = Microservicio.objects.filter(aplicacion = msapp)
+        for ms in listMs:
+            Microservicio_Historia.objects.filter(microservicio=ms).delete()
+
+        #Borrar los microservicios que estaban antes
+        if listMs:
+            Microservicio.objects.filter(aplicacion = msapp).delete()
         
+        # Agrupar las historias 
+        cluster = Clustering(lenguaje, modulo)        
         lista = cluster.calcularSimilitud(historias, semantica_en)
         dato = cluster.agruparHistorias(lista, len(historias),float(parametro))
         mensaje =  "<div id='divHUAsociadas' class='panel panel-primary'>"
@@ -50,6 +60,7 @@ def algoritmoClustering(request, **kwargs):
             mensaje += "<td>"
             suma = 0.0
             cont = 0.0
+
             for dato in ms:                
                 historia = dato[0]
                 mensaje += historia.identificador + " - " + historia.nombre + "<br>"
@@ -60,7 +71,24 @@ def algoritmoClustering(request, **kwargs):
             mensaje += "<td>"
             mensaje += str(round(avg,3)) 
             mensaje += "</td>"
-            mensaje += "</tr>"            
+            mensaje += "</tr>"           
+                         
+            # Guardar en la base de datos la descomposicion
+            micro = Microservicio(
+                nombre = nombre,
+                numero_historias = cont,
+                similitud_semantica = avg,
+                aplicacion = msapp
+            )
+            micro.save()
+
+            for dato in ms:
+                hu = dato[0]
+                ms_hu = Microservicio_Historia(
+                    microservicio = micro,
+                    historia = hu
+                )
+                ms_hu.save()
             i += 1
         mensaje += "</tbody> "
         mensaje += "</table>"
@@ -68,14 +96,42 @@ def algoritmoClustering(request, **kwargs):
         mensaje += "</div>"
         mensaje += "</div>"
         mensaje += "<div class='box-footer'>"
-        mensaje += "<center>"        
-        mensaje += "<input type='button' id='btnRequest' name='btnReques' value='Group by Request Metric' class='btn btn-primary'/>"        
-        mensaje += "   <input type='button' id='btnSave' name='btnSave' value='Save' class='btn btn-primary'/>"
+        mensaje += "<center>"
+        mensaje += "<form method='post' id='frmClusteringCalls' name='frmClusteringCalls' data-post-url='algoritmos/clustering_calls/" + str(msapp.id) + "' class='form-horizontal' enctype='multipart/form-data'>" 
+        mensaje +=  "<input type='hidden' name='csrfmiddlewaretoken' value='nE6GZ9xyyhCoTAbGBK4ah9L1NEnqO1AL4VoYicImxP5Ru8yYhLwg2waAIqmCrQri' />"
+        mensaje += "<input type='hidden' id='msapp' name='msapp' value='" + str(msapp.id) + "'>"
+        mensaje += "<input type='hidden' id='param' name='param' value='" + parametro + "'>"
+        mensaje += "<input type='hidden' id='leng' name='leng' value='" + lenguaje + "'>"
+        mensaje += "<input type='hidden' id='mdlo' name='mdlo' value='" + modulo + "'>"
+        mensaje += "<input type='hidden' id='mdlo' name='mdlo' value='" + modulo + "'>"
+        mensaje += "<input type='button' id='btnRequest' name='btnRequest' value='Group by Calls Metric'  onclick='clustercalls()' class='btn btn-primary'/>"                
         mensaje += "   <input type='button' id='btnCancelar' name='btnCancelar' value='Cancel' onclick='regresar()' class='btn btn-primary'/>"
+        mensaje += "</form>"        
         mensaje += "</center>"
         mensaje += "</div>"        
 
         #return render(request, 'algoritmosAgrupamiento/clustering.html', {'msapp': aplicacion, 'lista': lista, 'dato':dato, })
+        return JsonResponse({ 'content': { 'message': str(mensaje) } })
+    messages.success(request, 'Error in GET method')
+    return render(request, 'index.html')
+
+def clusteringCalls(request, **kwargs):
+    if request.method == 'GET':
+        msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
+        lista=[]        
+        return render(request, 'algoritmosAgrupamiento/clustering.html', {'msapp': msapp, 'lista':lista})        
+    
+    if request.method == 'POST':
+        msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
+        
+        lenguaje = request.POST.get('leng') 
+        parametro = request.POST.get('param')
+        modulo = request.POST.get('mdlo')     
+
+        cluster = Clustering(lenguaje, modulo)            
+        datos = cluster.calcularDistanciaCalls()
+        mensaje = datos
+    
         return JsonResponse({ 'content': { 'message': str(mensaje) } })
     messages.success(request, 'Error in GET method')
     return render(request, 'index.html')

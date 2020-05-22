@@ -78,6 +78,9 @@
             <div id="divResultado">
 
             </div>
+            <div id="divResultadoCalls">
+
+            </div>
         </div>                        
     </div>
 {% endblock %}
@@ -96,6 +99,17 @@
             txtHtml += "</div>";
             txtHtml += "</center>";
 
+            errHtml = "<center>";
+            errHtml += "<div class='panel panel-danger'>";
+            errHtml += "<div class='panel-heading'>"
+            errHtml += "Failed to group user stories in microservices.";
+            errHtml += "</div>";
+            errHtml += "<div class='panel-body'>";
+            errHtml += "<img class='img-circle' alt='Error' src='/static/images/error_16.png' width='50' height='50'>";            
+            errHtml += "</div>";
+            errHtml += "</div>";
+            errHtml += "</center>";
+
             $('#divResultado').html(txtHtml);            
             
             var post_url = $('#frmClustering').data("post-url");
@@ -110,6 +124,10 @@
 
                 success:function(response){
                     $('#divResultado').html(response.content.message);
+                },
+
+                error: function (response) {                    
+                    $('#divResultado').html(errHtml);
                 }
 
             });
@@ -124,7 +142,7 @@
         }        
 
         function clustercalls(){
-            alert("Hello!!");
+            
             txtHtml = "<center>";
             txtHtml += "<div class='panel panel-warning'>";
             txtHtml += "<div class='panel-heading'>"
@@ -136,23 +154,41 @@
             txtHtml += "</div>";
             txtHtml += "</center>";
 
-            $('#divResultado').html(txtHtml);            
+            errHtml = "<center>";
+            errHtml += "<div class='panel panel-danger'>";
+            errHtml += "<div class='panel-heading'>"
+            errHtml += "Failed to group microservices by Calls.";
+            errHtml += "</div>";
+            errHtml += "<div class='panel-body'>";
+            errHtml += "<img class='img-circle' alt='Loading' src='/static/images/error_16.png' width='20' height='20'>";  
+            errHtml += "<br>System Error";
+            errHtml += "</div>";
+            errHtml += "</div>";
+            errHtml += "</center>";
+
+            $('#divResultadoCalls').html(txtHtml);            
             
-            var post_url = $('#frmClusteringCalls').data("post-url");
-            var formulario = document.getElementById("frmClusteringCalls");
-            var formData = new FormData(formulario);
+            var post_url = "{% url 'algoritmos:clustering-calls' msapp.id %}";
+            var formulario = $('#frmClusteringCalls')            
+            var msapp = frmClusteringCalls.msapp.value;
+            var param = frmClusteringCalls.param.value;
+            var leng = frmClusteringCalls.leng.value;
+            var mdlo = frmClusteringCalls.mdlo.value;
 
             $.ajax({
                 url: post_url,
-                type: "POST", 
-                data: formData,
+                type: "GET", 
+                data: {'msapp': msapp, 'param': param, 'leng':leng, 'mdlo': mdlo},
                 processData: false,
                 contentType: false,
 
                 success:function(response){
-                    $('#divResultado').html(response.content.message);
-                }
+                    $('#divResultadoCalls').html(response.content.message);
+                },
 
+                error: function (response) {                    
+                    $('#divResultadoCalls').html(errHtml);
+                }
             });
 
             return false;

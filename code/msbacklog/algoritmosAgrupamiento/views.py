@@ -97,13 +97,12 @@ def algoritmoClustering(request, **kwargs):
         mensaje += "</div>"
         mensaje += "<div class='box-footer'>"
         mensaje += "<center>"
-        mensaje += "<form method='post' id='frmClusteringCalls' name='frmClusteringCalls' data-post-url='algoritmos/clustering_calls/" + str(msapp.id) + "' class='form-horizontal' enctype='multipart/form-data'>" 
+        mensaje += "<form method='post' id='frmClusteringCalls' name='frmClusteringCalls' data-post-url='/algoritmos/clustering_calls/" + str(msapp.id) + "' class='form-horizontal' enctype='multipart/form-data'>" 
         mensaje +=  "<input type='hidden' name='csrfmiddlewaretoken' value='nE6GZ9xyyhCoTAbGBK4ah9L1NEnqO1AL4VoYicImxP5Ru8yYhLwg2waAIqmCrQri' />"
         mensaje += "<input type='hidden' id='msapp' name='msapp' value='" + str(msapp.id) + "'>"
         mensaje += "<input type='hidden' id='param' name='param' value='" + parametro + "'>"
         mensaje += "<input type='hidden' id='leng' name='leng' value='" + lenguaje + "'>"
-        mensaje += "<input type='hidden' id='mdlo' name='mdlo' value='" + modulo + "'>"
-        mensaje += "<input type='hidden' id='mdlo' name='mdlo' value='" + modulo + "'>"
+        mensaje += "<input type='hidden' id='mdlo' name='mdlo' value='" + modulo + "'>"    
         mensaje += "<input type='button' id='btnRequest' name='btnRequest' value='Group by Calls Metric'  onclick='clustercalls()' class='btn btn-primary'/>"                
         mensaje += "   <input type='button' id='btnCancelar' name='btnCancelar' value='Cancel' onclick='regresar()' class='btn btn-primary'/>"
         mensaje += "</form>"        
@@ -118,9 +117,16 @@ def algoritmoClustering(request, **kwargs):
 def clusteringCalls(request, **kwargs):
     if request.method == 'GET':
         msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
-        lista=[]        
-        return render(request, 'algoritmosAgrupamiento/clustering.html', {'msapp': msapp, 'lista':lista})        
+        lenguaje = request.POST.get('leng') 
+        parametro = request.POST.get('param')
+        modulo = request.POST.get('mdlo')
+        cluster = Clustering(lenguaje, modulo)            
+        datos = cluster.calcularDistanciaCalls(msapp)
+        mensaje = datos
     
+        return JsonResponse({ 'content': { 'message': str(datos) } })
+        #return render(request, 'algoritmosAgrupamiento/clustering.html', {'msapp': msapp, 'lista':lista})        
+    # is_ajax    
     if request.method == 'POST':
         msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
         
@@ -132,6 +138,6 @@ def clusteringCalls(request, **kwargs):
         datos = cluster.calcularDistanciaCalls()
         mensaje = datos
     
-        return JsonResponse({ 'content': { 'message': str(mensaje) } })
+        return JsonResponse({ 'content': { 'message': 'OK' } })
     messages.success(request, 'Error in GET method')
     return render(request, 'index.html')

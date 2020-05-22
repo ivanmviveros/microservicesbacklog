@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from django.db import models
 import spacy
+from microservicios.models import Microservicio, Microservicio_Historia
+from historiasUsuario.models import HistoriaUsuario, Dependencia_Historia
 
 # Create your models here.
 class Clustering():
@@ -204,7 +206,7 @@ class Clustering():
     def calcularDistanciaCalls(self, msapp):
         matrizDistancias=[]
         matrizCalls=[]
-        listMS = Microservicios.objects.filter(aplicacion= msapp)
+        listMS = Microservicio.objects.filter(aplicacion= msapp)
         vector=[]
         if listMS:
             for ms in listMS:
@@ -220,7 +222,7 @@ class Clustering():
                         valor=0
                         for hu in historias:                        
                             for hums in historiasmscal:
-                                cont = Dependencia_Historia.objects.filter(historia = hu.historia, dependencia = hus.historia).count()
+                                cont = Dependencia_Historia.objects.filter(historia = hu.historia, dependencia = hums.historia).count()
                                 if cont>0:
                                     valor+=1
                         call = valor

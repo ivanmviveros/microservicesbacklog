@@ -121,10 +121,49 @@ def clusteringCalls(request, **kwargs):
         parametro = request.POST.get('param')
         modulo = request.POST.get('mdlo')
         cluster = Clustering(lenguaje, modulo)            
-        datos = cluster.calcularDistanciaCalls(msapp)
-        mensaje = datos
+        #datos = cluster.calcularDistanciaCalls(msapp)        
+        datos = cluster.calcularDistanciaCoupling(msapp)
+
+        mensaje =  "<div id='divMSCalls' class='panel panel-primary'>"
+        mensaje += "<div class='panel-heading'>Clustering Microservices</div>"
+        mensaje += "<div class='panel-body'>"
+        mensaje += "<table class='table table-striped table-bordered'>"
+        mensaje += "<thead>"
+        mensaje += "<tr>"
+        mensaje += "<th>Microservice</th>"
+        mensaje += "<th>Calls</th>"        
+        mensaje += "</tr>"
+        mensaje += "</thead>"
+        mensaje += "<tbody> "
+        # mensaje += "<tr>"
+        # mensaje += "<td>"
+        # mensaje += str(datos)
+        # mensaje += "</td>"
+        # mensaje += "</tr>"
+
+        for dato in datos:
+            mensaje += "<tr>"
+            mensaje += "<td>"
+            mensaje += str(dato[0])
+            mensaje += "</td>"
+            for ms in dato[1]:            
+                nombre = ms[0].nombre                            
+                mensaje += "<td>"
+                mensaje += nombre
+                mensaje += "</td>"                
+                mensaje += "<td>" 
+                calls = ms[1]
+                mensaje += str(round(calls,3))                
+                mensaje += "</td>"                
+            mensaje += "</tr>"
+
+        mensaje += "</tbody> "
+        mensaje += "</table>"
+        mensaje += "</div>"
+        mensaje += "</div>"
+        mensaje += "</div>"
     
-        return JsonResponse({ 'content': { 'message': str(datos) } })
+        return JsonResponse({ 'content': { 'message': mensaje } })
         #return render(request, 'algoritmosAgrupamiento/clustering.html', {'msapp': msapp, 'lista':lista})        
     # is_ajax    
     if request.method == 'POST':

@@ -5,6 +5,8 @@ from django.db import models
 import spacy
 from microservicios.models import Microservicio, Microservicio_Historia
 from historiasUsuario.models import HistoriaUsuario, Dependencia_Historia
+from metricas.models import Metrica
+import math
 
 # Create your models here.
 class Clustering():
@@ -215,7 +217,8 @@ class Clustering():
                 for ms2 in listMS:
                     if ms.id == ms2.id:
                         call=0
-                        vector = [ms, call]
+                        #dato = [ms, call]
+                        #vector.append(dato)
                     else:
                         historias = Microservicio_Historia.objects.filter(microservicio = ms)
                         historiasmscal = Microservicio_Historia.objects.filter(microservicio = ms2)
@@ -231,6 +234,164 @@ class Clustering():
                 matrizCalls.append(vector)        
         
         return matrizCalls
+    
+    def calcularDistanciaCoupling(self, msapp):
+        
+        # Calcular las métricas
+        metrica = Metrica()
+        metrica.calcularMetricas(msapp)
+        
+        listaMs = Microservicio.objects.filter(aplicacion = msapp)
+        matrizDistancia=[]
+        for msi in listaMs:
+            vector=[]
+            for msj in listaMs:
+                
+                if not msi.id==msj.id:
+                    distancia = math.sqrt ( math.pow( (msj.ais - msi.ais), 2) + math.pow((msj.ads - msi.ads),2 ) + math.pow((msj.siy - msi.siy ),2))
+                else:
+                    distancia=0
+                nivel = distancia / msapp.coupling
+                dato = [msj, nivel]
+                vector.append(dato)
+            vector2 = [msi, vector]
+            matrizDistancia.append(vector2)
+    
+        return matrizDistancia
+
+    def agruparMicroservicios(self, matrizDistancia, n, pAgrupar)
+        lista=[]                
+        idUsados=[]
+        usados=[]
+        for i in range(0, n):
+            listaMS = mastrizSimilitud[i]
+            ms = listaMS[0]            
+            microservicio = []
+            cont=0
+            for j in range (i+1, n):                
+                dato = listaMS[1][j]
+                similitud = dato[1]
+                if similitud > pAgrupar:
+                    msAdd = dato[0]
+                    if msAdd.id in idUsados:
+                        index = idUsados.index(msAdd.id)
+                        valorComp = usados[index]   # [ms, i, j, similitud]
+                        simiCom = valorComp[3]
+                        if similitud > simiCom: 
+                            # Se reemplaza el valor y se elimina del MS
+                            #lista[valorComp[1]].pop(valorComp[2])  # Quitarlo de la Lista anterior
+                            valElim = [valorComp[0],valorComp[3]]
+                            lista[valorComp[1]].remove(valElim)
+                            usados.pop(index) # quitar de usados
+                            idUsados.pop(index)
+                            # Agregar el nuevo valor
+                            vector = [msAdd, similitud]            
+                            microservicio.append(vector)                                                                                
+                            vectorId= [msAdd.id]
+                            idUsados.extend(vectorId)
+                            datoUsa = [msAdd, i, cont, similitud]
+                            usados.append(datoUsa)                        
+                            cont += 1
+                    else:
+                        vectorId= [msAdd.id]    
+                        idUsados.extend(vectorId)
+                        datoUsa = [msAdd, i, cont, similitud]
+                        usados.append(datoUsa)
+                        vector = [msAdd, similitud]                    
+                        microservicio.append(vector)
+                        cont += 1
+            #if cont>1:
+            lista.append(microservicio)        
+        idUsados=[]
+        usados=[]
+        i=0
+        cont=0
+        microservicios=[]        
+        for lt in lista: 
+            microservicio=[]                                   
+            numeroMS = len(lt)
+            if numeroMS>0 :
+                # Agregar microservicio padre 
+                dato = mastrizSimilitud[i]
+                msini = dato[0]
+                similitud = dato[1][i]
+                if msini.id in idUsados:
+                    index = idUsados.index(msini.id)
+                    valorComp = usados[index]   # [ms, similitud]
+                    simiCom = valorComp[2]
+                    if similitud > simiCom: 
+                        # Se reemplaza el valor y se elimina del MS
+                        #lista[valorComp[1]].pop(valorComp[2])  # Quitarlo de la Lista anterior
+                        valElim = [valorComp[0], valorComp[2]]
+                        microservicios[valorComp[1]].remove(valElim)
+                        # quitar de usados
+                        usados.pop(index) 
+                        idUsados.pop(index)
+                        # Agregar el nuevo valor
+                        vector = [msini, similitud]            
+                        microservicio.append(vector)                                                                                
+                        vectorId= [msini.id]
+                        idUsados.extend(vectorId)
+                        datoUsa = [msini, cont, similitud]
+                        usados.append(datoUsa)                                                        
+                else:
+                    vector = [msini, similitud]            
+                    microservicio.append(vector)                                                                                
+                    vectorId= [msini.id]
+                    idUsados.extend(vectorId)
+                    datoUsa = [msini, cont, similitud]
+                    usados.append(datoUsa)
+                # Agregar las historias de con similitud a msini
+                for j in range (0, numeroMS):                 
+                    msadd = lt[j]
+                    ms = msadd[0]
+                    similitud = huadd[1]
+                    if ms.id in idUsados:
+                        index = idUsados.index(ms.id)
+                        valorComp = usados[index]   # [hu, similitud]
+                        simiCom = valorComp[2]
+                        if similitud > simiCom: 
+                            # Se reemplaza el valor y se elimina del MS
+                            #lista[valorComp[1]].pop(valorComp[2])  # Quitarlo de la Lista anterior
+                            valElim = [valorComp[0], valorComp[2]]
+                            microservicios[valorComp[1]].remove(valElim)
+                            # quitar de usados
+                            usados.pop(index) 
+                            idUsados.pop(index)
+                            # Agregar el nuevo valor
+                            vector = [ms, similitud]            
+                            microservicio.append(vector)                                                                                
+                            vectorId= [ms.id]
+                            idUsados.extend(vectorId)
+                            datoUsa = [ms, cont,similitud]
+                            usados.append(datoUsa)
+                       # comparar la similitud y dejar el de  mayor similaridad
+                    else:
+                         # Agregar ms al microservicios
+                        vectorId = [msadd[0].id]
+                        idUsados.extend(vectorId)
+                        datoUsa = [msadd[0], cont, msadd[1] ]
+                        usados.append(datoUsa)
+                        vector = [msadd[0], msadd[1]]
+                        microservicio.append(vector)
+            else:
+                # Agregar la historia de usuario cuando no tuvo similitud con ninguna otra
+                datoms = mastrizSimilitud[i] 
+                dato = datoms[1][i+1]
+                msini = dato[0]
+                similitud = dato[1]
+                if msini.id not in idUsados:
+                    vector = [msini, similitud]            
+                    microservicio.append(vector)                                                                                
+                    vectorId= [msini.id]
+                    idUsados.extend(vectorId)
+                    datoUsa = [msini, cont, similitud]
+                    usados.append(datoUsa)                    
+            if len(microservicio) > 0:
+                microservicios.append(microservicio)
+                cont += 1
+            i += 1
+        return microservicios
 
 
 

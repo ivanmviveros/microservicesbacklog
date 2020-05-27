@@ -103,7 +103,7 @@ def algoritmoClustering(request, **kwargs):
         mensaje += "<input type='hidden' id='param' name='param' value='" + parametro + "'>"
         mensaje += "<input type='hidden' id='leng' name='leng' value='" + lenguaje + "'>"
         mensaje += "<input type='hidden' id='mdlo' name='mdlo' value='" + modulo + "'>"    
-        mensaje += "<input type='button' id='btnRequest' name='btnRequest' value='Group by Calls Metric'  onclick='clustercalls()' class='btn btn-primary'/>"                
+        mensaje += "<input type='button' id='btnRequest' name='btnRequest' value='Group by Coupling Metrics'  onclick='clustercalls()' class='btn btn-primary'/>"                
         mensaje += "   <input type='button' id='btnCancelar' name='btnCancelar' value='Cancel' onclick='regresar()' class='btn btn-primary'/>"
         mensaje += "</form>"        
         mensaje += "</center>"
@@ -123,45 +123,74 @@ def clusteringCalls(request, **kwargs):
         cluster = Clustering(lenguaje, modulo)            
         #datos = cluster.calcularDistanciaCalls(msapp)        
         datos = cluster.calcularDistanciaCoupling(msapp)
+        microservicios = Microservicio.objects.filter(aplicacion = msapp)        
+        listaMs = cluster.agruparMicroservicios(datos, len(microservicios), 0.5 )
+        matrizMSHU = cluster.generarGrupoMS(listaMs)
 
-        mensaje =  "<div id='divMSCalls' class='panel panel-primary'>"
-        mensaje += "<div class='panel-heading'>Clustering Microservices</div>"
+        # Borrar las historias de los microservicios
+        lista = Microservicio.objects.filter(aplicacion = msapp)
+        for ms in lista:
+            Microservicio_Historia.objects.filter(microservicio=ms).delete()
+
+        #Borrar los microservicios que estaban antes
+        if lista:
+            Microservicio.objects.filter(aplicacion = msapp).delete()
+        
+        numero =0
+        mensaje =  "<div id='divMSCoupling' class='panel panel-primary'>"
+        mensaje += "<div class='panel-heading'>Clustering Microservices by Coupling Metrics</div>"
         mensaje += "<div class='panel-body'>"
         mensaje += "<table class='table table-striped table-bordered'>"
         mensaje += "<thead>"
         mensaje += "<tr>"
         mensaje += "<th>Microservice</th>"
-        mensaje += "<th>Calls</th>"        
+        mensaje += "<th>User Stories</th>"        
         mensaje += "</tr>"
         mensaje += "</thead>"
         mensaje += "<tbody> "
-        # mensaje += "<tr>"
-        # mensaje += "<td>"
-        # mensaje += str(datos)
-        # mensaje += "</td>"
-        # mensaje += "</tr>"
-
-        for dato in datos:
+        
+        for dato in matrizMSHU:
+            nombreMS = dato[0]
+            cont = len(dato[1])
             mensaje += "<tr>"
             mensaje += "<td>"
-            mensaje += str(dato[0])
+            mensaje += nombreMS
             mensaje += "</td>"
-            for ms in dato[1]:            
-                nombre = ms[0].nombre                            
-                mensaje += "<td>"
-                mensaje += nombre
-                mensaje += "</td>"                
-                mensaje += "<td>" 
-                calls = ms[1]
-                mensaje += str(round(calls,3))                
-                mensaje += "</td>"                
-            mensaje += "</tr>"
+            mensaje += "<td>"
 
+            # Guardar en la base de datos la descomposicion
+            micro = Microservicio(
+                nombre = nombreMS,
+                numero_historias = cont,                
+                aplicacion = msapp
+            )
+            micro.save()
+
+            for hu in dato[1]:                
+                ms_hu = Microservicio_Historia(
+                    microservicio = micro,
+                    historia = hu
+                )
+                ms_hu.save()
+                mensaje += hu.identificador + " - " + hu.nombre + "<br>"
+            mensaje += "</td>"
+            mensaje += "</tr>"
+        
         mensaje += "</tbody> "
         mensaje += "</table>"
         mensaje += "</div>"
         mensaje += "</div>"
         mensaje += "</div>"
+        
+        # Calcular las métricas
+        metrica = Metrica()
+        metrica.calcularMetricas(msapp)
+       
+        # mensaje += "<tr>"
+        # mensaje += "<td>"
+        # mensaje += str(datos)
+        # mensaje += "</td>"
+        # mensaje += "</tr>"        
     
         return JsonResponse({ 'content': { 'message': mensaje } })
         #return render(request, 'algoritmosAgrupamiento/clustering.html', {'msapp': msapp, 'lista':lista})        

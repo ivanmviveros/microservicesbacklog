@@ -259,12 +259,12 @@ class Clustering():
     
         return matrizDistancia
 
-    def agruparMicroservicios(self, matrizDistancia, n, pAgrupar)
+    def agruparMicroservicios(self, matrizDistancia, n, pAgrupar):
         lista=[]                
         idUsados=[]
         usados=[]
         for i in range(0, n):
-            listaMS = mastrizSimilitud[i]
+            listaMS = matrizDistancia[i]
             ms = listaMS[0]            
             microservicio = []
             cont=0
@@ -312,9 +312,10 @@ class Clustering():
             numeroMS = len(lt)
             if numeroMS>0 :
                 # Agregar microservicio padre 
-                dato = mastrizSimilitud[i]
+                dato = matrizDistancia[i]
                 msini = dato[0]
-                similitud = dato[1][i]
+                datoDis = dato[1][i]
+                similitud =  datoDis[1]
                 if msini.id in idUsados:
                     index = idUsados.index(msini.id)
                     valorComp = usados[index]   # [ms, similitud]
@@ -345,7 +346,7 @@ class Clustering():
                 for j in range (0, numeroMS):                 
                     msadd = lt[j]
                     ms = msadd[0]
-                    similitud = huadd[1]
+                    similitud = msadd[1]
                     if ms.id in idUsados:
                         index = idUsados.index(ms.id)
                         valorComp = usados[index]   # [hu, similitud]
@@ -375,9 +376,9 @@ class Clustering():
                         vector = [msadd[0], msadd[1]]
                         microservicio.append(vector)
             else:
-                # Agregar la historia de usuario cuando no tuvo similitud con ninguna otra
-                datoms = mastrizSimilitud[i] 
-                dato = datoms[1][i+1]
+                # Agregar el microservicio cuando no tuvo similitud con ninguna otra
+                datoms = matrizDistancia[i] 
+                dato = datoms[1][i]
                 msini = dato[0]
                 similitud = dato[1]
                 if msini.id not in idUsados:
@@ -392,6 +393,26 @@ class Clustering():
                 cont += 1
             i += 1
         return microservicios
+
+    def generarGrupoMS(self, matrizMicroservicios):        
+        matrizMSHU=[]
+        i=1
+        for dato in matrizMicroservicios:
+            nombre = "MS" + str(i)
+            lista=[] # Lista de historias a guardar en el nuevo MS
+            for grupo  in dato:
+                ms = grupo[0] # ms antiguo microservicio
+                listHU = Microservicio_Historia.objects.filter(microservicio=ms)
+                for hums in listHU:
+                    vector= [hums.historia]
+                    lista.extend(vector)
+            
+            vector2 = [nombre, lista]
+            matrizMSHU.append(vector2)
+        
+        return matrizMSHU    
+        
+
 
 
 

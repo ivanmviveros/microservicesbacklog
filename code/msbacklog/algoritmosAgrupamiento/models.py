@@ -409,6 +409,7 @@ class Clustering():
             
             vector2 = [nombre, lista]
             matrizMSHU.append(vector2)
+            i += 1
         
         return matrizMSHU    
         

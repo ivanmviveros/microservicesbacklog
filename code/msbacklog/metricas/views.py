@@ -26,9 +26,9 @@ class MetricasEditarView(UpdateView):
 
     def get_context_data(self, **kwargs):
         msapp = get_object_or_404(MicroservicioApp, id=self.kwargs['pk'])
-        if msapp.metodo == 3 :
-            metrica = Metrica()
-            metrica.calcularMetricas(msapp)
+        #if msapp.metodo == 3 :
+        metrica = Metrica()
+        metrica.calcularMetricas(msapp)
         self.microservicios = Microservicio.objects.filter(aplicacion = msapp)        
         context = super(MetricasEditarView, self).get_context_data(**kwargs)              
         context['microservicios'] = self.microservicios
@@ -37,9 +37,9 @@ class MetricasEditarView(UpdateView):
 
     def get_initial(self):
         msapp = get_object_or_404(MicroservicioApp, id=self.kwargs['pk'])        
-        if msapp.metodo == 3 :
-            metrica = Metrica()
-            metrica.calcularMetricas(msapp)
+        #if msapp.metodo == 3 :
+        metrica = Metrica()
+        metrica.calcularMetricas(msapp)
         self.microservicios = Microservicio.objects.filter(aplicacion = msapp)
         return { 'microservicios': self.microservicios, 'msapp': msapp }
             

@@ -8,6 +8,7 @@ from microservicios.models import MicroservicioApp, Microservicio, Microservicio
 from historiasUsuario.models import HistoriaUsuario
 from .models import Clustering
 from django.http import JsonResponse
+from metricas.models import Metrica
 
 # Create your views here.  
 def algoritmoClustering(request, **kwargs):
@@ -20,6 +21,7 @@ def algoritmoClustering(request, **kwargs):
         msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
         historias = HistoriaUsuario.objects.filter(proyecto = msapp.proyecto)        
         parametro = request.POST.get('parameter')
+        coup_parametro = request.POST.get('coup_parameter')
         lenguaje = request.POST.get('lenguaje') 
         semantica_en = request.POST.get('semantic')
         modulo = request.POST.get('modulo')
@@ -39,7 +41,7 @@ def algoritmoClustering(request, **kwargs):
         lista = cluster.calcularSimilitud(historias, semantica_en)
         dato = cluster.agruparHistorias(lista, len(historias),float(parametro))
         mensaje =  "<div id='divHUAsociadas' class='panel panel-primary'>"
-        mensaje += "<div class='panel-heading'>Microservices identified</div>"
+        mensaje += "<div class='panel-heading'>Microservices grouped by semantic similarity</div>"
         mensaje += "<div class='panel-body'>"
         mensaje += "<table class='table table-striped table-bordered'>"
         mensaje += "<thead>"
@@ -102,7 +104,8 @@ def algoritmoClustering(request, **kwargs):
         mensaje += "<input type='hidden' id='msapp' name='msapp' value='" + str(msapp.id) + "'>"
         mensaje += "<input type='hidden' id='param' name='param' value='" + parametro + "'>"
         mensaje += "<input type='hidden' id='leng' name='leng' value='" + lenguaje + "'>"
-        mensaje += "<input type='hidden' id='mdlo' name='mdlo' value='" + modulo + "'>"    
+        mensaje += "<input type='hidden' id='mdlo' name='mdlo' value='" + modulo + "'>"
+        mensaje += "<input type='hidden' id='coup_param' name='coup_param' value='" + coup_parametro + "'>"    
         mensaje += "<input type='button' id='btnRequest' name='btnRequest' value='Group by Coupling Metrics'  onclick='clustercalls()' class='btn btn-primary'/>"                
         mensaje += "   <input type='button' id='btnCancelar' name='btnCancelar' value='Cancel' onclick='regresar()' class='btn btn-primary'/>"
         mensaje += "</form>"        
@@ -120,11 +123,11 @@ def clusteringCalls(request, **kwargs):
         lenguaje = request.POST.get('leng') 
         parametro = request.POST.get('param')
         modulo = request.POST.get('mdlo')
-        cluster = Clustering(lenguaje, modulo)            
-        #datos = cluster.calcularDistanciaCalls(msapp)        
+        coup_parametro = request.POST.get('coup_parameter')
+        cluster = Clustering(lenguaje, modulo)                                    
         datos = cluster.calcularDistanciaCoupling(msapp)
         microservicios = Microservicio.objects.filter(aplicacion = msapp)        
-        listaMs = cluster.agruparMicroservicios(datos, len(microservicios), 0.5 )
+        listaMs = cluster.agruparMicroservicios(datos, len(microservicios), float(coup_parametro) )
         matrizMSHU = cluster.generarGrupoMS(listaMs)
 
         # Borrar las historias de los microservicios
@@ -138,7 +141,7 @@ def clusteringCalls(request, **kwargs):
         
         numero =0
         mensaje =  "<div id='divMSCoupling' class='panel panel-primary'>"
-        mensaje += "<div class='panel-heading'>Clustering Microservices by Coupling Metrics</div>"
+        mensaje += "<div class='panel-heading'>Microservices Grouped by Coupling Metrics</div>"
         mensaje += "<div class='panel-body'>"
         mensaje += "<table class='table table-striped table-bordered'>"
         mensaje += "<thead>"

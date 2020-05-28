@@ -24,9 +24,9 @@
                 </div>
             </div>
             <thead>
-                <tr>
-                    <th>Id.</th>
+                <tr>                    
                     <th>Name</th>
+                    <th>Number US.</th>
                     <th>User stories</th>        
                     <th>Points</th>        
                     <th>Dev. time</th>
@@ -39,10 +39,14 @@
                 <tbody>
                     {% for ms in listams %}  
                     
-                        <tr> 
-                            <td><a href="{% url 'microservicios:detail-microservicio' ms.id %}" title="Details">{{ ms.id }}</a></td>                            
-                            <td>{{ ms.nombre }}</td>
+                        <tr>                             
+                            <td><a href="{% url 'microservicios:detail-microservicio' ms.id %}" title="Details">{{ ms.nombre }}</a></td>
                             <td>{{ ms.numero_historias }}</td>
+                            <td>
+                                {% for hums in ms.getHistorias %}
+                                    {{ hums.historia.identificador }} - {{ hums.historia.nombre }} <br>
+                                {% endfor %}
+                            </td>
                             <td>{{ ms.total_puntos }}</td>
                             <td>{{ ms.tiempo_estimado_desarrollo }}</td>                            
                             <td>

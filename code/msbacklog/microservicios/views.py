@@ -145,7 +145,7 @@ class MicroserviciosListView(ListView):
     
     def get_initial(self):    
         self.aplicacion = get_object_or_404(Proyecto, id=self.kwargs['id_aplicacion'])         
-        listams = Microservicio.objects.filter(aplicacion = self.aplicacion)
+        listams = Microservicio.objects.filter(aplicacion = self.aplicacion)                            
         return { 'aplicacion': self.aplicacion, 'listams': listams}
 
 class MicroservicioCrearView(CreateView):

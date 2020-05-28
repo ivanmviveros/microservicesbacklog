@@ -73,6 +73,10 @@ class Microservicio (models.Model):
     class Meta:
         ordering = ["nombre"]
         default_permissions = ('add', 'change', 'delete', 'view')
+    
+    def getHistorias(self):
+        historias = Microservicio_Historia.objects.filter(microservicio = self)
+        return historias
 
 class Operacion (models.Model):
     nombre = models.CharField(max_length=255)    
@@ -91,7 +95,7 @@ class Operacion (models.Model):
     class Meta:
         ordering = ["nombre"]
         default_permissions = ('add', 'change', 'delete', 'view')
-
+        
 class Microservicio_Historia (models.Model):
     microservicio = models.ForeignKey(Microservicio, on_delete=models.PROTECT)
     historia = models.ForeignKey(HistoriaUsuario, on_delete=models.PROTECT)

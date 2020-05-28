@@ -180,11 +180,12 @@
             var param = frmClusteringCalls.param.value;
             var leng = frmClusteringCalls.leng.value;
             var mdlo = frmClusteringCalls.mdlo.value;
-            var coup_parameter = frmClusteringCalls.coup_param.value;            
-
+            var coup_parameter = frmClusteringCalls.coup_param.value;                       
+            post_url += '?coup_parameter= ' + coup_parameter;
             $.ajax({
-                url: post_url,
+                url: post_url,                
                 type: "GET", 
+                dataType: 'json',
                 data: {'msapp': msapp, 'param': param, 'leng':leng, 'mdlo': mdlo, 'coup_parameter': coup_parameter },
                 processData: false,
                 contentType: false,

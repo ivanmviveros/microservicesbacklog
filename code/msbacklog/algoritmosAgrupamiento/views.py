@@ -9,6 +9,7 @@ from historiasUsuario.models import HistoriaUsuario
 from .models import Clustering
 from django.http import JsonResponse
 from metricas.models import Metrica
+import json
 
 # Create your views here.  
 def algoritmoClustering(request, **kwargs):
@@ -120,10 +121,10 @@ def algoritmoClustering(request, **kwargs):
 def clusteringCalls(request, **kwargs):
     if request.method == 'GET':
         msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
-        lenguaje = request.POST.get('leng') 
-        parametro = request.POST.get('param')
-        modulo = request.POST.get('mdlo')
-        coup_parametro = request.POST.get('coup_parameter')
+        lenguaje = request.GET.get('leng') 
+        parametro = request.GET.get('param')
+        modulo = request.GET.get('mdlo')                        
+        coup_parametro = request.GET.get('coup_parameter')        
         cluster = Clustering(lenguaje, modulo)                                    
         datos = cluster.calcularDistanciaCoupling(msapp)
         microservicios = Microservicio.objects.filter(aplicacion = msapp)        
@@ -183,6 +184,11 @@ def clusteringCalls(request, **kwargs):
         mensaje += "</table>"
         mensaje += "</div>"
         mensaje += "</div>"
+        mensaje += "</div>"
+        mensaje += "<div class='box-footer'>"
+        mensaje += "<center>"
+        mensaje += "<input type='button' id='btnReturn' name='btnReturn' value='Return' onclick='regresar()' class='btn btn-primary'/>"
+        mensaje += "</center>"
         mensaje += "</div>"
         
         # Calcular las métricas

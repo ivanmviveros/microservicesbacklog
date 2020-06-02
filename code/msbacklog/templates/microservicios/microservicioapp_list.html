@@ -57,7 +57,7 @@
                                     <img src="{% static 'images/metrics.png'%}"></img>
                                 </a>
                                 {%  if msapp.metodo.id == 1 %}
-                                <a href="#" title="Genetic programming">
+                                <a href="{% url 'algoritmos:algoritmo-genetico' msapp.id %}" title="Genetic programming">
                                     <img src="{% static 'images/genetico.png'%}"></img>
                                 </a>
                                 {% endif %}

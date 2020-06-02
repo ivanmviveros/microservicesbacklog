@@ -6,6 +6,7 @@ import spacy
 from microservicios.models import Microservicio, Microservicio_Historia
 from historiasUsuario.models import HistoriaUsuario, Dependencia_Historia
 from metricas.models import Metrica
+from random import randint
 import math
 
 # Create your models here.
@@ -412,7 +413,66 @@ class Clustering():
             i += 1
         
         return matrizMSHU    
+
+class Individuo():
+
+    def __init__(self):
+        self.numeroHistorias = 0
+        self.matrizAsignacion = []
+        self.microservicios = []
+        self.metricas = []
+        self.cromosoma = ""
+        self.valorFuncion = 0.0
+    
+    def generarIndividuo(self, listaHistorias):
+        self.cromosoma = ""
+        self.valorFuncion = 0.0
+        self.numeroHistorias = len(listaHistorias)        
         
+        for hu in listaHistorias:
+            indiceAsignar = randint(0,(self.numeroHistorias-1))
+            matriz=[]
+            for i in range (0, self.numeroHistorias):
+                vector=[]
+                if i==indiceAsignar:
+                    vector=[hu,1]
+                    matriz.append(vector)
+                else:
+                    vector=[hu,0]
+                    matriz.append(vector)                
+            
+            self.matrizAsignacion.append(matriz)
+        
+        # Identificar los microservicios y asignarles las historias
+        self.microservicios=[]
+        cromo = ""
+        for j in range(0, self.numeroHistorias):
+            vector=[]
+            for fila in self.matrizAsignacion:
+                dato = fila[j]
+                if dato[1]==1:
+                    vecHu = [dato[0]]
+                    vector.extend(vecHu)
+                    cromo += str(dato[1])
+                else:
+                    cromo += str(dato[1])
+            cromo+="-"
+            if len(vector)>0:
+                self.microservicios.append(vector)
+        
+        self.cromosoma = cromo
+
+class AlgoritmoGenetico():
+
+    def __init__(self, poblacion, iteraciones, hijos, mutaciones, variables, historias):    
+        self.poblacion = poblacion
+        self.iteraciones = iteraciones
+        self.hijos = hijos
+        self.mutaciones = mutaciones
+        self.variables = variables
+        self.historias = historias
+
+
 
 
 

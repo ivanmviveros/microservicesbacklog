@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.contrib import messages
 from microservicios.models import MicroservicioApp, Microservicio, Microservicio_Historia
 from historiasUsuario.models import HistoriaUsuario
-from .models import Clustering
+from .models import Clustering, Individuo
 from django.http import JsonResponse
 from metricas.models import Metrica
 import json
@@ -14,9 +14,8 @@ import json
 # Create your views here.  
 def algoritmoClustering(request, **kwargs):
     if request.method == 'GET':
-        msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
-        lista=[]
-        return render(request, 'algoritmosAgrupamiento/clustering.html', {'msapp': msapp, 'lista':lista})
+        msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])        
+        return render(request, 'algoritmosAgrupamiento/clustering.html', {'msapp': msapp})
 
     if request.method == 'POST':
         msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
@@ -218,3 +217,64 @@ def clusteringCalls(request, **kwargs):
         return JsonResponse({ 'content': { 'message': 'OK' } })
     messages.success(request, 'Error in GET method')
     return render(request, 'index.html')
+
+    # Create your views here.  
+def algoritmoGenetico(request, **kwargs):
+    if request.method == 'GET':
+        msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])        
+        return render(request, 'algoritmosAgrupamiento/genetic.html', {'msapp': msapp})
+    
+    if request.method == 'POST':
+        msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
+        listaHu = HistoriaUsuario.objects.filter(proyecto= msapp.proyecto)
+
+        poblcacion = request.POST.get('poblacion') 
+        iteraciones = request.POST.get('iteraciones') 
+        hijos = request.POST.get('hijos') 
+        mutaciones = request.POST.get('mutaciones') 
+        variables = request.POST.get('objetivo') 
+
+        print('--------- Variables: ' + str(variables))
+
+        ind = Individuo()
+        ind.generarIndividuo(listaHu)
+        matriz = ind.matrizAsignacion
+
+        mensaje =  "<div id='divGenetico' class='panel panel-primary'>"
+        mensaje += "<div class='panel-heading'>Microservices Grouped by Genetic Programming</div>"
+        mensaje += "<div class='panel-body'>"
+        mensaje += "<table class='table table-striped table-bordered'>"
+        mensaje += "<thead>"
+        mensaje += "<tr>"
+        mensaje += "<th>Microservice</th>"
+        mensaje += "<th>User Stories</th>"        
+        mensaje += "</tr>"
+        mensaje += "</thead>"
+        mensaje += "<tbody> "
+
+        for dato in matriz:            
+            mensaje += "<tr>"
+            for hums in dato:
+                mensaje += "<td>"
+                mensaje += hums[0].identificador + "-" + str(hums[1])
+                mensaje += "</td>"
+
+            mensaje += "</tr>"
+        
+        mensaje += "</tbody> "
+        mensaje += "</table>"
+        mensaje += "</div>"
+        mensaje += "</div>"
+        mensaje += "</div>"
+        mensaje += "<div class='box-footer'>"
+        mensaje += "<center>"
+        mensaje += "Cromosoma: " + ind.cromosoma
+        mensaje += "<input type='button' id='btnReturn' name='btnReturn' value='Return' onclick='regresar()' class='btn btn-primary'/>"
+        mensaje += "</center>"
+        mensaje += "</div>"
+        
+        return JsonResponse({ 'content': { 'message': mensaje } })
+
+    messages.success(request, 'Error in GET method')
+    return render(request, 'index.html')
+

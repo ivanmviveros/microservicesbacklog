@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{# Load the tag library #}
+{% load staticfiles %}
+{% load bootstrap3 %}
+
+{% block page-title %}Microservices Backlog{% endblock %}
+{% block page-description %}Genetic Algorithm - Group user stories in Microservices{% endblock %}
+
+{% block content %}
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <h2 class="box-title">Project: {{ msapp.proyecto.nombre }}</h2><br>            
+            <h2 class="box-title">Application: {{ msapp.nombre }}</h2>
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        <div class="box-body">                                            
+            <div class="panel panel-info">                                                       
+                <div class="panel-heading"><strong> Genetic Algorithm parameters </strong></div>
+                <div class="panel-body">                    
+                    <form method="post" id="frmGenetico" name="frmGenetico" data-post-url="{% url 'algoritmos:algoritmo-genetico' msapp.id %}" class="form-horizontal" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td><strong>Method:</strong></td>
+                                    <td>
+                                        <input type="text" id="metodo" name="metodo" value="{{ msapp.metodo.nombre }}" readonly="readonly" class="form-control"/>                                        
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Population size:</strong></td>
+                                    <td>
+                                        <input type="number" id="poblacion" name="poblacion"  min="100" max="10000" step="100" value="100" class="form-control"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Iterations:</strong></td>
+                                    <td>
+                                        <input type="number" id="iteraciones" name="iteraciones"  min="100" max="10000" step="100" value="100" class="form-control"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Children in the iteration:</strong></td>
+                                    <td>
+                                        <input type="number" id="hijos" name="hijos"  min="10" max="5000" step="5" value="50" class="form-control"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Mutations in the iteration:</strong></td>
+                                    <td>
+                                        <input type="number" id="mutaciones" name="mutaciones"  min="10" max="5000" step="5" value="50" class="form-control"/>
+                                    </td>
+                                </tr>                            
+                                <tr>
+                                    <td><strong>Objetive function variables:</strong></td>
+                                    <td>
+                                        <select id="objetivo" name="objetivo" class="form-control" multiple>
+                                            <option value="coupling">Coupling</option>
+                                            <option value="cohesion">Cohesion</option>
+                                            <option value="complexity">Complexity</option> 
+                                            <option value="wsict">User stories  (WSICT)</option>
+                                            <option value="calls">Calls and Request</option>
+                                            <option value="semantic">Semantic Similarity</option>                                            
+                                        </select>                                
+                                    </td>
+                                </tr>                                                                                                         
+                            </tbody>
+                        </table>
+                        <center>
+                            <div class="box-footer">
+                                <input type="hidden" id="token" name="token" value="{{ csrf_token }}" readonly="readonly" class="form-control"/>
+                                <input type="submit" id="btnEjecutar" name="btnEjecutar" value="Run genetic algorithm" class="btn btn-primary"/>
+                                <a href="{% url 'microservicios:list-msapp' msapp.proyecto.usuario.id %}">
+                                    {% bootstrap_button "Cancel" button_type="button" button_class="btn-primary"%}
+                                </a>
+                            </div>
+                        </center>
+                    </form>                                                            
+                </div>
+            </div>            
+            <div id="divResultado">
+
+            </div>
+            <div id="divResultadoCalls">
+
+            </div>
+        </div>                        
+    </div>
+{% endblock %}
+{% block specific-js %}
+    <script>
+        
+        $('#frmGenetico').on( 'submit', function(){
+            txtHtml = "<center>";
+            txtHtml += "<div class='panel panel-warning'>";
+            txtHtml += "<div class='panel-heading'>"
+            txtHtml += "Running gentic algorithm...";
+            txtHtml += "</div>";
+            txtHtml += "<div class='panel-body'>";
+            txtHtml += "<img class='img-circle' alt='Loading' src='/static/images/cargando.gif' width='50' height='50'>";            
+            txtHtml += "</div>";
+            txtHtml += "</div>";
+            txtHtml += "</center>";
+
+            errHtml = "<center>";
+            errHtml += "<div class='panel panel-danger'>";
+            errHtml += "<div class='panel-heading'>"
+            errHtml += "Failed to group user stories in microservices.";
+            errHtml += "</div>";
+            errHtml += "<div class='panel-body'>";
+            errHtml += "<img class='img-circle' alt='Error' src='/static/images/error_16.png' width='20' height='20'>";            
+            errHtml += "</div>";
+            errHtml += "</div>";
+            errHtml += "</center>";
+
+            $('#divResultado').html(txtHtml);            
+            
+            var post_url = $('#frmClustering').data("post-url");
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: post_url,
+                type: "POST", 
+                data: formData,
+                processData: false,
+                contentType: false,
+
+                success:function(response){
+                    $('#divResultado').html(response.content.message);
+                },
+
+                error: function (response) {                    
+                    $('#divResultado').html(errHtml);
+                }
+
+            });
+
+            return false;
+        });
+                
+    </script>    
+    <script>
+        function regresar(){            
+            location.href = "{% url 'microservicios:list-msapp' msapp.proyecto.usuario.id %}";
+        }        
+
+        function clustercalls(){
+            
+            txtHtml = "<center>";
+            txtHtml += "<div class='panel panel-warning'>";
+            txtHtml += "<div class='panel-heading'>"
+            txtHtml += "Calculating calls between Microservices then group them...";
+            txtHtml += "</div>";
+            txtHtml += "<div class='panel-body'>";
+            txtHtml += "<img class='img-circle' alt='Loading' src='/static/images/cargando.gif' width='50' height='50'>";            
+            txtHtml += "</div>";
+            txtHtml += "</div>";
+            txtHtml += "</center>";
+
+            errHtml = "<center>";
+            errHtml += "<div class='panel panel-danger'>";
+            errHtml += "<div class='panel-heading'>"
+            errHtml += "Failed to group microservices by coupling metrics.";
+            errHtml += "</div>";
+            errHtml += "<div class='panel-body'>";
+            errHtml += "<img class='img-circle' alt='Loading' src='/static/images/error_16.png' width='20' height='20'>";  
+            errHtml += "<br>System Error";
+            errHtml += "</div>";
+            errHtml += "</div>";
+            errHtml += "</center>";
+
+            $('#divResultadoCalls').html(txtHtml);            
+            
+            var post_url = "{% url 'algoritmos:clustering-calls' msapp.id %}";
+            var formulario = $('#frmClusteringCalls')            
+            var msapp = frmClusteringCalls.msapp.value;
+            var param = frmClusteringCalls.param.value;
+            var leng = frmClusteringCalls.leng.value;
+            var mdlo = frmClusteringCalls.mdlo.value;
+            var coup_parameter = frmClusteringCalls.coup_param.value;                       
+            post_url += '?coup_parameter= ' + coup_parameter;
+            $.ajax({
+                url: post_url,                
+                type: "GET", 
+                dataType: 'json',
+                data: {'msapp': msapp, 'param': param, 'leng':leng, 'mdlo': mdlo, 'coup_parameter': coup_parameter },
+                processData: false,
+                contentType: false,
+
+                success:function(response){
+                    $('#divResultadoCalls').html(response.content.message);
+                },
+
+                error: function (response) {                    
+                    $('#divResultadoCalls').html(errHtml);
+                }
+            });
+
+            return false;
+        }        
+    </script>
+{% endblock %}

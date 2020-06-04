@@ -232,13 +232,14 @@ def algoritmoGenetico(request, **kwargs):
         iteraciones = request.POST.get('iteraciones') 
         hijos = request.POST.get('hijos') 
         mutaciones = request.POST.get('mutaciones') 
-        variables = request.POST.get('objetivo') 
-
+        variables = request.POST.getlist('objetivo') 
+        
         print('--------- Variables: ' + str(variables))
 
         ind = Individuo()
-        ind.generarIndividuo(listaHu)
-        matriz = ind.matrizAsignacion
+        ind.generarIndividuo(listaHu, variables)
+        metricas = ind.metricas
+        app = metricas[0]
 
         mensaje =  "<div id='divGenetico' class='panel panel-primary'>"
         mensaje += "<div class='panel-heading'>Microservices Grouped by Genetic Programming</div>"
@@ -251,15 +252,26 @@ def algoritmoGenetico(request, **kwargs):
         mensaje += "</tr>"
         mensaje += "</thead>"
         mensaje += "<tbody> "
+        mensaje += "<tr>"
+        mensaje += "<td>"
+        mensaje += "Metricas:"
+        mensaje += "</td>"
+        mensaje += "<td>"
+        mensaje += "Coupling: " + str(app.coupling) + "<br>"
+        mensaje += "Cohesion: " + str(app.cohesion) + "<br>"
+        mensaje += "Wsict: " + str(app.wsict) + "<br>"        
+        mensaje += "Microservices: " + str(app.numero_microservicios) + "<br>"
+        mensaje += "GM: " + str(app.valor_GM) + "<br>"
+        mensaje += "</td>"
+        mensaje += "</tr>"
+        # for dato in matriz:            
+        #     mensaje += "<tr>"
+        #     for hums in dato:
+        #         mensaje += "<td>"
+        #         mensaje += hums[0].identificador + "-" + str(hums[1])
+        #         mensaje += "</td>"
 
-        for dato in matriz:            
-            mensaje += "<tr>"
-            for hums in dato:
-                mensaje += "<td>"
-                mensaje += hums[0].identificador + "-" + str(hums[1])
-                mensaje += "</td>"
-
-            mensaje += "</tr>"
+        #     mensaje += "</tr>"
         
         mensaje += "</tbody> "
         mensaje += "</table>"

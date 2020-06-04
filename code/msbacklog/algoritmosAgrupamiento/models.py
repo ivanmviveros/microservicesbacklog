@@ -424,7 +424,7 @@ class Individuo():
         self.cromosoma = ""
         self.valorFuncion = 0.0
     
-    def generarIndividuo(self, listaHistorias):
+    def generarIndividuo(self, listaHistorias, variables):
         self.cromosoma = ""
         self.valorFuncion = 0.0
         self.numeroHistorias = len(listaHistorias)        
@@ -446,7 +446,9 @@ class Individuo():
         # Identificar los microservicios y asignarles las historias
         self.microservicios=[]
         cromo = ""
-        for j in range(0, self.numeroHistorias):
+        nombre=""
+        cont=1
+        for j in range(0, self.numeroHistorias):            
             vector=[]
             for fila in self.matrizAsignacion:
                 dato = fila[j]
@@ -457,11 +459,17 @@ class Individuo():
                 else:
                     cromo += str(dato[1])
             cromo+="-"
-            if len(vector)>0:
-                self.microservicios.append(vector)
-        
+            if len(vector)>0:                
+                nombre = "MS" + str(cont)
+                ms = [nombre,vector]
+                self.microservicios.append(ms)
+                cont+=1        
         self.cromosoma = cromo
 
+        # Calcular las metricas para la descomposición generada
+        metrica = Metrica()
+        self.metricas = metrica.calcularMetricasIndividuo(self.microservicios, variables)
+        
 class AlgoritmoGenetico():
 
     def __init__(self, poblacion, iteraciones, hijos, mutaciones, variables, historias):    

@@ -6,10 +6,11 @@ from django.core.urlresolvers import reverse_lazy
 from django.contrib import messages
 from microservicios.models import MicroservicioApp, Microservicio, Microservicio_Historia
 from historiasUsuario.models import HistoriaUsuario
-from .models import Clustering, Individuo
+from .models import Clustering, Individuo, AlgoritmoGenetico
 from django.http import JsonResponse
 from metricas.models import Metrica
 import json
+from time import time
 
 # Create your views here.  
 def algoritmoClustering(request, **kwargs):
@@ -232,15 +233,21 @@ def algoritmoGenetico(request, **kwargs):
         iteraciones = request.POST.get('iteraciones') 
         hijos = request.POST.get('hijos') 
         mutaciones = request.POST.get('mutaciones') 
-        variables = request.POST.getlist('objetivo') 
-        
-        print('--------- Variables: ' + str(variables))
+        variables = request.POST.getlist('objetivo')                 
 
-        ind = Individuo()
-        ind.generarIndividuo(listaHu, variables)
-        metricas = ind.metricas
-        app = metricas[0]
-
+        genetico = AlgoritmoGenetico(int(poblcacion), int(iteraciones), int(hijos), int(mutaciones), variables, listaHu)
+        startime = time()
+        #ind = Individuo()
+        #ind.generarIndividuo(listaHu, variables)        
+        # genetico.generarPoblacion()        
+        # genetico.reproducir()
+        # genetico.mutar()
+        # genetico.ordenarPoblacion()        
+        ind = genetico.ejecutar()
+        dura = time() - startime
+        # metricas = ind.metricas
+        # app = metricas[0]
+        matriz = genetico.poblacion
         mensaje =  "<div id='divGenetico' class='panel panel-primary'>"
         mensaje += "<div class='panel-heading'>Microservices Grouped by Genetic Programming</div>"
         mensaje += "<div class='panel-body'>"
@@ -248,30 +255,30 @@ def algoritmoGenetico(request, **kwargs):
         mensaje += "<thead>"
         mensaje += "<tr>"
         mensaje += "<th>Microservice</th>"
-        mensaje += "<th>User Stories</th>"        
+        #mensaje += "<th>User Stories</th>"        
         mensaje += "</tr>"
         mensaje += "</thead>"
         mensaje += "<tbody> "
-        mensaje += "<tr>"
-        mensaje += "<td>"
-        mensaje += "Metricas:"
-        mensaje += "</td>"
-        mensaje += "<td>"
-        mensaje += "Coupling: " + str(app.coupling) + "<br>"
-        mensaje += "Cohesion: " + str(app.cohesion) + "<br>"
-        mensaje += "Wsict: " + str(app.wsict) + "<br>"        
-        mensaje += "Microservices: " + str(app.numero_microservicios) + "<br>"
-        mensaje += "GM: " + str(app.valor_GM) + "<br>"
-        mensaje += "</td>"
-        mensaje += "</tr>"
-        # for dato in matriz:            
-        #     mensaje += "<tr>"
-        #     for hums in dato:
-        #         mensaje += "<td>"
-        #         mensaje += hums[0].identificador + "-" + str(hums[1])
-        #         mensaje += "</td>"
-
-        #     mensaje += "</tr>"
+        # mensaje += "<tr>"
+        # mensaje += "<td>"
+        # mensaje += "Metricas:"
+        # mensaje += "</td>"
+        # mensaje += "<td>"
+        # mensaje += "Coupling: " + str(app.coupling) + "<br>"
+        # mensaje += "Cohesion: " + str(app.cohesion) + "<br>"
+        # mensaje += "Wsict: " + str(app.wsict) + "<br>"        
+        # mensaje += "Microservices: " + str(app.numero_microservicios) + "<br>"
+        # mensaje += "GM: " + str(app.valor_GM) + "<br>"
+        # mensaje += "</td>"
+        # mensaje += "</tr>"
+        for dato in matriz:            
+            mensaje += "<tr>"
+            #for hums in dato:
+            mensaje += "<td>"
+            #mensaje += hums[0].identificador + "-" + str(hums[1])
+            mensaje += str(dato)
+            mensaje += "</td>"
+            mensaje += "</tr>"
         
         mensaje += "</tbody> "
         mensaje += "</table>"
@@ -280,7 +287,7 @@ def algoritmoGenetico(request, **kwargs):
         mensaje += "</div>"
         mensaje += "<div class='box-footer'>"
         mensaje += "<center>"
-        mensaje += "Cromosoma: " + ind.cromosoma
+        mensaje += "tiempo: " + str(dura) + "<br>"
         mensaje += "<input type='button' id='btnReturn' name='btnReturn' value='Return' onclick='regresar()' class='btn btn-primary'/>"
         mensaje += "</center>"
         mensaje += "</div>"

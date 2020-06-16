@@ -416,8 +416,8 @@ class Clustering():
 
 class Individuo():
 
-    def __init__(self):
-        self.numeroHistorias = 0
+    def __init__(self, listaHistorias):
+        self.numeroHistorias = len(listaHistorias)
         self.matrizAsignacion = []
         self.microservicios = []
         self.metricas = []
@@ -442,7 +442,9 @@ class Individuo():
                     matriz.append(vector)                
             
             self.matrizAsignacion.append(matriz)
-        
+            self.instanciarMicroservicios(variables)
+
+    def instanciarMicroservicios(self, variables):
         # Identificar los microservicios y asignarles las historias
         self.microservicios=[]
         cromo = ""
@@ -469,21 +471,125 @@ class Individuo():
         # Calcular las metricas para la descomposición generada
         metrica = Metrica()
         self.metricas = metrica.calcularMetricasIndividuo(self.microservicios, variables)
+        app = self.metricas[0]
+        self.valorFuncion = app.valor_GM
+    
+    def __str__(self): # __unicode__ en Python 2 
+        texto = self.cromosoma + " - " + str(self.valorFuncion) 
+        return texto
         
 class AlgoritmoGenetico():
 
-    def __init__(self, poblacion, iteraciones, hijos, mutaciones, variables, historias):    
-        self.poblacion = poblacion
+    def __init__(self, tamanoPoblacion, iteraciones, hijos, mutaciones, variables, historias):    
+        self.tamanoPoblacion = tamanoPoblacion
         self.iteraciones = iteraciones
         self.hijos = hijos
         self.mutaciones = mutaciones
         self.variables = variables
         self.historias = historias
+        self.poblacion = []
+    
+    def generarPoblacion(self):
+        poblacion=[]
 
-
-
-
-
-
-
+        for i in range(0, self.tamanoPoblacion):
+            ind = Individuo(self.historias)
+            ind.generarIndividuo(self.historias, self.variables)
+            vector = [ind]
+            poblacion.extend(vector)
         
+        self.poblacion = poblacion
+    
+    def ordenarPoblacion(self):
+        lista = self.poblacion
+        self.poblacion=[]
+        self.poblacion = sorted(lista, key=lambda objeto: objeto.valorFuncion)
+    
+    def reproducir(self):        
+        n = len(self.historias)
+        for i in range(0, self.hijos):
+            hijo= Individuo(self.historias)            
+            indexPadre = randint(0, self.tamanoPoblacion-1)
+            indexMadre = randint(0, self.tamanoPoblacion-1)
+
+            while indexPadre == indexMadre:
+                indexMadre = randint(0,self.tamanoPoblacion-1)
+            
+            padre = self.poblacion[indexPadre]
+            madre = self.poblacion[indexMadre]
+            #hijo = padre
+
+            desde = int(n / 2)
+            matrizPadre = padre.matrizAsignacion
+            matrizMadre = madre.matrizAsignacion
+            hijo.matrizAsignacion = []
+            #print("---------Desde: " + str(desde))
+            for j in range(0, n):
+                if j < desde:
+                    hijo.matrizAsignacion.append(matrizPadre[j])
+                else:
+                    hijo.matrizAsignacion.append(matrizMadre[j])
+            
+            hijo.instanciarMicroservicios(self.variables)
+
+            """ print("--------------Padre: " + str(padre))
+            print("--------------Madre: " + str(madre))
+            print("--------------Hijo: " + str(hijo)) """
+            vector = [hijo]
+            self.poblacion.extend(vector)
+    
+    def mutar(self):
+        n = len(self.historias)
+        for i in range(0, self.mutaciones):
+            indexMutar = randint(0,self.tamanoPoblacion-1)
+            mutar= self.poblacion[indexMutar]
+            mutado = mutar 
+
+            microservicio = randint(0,n-1)
+            historia = randint(0,n-1) 
+
+            bitMutar = mutado.matrizAsignacion[historia][microservicio][1]            
+
+            if bitMutar==1:
+                mutado.matrizAsignacion[historia][microservicio][1]=0
+                bitMutar2 = randint(0,n-1)
+                while bitMutar2==microservicio:
+                    bitMutar2 = randint(0,n-1)                
+                mutado.matrizAsignacion[historia][bitMutar2][1]=1
+            
+            if bitMutar==0:
+                bitMutar2=-1
+                for d in range(0, n):
+                    if mutado.matrizAsignacion[historia][d][1]==1:
+                        bitMutar2 = d
+                        break
+                mutado.matrizAsignacion[historia][microservicio][1]=1
+                mutado.matrizAsignacion[historia][bitMutar2][1]=0
+            
+            # print("--------------Ind Mutar: " + str(mutar))
+            # print("--------------MS Mutar: " + str(microservicio))
+            # print("--------------Historia Mutar: " + str(historia))
+            # print("--------------Ind Mutado: " + str(mutado))
+
+            mutado.instanciarMicroservicios(self.variables)
+
+            vector = [mutado]
+            self.poblacion.extend(vector)
+    
+    def seleccionarMejores(self):
+        self.ordenarPoblacion()
+        lista = self.poblacion
+        self.poblacion=[]
+
+        for i in range (0, self.tamanoPoblacion):            
+            vector = [lista[i]]
+            self.poblacion.extend(vector)
+    
+    def ejecutar(self):
+        self.generarPoblacion()
+        for i in range (1, self.iteraciones):            
+            self.reproducir()
+            self.mutar()
+            self.seleccionarMejores()
+        mejor = self.poblacion[0]
+        return mejor     

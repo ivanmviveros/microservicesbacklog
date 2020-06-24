@@ -71,7 +71,7 @@ class Microservicio (models.Model):
         return self.nombre
 
     class Meta:
-        ordering = ["nombre"]
+        ordering = ["nombre"] 
         default_permissions = ('add', 'change', 'delete', 'view')
     
     def getHistorias(self):

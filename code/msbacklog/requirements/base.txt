@@ -19,5 +19,5 @@ requests-oauthlib
 six
 social-auth-app-django
 social-auth-core
-spacy
+spacy==2.2.4
 django-rest-framework

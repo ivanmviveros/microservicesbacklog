@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRe
 from django.core.urlresolvers import reverse_lazy
 from django.contrib import messages
 from microservicios.models import MicroservicioApp, Microservicio, Microservicio_Historia
-from historiasUsuario.models import HistoriaUsuario
+from historiasUsuario.models import HistoriaUsuario, Dependencia_Historia
 from .models import Clustering, Individuo, AlgoritmoGenetico
 from django.http import JsonResponse
 from metricas.models import Metrica
@@ -222,12 +222,18 @@ def clusteringCalls(request, **kwargs):
     # Create your views here.  
 def algoritmoGenetico(request, **kwargs):
     if request.method == 'GET':
-        msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])        
+        msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])             
         return render(request, 'algoritmosAgrupamiento/genetic.html', {'msapp': msapp})
     
     if request.method == 'POST':
         msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
         listaHu = HistoriaUsuario.objects.filter(proyecto= msapp.proyecto)
+
+        listaDep = Dependencia_Historia.objects.filter(historia__proyecto = msapp.proyecto)   
+        dependencias=[]
+        for dephu in listaDep:
+            vector= [dephu.historia.id, dephu.dependencia.id]
+            dependencias.append(vector)
 
         poblcacion = request.POST.get('poblacion') 
         iteraciones = request.POST.get('iteraciones') 
@@ -235,19 +241,51 @@ def algoritmoGenetico(request, **kwargs):
         mutaciones = request.POST.get('mutaciones') 
         variables = request.POST.getlist('objetivo')                 
 
-        genetico = AlgoritmoGenetico(int(poblcacion), int(iteraciones), int(hijos), int(mutaciones), variables, listaHu)
         startime = time()
-        #ind = Individuo()
-        #ind.generarIndividuo(listaHu, variables)        
-        # genetico.generarPoblacion()        
+        #ind = Individuo(listaHu, dependencias)
+        #ind.generarIndividuo(listaHu, variables)
+        genetico = AlgoritmoGenetico(int(poblcacion), int(iteraciones), int(hijos), int(mutaciones), variables, listaHu, dependencias)
+                        
+        #genetico.generarPoblacion()                
         # genetico.reproducir()
         # genetico.mutar()
-        # genetico.ordenarPoblacion()        
-        ind = genetico.ejecutar()
+        # genetico.ordenarPoblacion()     
+        #datos = genetico.poblacion
+           
+        ind = genetico.ejecutar()                
+        
         dura = time() - startime
-        # metricas = ind.metricas
-        # app = metricas[0]
-        matriz = genetico.poblacion
+        
+        metricas = ind.metricas
+        app = metricas[0]
+        datos = metricas[1]        
+        # app= msapp
+
+        # Borrar las historias de los microservicios
+        lista = Microservicio.objects.filter(aplicacion = msapp)
+        for ms in lista:
+             Microservicio_Historia.objects.filter(microservicio=ms).delete()
+
+        #Borrar los microservicios que estaban antes
+        if lista:
+            Microservicio.objects.filter(aplicacion = msapp).delete()
+
+        msapp.tiempo_estimado_desarrollo = app.tiempo_estimado_desarrollo
+        msapp.coupling = app.coupling
+        msapp.aist = app.aist
+        msapp.adst = app.adst
+        msapp.siyt = app.siyt
+        
+        msapp.cohesion = app.cohesion
+        msapp.wsict = app.wsict
+
+        msapp.avg_calls = app.avg_calls
+        msapp.avg_requet = app.avg_request
+        msapp.valor_GM = ind.valorFuncion
+        msapp.numero_microservicios = app.numero_microservicios 
+
+        msapp.save()
+
         mensaje =  "<div id='divGenetico' class='panel panel-primary'>"
         mensaje += "<div class='panel-heading'>Microservices Grouped by Genetic Programming</div>"
         mensaje += "<div class='panel-body'>"
@@ -255,30 +293,76 @@ def algoritmoGenetico(request, **kwargs):
         mensaje += "<thead>"
         mensaje += "<tr>"
         mensaje += "<th>Microservice</th>"
-        #mensaje += "<th>User Stories</th>"        
+        mensaje += "<th>User Stories</th>"        
         mensaje += "</tr>"
         mensaje += "</thead>"
         mensaje += "<tbody> "
-        # mensaje += "<tr>"
-        # mensaje += "<td>"
-        # mensaje += "Metricas:"
-        # mensaje += "</td>"
-        # mensaje += "<td>"
-        # mensaje += "Coupling: " + str(app.coupling) + "<br>"
-        # mensaje += "Cohesion: " + str(app.cohesion) + "<br>"
-        # mensaje += "Wsict: " + str(app.wsict) + "<br>"        
-        # mensaje += "Microservices: " + str(app.numero_microservicios) + "<br>"
-        # mensaje += "GM: " + str(app.valor_GM) + "<br>"
-        # mensaje += "</td>"
-        # mensaje += "</tr>"
-        for dato in matriz:            
+        mensaje += "<tr>"
+        mensaje += "<td>"
+        mensaje += "Metricas:"
+        mensaje += "</td>"
+        mensaje += "<td>"
+        mensaje += "Execution time: " + str(dura) + "<br>"
+        mensaje += "Coupling: " + str(app.coupling) + "<br>"
+        mensaje += "Cohesion: " + str(app.cohesion) + "<br>"
+        mensaje += "Wsict: " + str(app.wsict) + "<br>"        
+        mensaje += "Microservices: " + str(app.numero_microservicios) + "<br>"
+        mensaje += "GM: " + str(app.valor_GM) + "<br>"
+        mensaje += "Cromosoma: " + ind.cromosoma + "<br>"
+        mensaje += "</td>"
+        mensaje += "</tr>"         
+
+        for dato in datos:            
+            # mensaje += "<tr>"
+            # #for hums in dato:
+            # mensaje += "<td>"
+            # #mensaje += hums[0].identificador + "-" + str(hums[1])
+            # mensaje += dato.cromosoma + " - " + str(dato.valorFuncion)
+            # mensaje += "</td>"
+            # mensaje += "</tr>"
+            
+            micro = dato[0]
+            micro.aplicacion = msapp
+            nombreMS = micro.nombre
+            micro.save()
+
             mensaje += "<tr>"
-            #for hums in dato:
             mensaje += "<td>"
-            #mensaje += hums[0].identificador + "-" + str(hums[1])
-            mensaje += str(dato)
+            mensaje += nombreMS + "<BR>"
+            mensaje += "historias: " + str(micro.numero_historias) + "<BR>"
+            mensaje += "puntos: " + str(micro.total_puntos) + "<BR>"
+            mensaje += "Dev. Time: " + str(micro.tiempo_estimado_desarrollo) + "<BR>"
+            mensaje += "ais: " + str(micro.ais) + "<BR>"
+            mensaje += "ads: " + str(micro.ads) + "<BR>"
+            mensaje += "siy: " + str(micro.siy) + "<BR>"
+            mensaje += "lack: " + str(micro.lack) + "<BR>"
+            mensaje += "Cohesion: " + str(micro.grado_cohesion) + "<BR>"
+            mensaje += "calls: " + str(micro.calls) + "<BR>"
+            mensaje += "request: " + str(micro.request) + "<BR>"
+            mensaje += "</td>"
+            mensaje += "<td>"                        
+
+            for hu in dato[1]:                
+                ms_hu = Microservicio_Historia(
+                    microservicio = micro,
+                    historia = hu
+                )
+                ms_hu.save()
+                mensaje += hu.identificador + " - " + hu.nombre + "<br>"
             mensaje += "</td>"
             mensaje += "</tr>"
+
+        i=0
+        for dato in genetico.poblacion:
+            mensaje += "<tr>"
+            mensaje += "<td colspan='2'>"
+            #mensaje += hums[0].identificador + "-" + str(hums[1])
+            mensaje += dato.cromosoma + " - " + str(dato.valorFuncion)
+            mensaje += "</td>"
+            mensaje += "</tr>"
+            i+=1
+            if i==12:
+                break
         
         mensaje += "</tbody> "
         mensaje += "</table>"
@@ -286,8 +370,7 @@ def algoritmoGenetico(request, **kwargs):
         mensaje += "</div>"
         mensaje += "</div>"
         mensaje += "<div class='box-footer'>"
-        mensaje += "<center>"
-        mensaje += "tiempo: " + str(dura) + "<br>"
+        mensaje += "<center>"        
         mensaje += "<input type='button' id='btnReturn' name='btnReturn' value='Return' onclick='regresar()' class='btn btn-primary'/>"
         mensaje += "</center>"
         mensaje += "</div>"
@@ -296,4 +379,3 @@ def algoritmoGenetico(request, **kwargs):
 
     messages.success(request, 'Error in GET method')
     return render(request, 'index.html')
-

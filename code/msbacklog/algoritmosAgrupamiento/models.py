@@ -8,6 +8,7 @@ from historiasUsuario.models import HistoriaUsuario, Dependencia_Historia
 from metricas.models import Metrica
 from random import randint
 import math
+import copy
 import threading
 
 # Create your models here.
@@ -425,8 +426,8 @@ class Individuo():
         self.cromosoma = ""
         self.valorFuncion = 0.0
         self.dependencias = dependencias
-        self.numero_microservicios=0
-    
+        self.numero_microservicios=0        
+
     def generarIndividuo(self, listaHistorias, variables):
         self.cromosoma = ""
         self.valorFuncion = 0.0        
@@ -544,24 +545,28 @@ class AlgoritmoGenetico():
             # print("--------------Hijo: " + hijo.cromosoma) 
             # print("---------------------------------------------")
             vector = [hijo]
-            self.poblacion.extend(vector)            
-    
+            self.poblacion.extend(vector)                    
+
+    def clonarIndividuo(self, individuo):
+        ind = copy.deepcopy(individuo)
+        return ind
+
     def mutar(self):
         n = len(self.historias)
         for i in range(0, self.mutaciones):
             indexMutar = randint(0,self.tamanoPoblacion-1)
             mutar= self.poblacion[indexMutar]
-            mutado = mutar 
+            mutado = self.clonarIndividuo(mutar)
 
-            print("-----------------Inicio")
-            print("--------------Mutar: " + mutar.cromosoma)        
-            print("--------------Mutado: " + mutado.cromosoma)
+            # print("-----------------Inicio")
+            # print("--------------Mutar: " + mutar.cromosoma)        
+            # print("--------------Mutado: " + mutado.cromosoma)
             
             microservicio = randint(0,n-1)
             historia = randint(0,n-1) 
 
-            print("--------------microserivicio: " + str(microservicio))
-            print("--------------historia: " + str(historia))
+            # print("--------------microserivicio: " + str(microservicio))
+            # print("--------------historia: " + str(historia))
 
             bitMutar = mutado.matrizAsignacion[historia][microservicio][1]            
 
@@ -583,13 +588,13 @@ class AlgoritmoGenetico():
                         
             mutado.instanciarMicroservicios(self.variables)
 
-            print("------------------Mutacion")
-            print("--------------Mutar: " + mutar.cromosoma)        
-            print("--------------Mutado: " + mutado.cromosoma)
-            print("--------------Ind Mutar: " + str(mutar.valorFuncion))
+            # print("------------------Mutacion")
+            # print("--------------Mutar: " + mutar.cromosoma)        
+            # print("--------------Mutado: " + mutado.cromosoma)
+            # print("--------------Ind Mutar: " + str(mutar.valorFuncion))
             # print("--------------MS Mutar: " + str(microservicio))
             # print("--------------Historia Mutar: " + str(historia))
-            print("--------------Ind Mutado: " + str(mutado.valorFuncion))
+            #print("--------------Ind Mutado: " + str(mutado.valorFuncion))
 
             vector = [mutado]
             self.poblacion.extend(vector)
@@ -601,14 +606,36 @@ class AlgoritmoGenetico():
 
         for i in range (0, self.tamanoPoblacion):            
             vector = [lista[i]]            
-            self.poblacion.extend(vector)                            
+            self.poblacion.extend(vector) 
+
+    def converge(self, convergencia):
+        ind = self.poblacion[0]
+        valorMejor =round(ind.valorFuncion,4)
+        cont=0
+        rta= False
+
+        for individuo in self.poblacion:
+            valor = round(individuo.valorFuncion, 4)            
+            if valor== valorMejor:
+                cont+=1
+            porcentaje = float(cont) / float(self.tamanoPoblacion)
+            porcentaje = round(porcentaje, 2)
+            if porcentaje>convergencia:
+                rta=True
+                break            
+        return rta
 
     def ejecutar(self):
         self.generarPoblacion()        
-        for i in range (0, self.iteraciones):            
-            self.reproducir()            
-            print("------------------mutar" )
+        #for i in range (0, self.iteraciones):            
+        converge=False
+        cont=0
+        while converge==False:
+            cont+=1
+            self.reproducir()                        
             self.mutar()                        
             self.seleccionarMejores()            
+            converge = self.converge(0.3)
         mejor = self.poblacion[0]
+        self.iteraciones = cont        
         return mejor     

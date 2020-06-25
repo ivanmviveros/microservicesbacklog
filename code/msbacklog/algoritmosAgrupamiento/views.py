@@ -299,16 +299,17 @@ def algoritmoGenetico(request, **kwargs):
         mensaje += "<tbody> "
         mensaje += "<tr>"
         mensaje += "<td>"
-        mensaje += "Metricas:"
+        mensaje += "Metrics:"
         mensaje += "</td>"
         mensaje += "<td>"
-        mensaje += "Execution time: " + str(dura) + "<br>"
-        mensaje += "Coupling: " + str(app.coupling) + "<br>"
-        mensaje += "Cohesion: " + str(app.cohesion) + "<br>"
+        mensaje += "Execution time: " + str(round(dura,3)) + "<br>"
+        mensaje += "Iterations: " + str(genetico.iteraciones) + "<br>"
+        mensaje += "Coupling: " + str(round(app.coupling,3)) + "<br>"
+        mensaje += "Cohesion: " + str(round(app.cohesion,3)) + "<br>"
         mensaje += "Wsict: " + str(app.wsict) + "<br>"        
         mensaje += "Microservices: " + str(app.numero_microservicios) + "<br>"
-        mensaje += "GM: " + str(app.valor_GM) + "<br>"
-        mensaje += "Cromosoma: " + ind.cromosoma + "<br>"
+        mensaje += "GM: " + str(round(app.valor_GM,3)) + "<br>"
+        #mensaje += "Cromosoma: " + ind.cromosoma + "<br>"
         mensaje += "</td>"
         mensaje += "</tr>"         
 
@@ -336,7 +337,7 @@ def algoritmoGenetico(request, **kwargs):
             mensaje += "ads: " + str(micro.ads) + "<BR>"
             mensaje += "siy: " + str(micro.siy) + "<BR>"
             mensaje += "lack: " + str(micro.lack) + "<BR>"
-            mensaje += "Cohesion: " + str(micro.grado_cohesion) + "<BR>"
+            mensaje += "Cohesion: " + str(round(micro.grado_cohesion,3)) + "<BR>"
             mensaje += "calls: " + str(micro.calls) + "<BR>"
             mensaje += "request: " + str(micro.request) + "<BR>"
             mensaje += "</td>"
@@ -352,17 +353,17 @@ def algoritmoGenetico(request, **kwargs):
             mensaje += "</td>"
             mensaje += "</tr>"
 
-        i=0
-        for dato in genetico.poblacion:
-            mensaje += "<tr>"
-            mensaje += "<td colspan='2'>"
-            #mensaje += hums[0].identificador + "-" + str(hums[1])
-            mensaje += dato.cromosoma + " - " + str(dato.valorFuncion)
-            mensaje += "</td>"
-            mensaje += "</tr>"
-            i+=1
-            if i==12:
-                break
+        # i=0
+        # for dato in genetico.poblacion:
+        #     mensaje += "<tr>"
+        #     mensaje += "<td colspan='2'>"
+        #     #mensaje += hums[0].identificador + "-" + str(hums[1])
+        #     mensaje += dato.cromosoma + " - " + str(dato.valorFuncion)
+        #     mensaje += "</td>"
+        #     mensaje += "</tr>"
+        #     i+=1
+        #     if i==12:
+        #         break
         
         mensaje += "</tbody> "
         mensaje += "</table>"

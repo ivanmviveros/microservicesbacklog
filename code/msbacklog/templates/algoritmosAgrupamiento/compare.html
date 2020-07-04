@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{# Load the tag library #}
+{% load staticfiles %}
+{% load bootstrap3 %}
+
+{% block page-title %}Microservices Backlog{% endblock %}
+{% block page-description %}Genetic Algorithm - Group user stories in Microservices{% endblock %}
+
+{% block specific-css %}
+    <link href="{% static 'AdminLTE-2.3.11/plugins/datatables/dataTables.bootstrap.css' %}" rel="stylesheet">    
+{% endblock %}
+
+{% block content %}
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <h2 class="box-title">Usuario: {{ usuario.nombre }}</h2>            
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        <div class="box-body">                                            
+            <div class="panel panel-info">                                                       
+                <div class="panel-heading"><strong> Evaluate Decomposition Methods </strong></div>
+                <div class="panel-body">                    
+                    <form method="post" id="frmEvaluar" name="frmEvaluar" data-post-url="{% url 'algoritmos:compare-descompositions' usuario.id %}" class="form-horizontal" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <table class="table">
+                            <tbody>                                                                                                            
+                                <tr>
+                                    <td><strong>Project:</strong></td>
+                                    <td>
+                                        {%  if proyectos %}
+                                        <select id="proyecto" name="proyecto" class="form-control"|>
+                                            {% for p in proyectos %}
+                                                <option value="{{ p.id }}">{{p.sigla}}</option>
+                                            {% endfor %}                                            
+                                        </select>   
+                                        {% else %}
+                                            There are not projects.
+                                        {% endif %}                             
+                                    </td>
+                                </tr>                                                                                                         
+                            </tbody>
+                        </table>
+                        <center>
+                            <div class="box-footer">
+                                <input type="hidden" id="token" name="token" value="{{ csrf_token }}" readonly="readonly" class="form-control"/>
+                                <input type="submit" id="btnEjecutar" name="btnEjecutar" value="Evaluate Methods" class="btn btn-primary"/>
+                                <a href="{% url 'microservicios:list-msapp' usuario.id %}">
+                                    {% bootstrap_button "Cancel" button_type="button" button_class="btn-primary"%}
+                                </a>
+                            </div>
+                        </center>
+                    </form>                                                            
+                </div>
+            </div>            
+            <div id="divResultado">
+
+            </div>
+        </div>                        
+    </div>
+{% endblock %}
+{% block specific-js %}
+    <script src="{% static 'AdminLTE-2.3.11/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE-2.3.11/plugins/datatables/dataTables.bootstrap.min.js' %}"></script>
+    <script>
+        
+        $('#frmEvaluar').on( 'submit', function(){
+            
+            txtHtml = "<center>";
+            txtHtml += "<div class='panel panel-warning'>";
+            txtHtml += "<div class='panel-heading'>"
+            txtHtml += "Evaluating Decompositons Methods...";
+            txtHtml += "</div>";
+            txtHtml += "<div class='panel-body'>";
+            txtHtml += "<img class='img-circle' alt='Loading' src='/static/images/cargando.gif' width='50' height='50'>";            
+            txtHtml += "</div>";
+            txtHtml += "</div>";
+            txtHtml += "</center>";
+
+            errHtml = "<center>";
+            errHtml += "<div class='panel panel-danger'>";
+            errHtml += "<div class='panel-heading'>"
+            errHtml += "Failed to evaluate decompositions methods.";
+            errHtml += "</div>";
+            errHtml += "<div class='panel-body'>";
+            errHtml += "<img class='img-circle' alt='Error' src='/static/images/error_16.png' width='20' height='20'>";            
+            errHtml += "</div>";
+            errHtml += "</div>";
+            errHtml += "</center>";
+
+            $('#divResultado').html(txtHtml);            
+            
+            var post_url = $('#frmEvaluar').data("post-url");
+            var formData = new FormData(this);            
+
+            $.ajax({
+                url: post_url,
+                type: "POST", 
+                data: formData,
+                processData: false,
+                contentType: false,
+
+                success:function(response){
+                    $('#divResultado').html(response.content.message);
+                },
+
+                error: function (response) {                    
+                    $('#divResultado').html(errHtml);
+                }
+
+            });
+
+            return false;
+        });
+                
+    </script>    
+    <script>
+        function regresar(){            
+            location.href = "{% url 'microservicios:list-msapp' usuario.id %}";
+        }                        
+    </script>
+{% endblock %}

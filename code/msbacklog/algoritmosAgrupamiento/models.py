@@ -208,11 +208,10 @@ class Clustering():
             i += 1
         return microservicios    
     
-    def calcularDistanciaCalls(self, msapp):
-        matrizDistancias=[]
+    def calcularDistanciaCalls(self, msapp, dependencias):        
         matrizCalls=[]
         listMS = Microservicio.objects.filter(aplicacion= msapp)
-        vector=[]
+        vector=[]        
         if listMS:
             for ms in listMS:
                 call=0       
@@ -228,14 +227,14 @@ class Clustering():
                         valor=0
                         for hu in historias:                        
                             for hums in historiasmscal:
-                                cont = Dependencia_Historia.objects.filter(historia = hu.historia, dependencia = hums.historia).count()
+                                cont = Dependencia_Historia.objects.filter(historia = hu.historia, dependencia = hums.historia).count()                                
+                                #if  [hu.id, hums.id] in dependencias:
                                 if cont>0:
                                     valor+=1
                         call = valor
                     dato = [ms2, call]                                        
                     vector.append(dato)
-                matrizCalls.append(vector)        
-        
+                matrizCalls.append(vector)                      
         return matrizCalls
     
     def calcularDistanciaCoupling(self, msapp):

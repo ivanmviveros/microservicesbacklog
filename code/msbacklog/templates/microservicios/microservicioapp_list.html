@@ -13,13 +13,17 @@
             <div class="box-header blue-border">
                 <h2 class="box-title"><strong>Usuario: {{ usuario.nombre }}</strong></h2>
                 <div class="box-title pull-right">                
-                    <img class="img-circle" src="{% static 'images/perfil_defecto.png' %}" alt="Escudo" width="40" height="40">                
+                    <img class="img-circle" src="{% static 'images/perfil_defecto.png' %}" alt="User" width="40" height="40">                
                 </div>
             </div> 
             <div class="panel panel-info"> 
                 <div class="panel-body">         
                     <a href="{% url 'microservicios:create-msapp' usuario.id %}" title="Add microservices-based App.">
-                            <img src="{% static 'images/add_16.png'%}"/> Add Microservices-based App.
+                            <img src="{% static 'images/add_16.png'%}" width="24" height="24"/> Add Microservices-based App.
+                    </a>
+                    <img src="{% static 'images/separator.png'%}"/>
+                    <a href="{% url 'algoritmos:compare-descompositions' usuario.id %}" title="Compare decompositions">
+                        <img src="{% static 'images/evaluar_16.png'%}" width="24" height="24"/> Evaluate Methods
                     </a>
                 </div>
             </div>                        
@@ -56,9 +60,12 @@
                                 <a href="{% url 'metricas:calculate-metrics' msapp.id %}" title="Metrics">
                                     <img src="{% static 'images/metrics.png'%}"></img>
                                 </a>
+                                <a href="{% url 'microservicios:microservices-backlog' msapp.id %}" title="Microservices backlog diagram">
+                                    <img src="{% static 'images/msbacklog-diagram2.png'%}"></img>
+                                </a>
                                 {%  if msapp.metodo.id == 1 %}
                                 <a href="{% url 'algoritmos:algoritmo-genetico' msapp.id %}" title="Genetic programming">
-                                    <img src="{% static 'images/genetico.png'%}"></img>
+                                    <img src="{% static 'images/genetico3.png'%}"></img>
                                 </a>
                                 {% endif %}
                                 {%  if msapp.metodo.id == 2 %}

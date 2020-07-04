@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from django.db import models
 from historiasUsuario.models import Proyecto, HistoriaUsuario
+from random import randint
+
 
 # Create your models here.
 class MetodoDescomposicion (models.Model):
@@ -40,6 +42,40 @@ class MicroservicioApp (models.Model):
 
     def __str__(self): # __unicode__ en Python 2 
         return self.nombre
+    
+    def getDataMicroservicesBacklog(self, matrizCalls):
+        microservicios = Microservicio.objects.filter(aplicacion = self)
+        edjes=""
+        nodos=""
+        i=1
+        mayor_puntos=0
+
+        if microservicios:
+            for ms in microservicios:
+                colorr= randint(0,(255))
+                colorg= randint(0,(255))
+                colorb= randint(0,(255))
+
+                nodos+= str(i) + "," +  ms.nombre + "," + str(colorr) + "," +  str(colorg) + "," +  str(colorb) + "," +str(ms.numero_historias) + "|"
+
+                if ms.total_puntos > mayor_puntos:
+                    mayor_puntos= ms.total_puntos
+                
+                i+=1                                                            
+
+            i=1            
+            for dato in matrizCalls:
+                j=1
+                for callms in dato:                    
+                    if callms[1] > 0:
+                        for k in range(0, callms[1]):                            
+                            edjes += str(i) + "," + str(j) + "|"
+                    j += 1
+                
+                i += 1
+        vector= [nodos, edjes]
+        return vector
+
     class Meta:
         ordering = ["nombre"]
         default_permissions = ('add', 'change', 'delete', 'view')

@@ -11,6 +11,7 @@ from .views import (
     MicroservicioEditarView,
     MicroserviciosHistoriaUdpateView,
     MicroserviciosListView,
+    microservicesBacklogDiagram,
 )  
 
 urlpatterns = [
@@ -28,4 +29,5 @@ urlpatterns = [
     url(r'^detalle-microservicio/(?P<pk>\d+)$', MicroservicioDetailView.as_view(), name='detail-microservicio'),    
     #url(r'^cargar-microservicios/(?P<id_aplicacion>\d+)$', microservicios_uploadfile, name='load-microservicios'),
     url(r'^microservicios-historias/(?P<pk>\d+)$', MicroserviciosHistoriaUdpateView.as_view(), name='microservicios-historias'),
+    url(r'^microservices-backlog/(?P<pk>\d+)$', microservicesBacklogDiagram, name='microservices-backlog'),
 ]

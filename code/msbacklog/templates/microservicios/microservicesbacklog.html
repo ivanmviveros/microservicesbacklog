@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+{# Load the tag library #}
+{% load staticfiles %}
+{% load bootstrap3 %}
+
+{% block page-title %}Microservices Backlog{% endblock %}
+{% block page-description %}Microservices Granularity and Dependences{% endblock %}
+
+{% block specific-css %}    
+    <style type="text/css">
+        #microservicesNetwork {
+            width: 40%;
+            height: 520px;
+            border: 1px solid lightgray;
+        }
+        
+    </style>
+{% endblock %}
+
+{% block content %}    
+    <script type="text/javascript" src="{% static 'vis/vis-network.min.js' %}"></script>
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <h2 class="box-title">Project: {{ msapp.proyecto.nombre }}</h2> <br>
+            <h2 class="box-title">Application: {{ msapp.nombre }}</h2>            
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        <div class="box-body">                                            
+            <div class="panel panel-info">                                                       
+                <div class="panel-heading"><strong> Microservices Backlog Diagram </strong></div>
+                <div class="panel-body">                                        
+                    <center>
+                    <div class="row">
+                        <div id="divMetricasMSApp" class="col-md-3">
+                            <div class="panel panel-info" style="height: 520px; overflow-y: auto;"> 
+                                <div class="panel-heading">Application Metrics (Decomposition) </div>                              
+                                <div class="panel-body">       
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>Granularity Metric (GM):</strong></td>
+                                                <td>
+                                                    <input type="text" id="gm" name="gm" value="{{ msapp.valor_GM|floatformat:2 }}" readonly="readonly" class="form-control"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Number of Microservices:</strong></td>
+                                                <td>
+                                                    <input type="text" id="number" name="number" value="{{ msapp.numero_microservicios }}" readonly="readonly" class="form-control"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Coupling (CpT):</strong></td>
+                                                <td>
+                                                    <input type="text" id="coupling" name="coupling" value="{{ msapp.coupling|floatformat:2 }}" readonly="readonly" class="form-control"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Cohesion (CohT):</strong></td>
+                                                <td>
+                                                    <input type="text" id="cohesion" name="cohesion" value="{{ msapp.cohesion|floatformat:2 }}" readonly="readonly" class="form-control"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Greater number of user stories (WsicT):</strong></td>
+                                                <td>
+                                                    <input type="text" id="wsict" name="wsict" value="{{ msapp.wsict }}" readonly="readonly" class="form-control"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Estimated average Calls:</strong></td>
+                                                <td>
+                                                    <input type="text" id="avg_calls" name="avg_calls" value="{{ msapp.avg_calls|floatformat:2 }}" readonly="readonly" class="form-control"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Estimated development time:</strong></td>
+                                                <td>
+                                                    <input type="tiempo" id="time" name="tiempo" value="{{ msapp.tiempo_estimado_desarrollo|floatformat:2 }}" readonly="readonly" class="form-control"/>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>                                                        
+                        </div>
+                        
+                        <div id="microservicesNetwork" class="col-md-4">
+
+                        </div>
+                        
+                        
+                        <div id="divMetricas" class="col-md-4">
+                            <div class="panel panel-info" style="height: 520px; overflow-y: auto;">   
+                                <div class="panel-heading">Microservices Metrics</div>                              
+                                <div class="panel-body">       
+                                    {% for ms in listaMS %}
+                                        <div id="{{ms.nombre}}" style="border: 1px solid black;">
+                                            <table class="table">
+                                                <tbody>
+                                                    <tr>
+                                                        <td colspan="2" align="center"><strong>Microservice: {{ms.nombre}}</strong></td>
+                                                    </tr>                                                                                                        
+                                                    <tr>
+                                                        <td><strong>User stories: ({{ ms.numero_historias }})</strong></td>
+                                                        <td>
+                                                            {% for hums in ms.getHistorias %} 
+                                                                {{ hums.historia.identificador }} - {{ hums.historia.nombre }} <br>
+                                                            {% endfor %}
+                                                        </td>
+                                                    </tr>                                                    
+                                                    <tr>
+                                                        <td><strong>Points:</strong></td>
+                                                        <td>{{ ms.total_puntos }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>Coupling:</strong></td>
+                                                        <td>
+                                                            AIS: {{ ms.ais }} <br>
+                                                            ADS: {{ ms.ads }} <br>
+                                                            SIY: {{ ms.siy }} <br>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>Cohesion:</strong></td>
+                                                        <td>
+                                                            Lack: {{ ms.lack }} <br>
+                                                            Cohesion grade: {{ ms.grado_cohesion|floatformat:2 }} <br>                                                            
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>Calls:</strong></td>
+                                                        <td>{{ ms.calls }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>Request:</strong></td>
+                                                        <td>{{ ms.request }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>Estimated Dev. Time:</strong></td>
+                                                        <td>{{ ms.tiempo_estimado_desarrollo }}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <br>
+                                    {% endfor %}
+                                </div>
+                            </div>    
+                        </div>                        
+                    </div>
+                    
+                        <div class="box-footer">                                                                
+                            <a href="{% url 'microservicios:list-msapp' msapp.proyecto.usuario.id %}">
+                                {% bootstrap_button "Cancel" button_type="button" button_class="btn-primary"%}
+                            </a>
+                            <input type="hidden" id="nodos" value="{{nodos}}"\>
+                            <input type="hidden" id="ejes" value="{{ejes}}"\>
+                        </div>
+                    </center>                                                                              
+                </div>
+            </div>                        
+        </div>                        
+    </div>
+{% endblock %}
+{% block specific-js %}    
+    <script type="text/javascript"> 
+         // create an array with nodes
+        //  {id: 1, label: 'Node 1', color: 'rgba(255, 0, 0,1)', shape: 'hexagon', value: '3', title: "<h2>Esto es el title</h2>"},
+        //     {id: 2, label: 'Node 2', color: 'rgba(0,255,0,1)', shape: 'hexagon', value: '6'},
+        //     {id: 3, label: 'Node 3', title: 'HOla Mundo', color: 'rgba(0,0,255,1)', shape: 'hexagon', value: '9'},
+        //     {id: 4, label: 'Node 4', title: 'HOla Mundo', color: 'rgba(100,50,120,1)', shape: 'hexagon', value: '12'},
+        //     {id: 5, label: 'Node 5', title: 'HOla Mundo', color: 'rgba(0,255,255,1)', shape: 'hexagon', value: '16'},
+
+        // '1,MS1,222,148,155,4|2,MS2,236,170,195,4|3,MS3,59,34,159,3|4,MS4,28,166,157,3|'
+        datosn =  document.getElementById('nodos').value; 
+        datose =  document.getElementById('ejes').value;     
+
+        nodos = datosn.split("|")                  
+        
+        var nodes = new vis.DataSet();
+
+        for (i=0; i<nodos.length; i++){
+            dato = nodos[i];
+            if (dato!=null){
+                if (dato!=""){
+                    if (dato!='undefined'){
+                        datos = dato.split(",")
+                        colorNodo= 'rgba(' + datos[2].toString() + ',' + datos[3].toString() + ',' + datos[4].toString() +  ',1)';
+                        nodes.add(                            
+                            {id: datos[0], label: datos[1], color: colorNodo, shape: 'hexagon', value: datos[5], title: 'Hola tontos'},
+                        );
+
+                    }
+                }
+            }
+        }        
+
+        // create an array with edges
+        // {from: 1, to: 3, arrows:'to'},
+        //     {from: 1, to: 2, arrows:'to'},
+        //     {from: 2, to: 1, arrows:'to'},
+        //     {from: 2, to: 4, arrows:'to'},
+        //     {from: 2, to: 5, arrows:'to'}
+        ejes = datose.split("|")
+        var edges = new vis.DataSet();        
+        for(i=0; i<ejes.length; i++){
+            dato= ejes[i];
+            if (dato!=null){
+                if (dato!=""){
+                    if (dato!='undefined'){
+                        datos = dato.split(",")
+                        edges.add(
+                            {from: datos[0], to: datos[1], arrows:'to'},
+                        );
+
+                    }
+                }
+            }
+        }
+
+        // create a network
+        var container = document.getElementById('microservicesNetwork');
+
+        // provide the data in the vis format
+        var data = {
+            nodes: nodes,
+            edges: edges
+        };
+        var options = {
+            interaction:{hover: true},             
+            physics:{
+                enabled: true,
+                solver: 'repulsion',
+                repulsion: {
+                    centralGravity: 0.2,
+                    springLength: 300,
+                    springConstant: 0.05,
+                    nodeDistance: 100,
+                    damping: 0.09
+                },
+
+            },            
+            manipulation: {enabled: true}
+        };
+
+        // initialize your network!
+        var network = new vis.Network(container, data, options);
+
+        network.on("click", function(params) {
+            params.event = "[original event]";
+            document.getElementById("divMetricas").innerHTML =
+                "<h2>Click event:</h2>" + JSON.stringify(params, null, 4);
+            console.log(
+                "click event, getNodeAt returns: " + this.getNodeAt(params.pointer.DOM)
+            );
+        });
+                           
+    </script>
+{% endblock %}

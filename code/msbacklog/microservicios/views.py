@@ -4,7 +4,7 @@ from subprocess import call
 
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect
 from .models import MicroservicioApp, Microservicio, Microservicio_Historia
-from historiasUsuario.models import Usuario, Proyecto, HistoriaUsuario
+from historiasUsuario.models import Usuario, Proyecto, HistoriaUsuario, Dependencia_Historia
 from django.core.urlresolvers import reverse_lazy
 from django.contrib import messages
 from django.db import IntegrityError
@@ -16,6 +16,8 @@ from django.views.generic.edit import (
 from django.views.generic import ListView, DetailView
 from django import forms 
 from .forms import MicroservicioAppForm, MicroservicioForm, MicroservicioHistoriasForm
+from algoritmosAgrupamiento.models import Clustering
+from random import randint
 import requests
 
 # Create your views here.
@@ -286,3 +288,25 @@ class MicroserviciosHistoriaUdpateView(UpdateView):
         self.microservicio = get_object_or_404(Microservicio, id=self.kwargs['pk'])
         messages.success(self.request, self.success_msg)
         return  '/microservicios/microservicios-list/%s' % (self.microservicio.aplicacion.id)
+
+def microservicesBacklogDiagram(request, **kwargs):
+    if request.method == 'GET':
+        msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
+        listaMS = Microservicio.objects.filter(aplicacion = msapp)
+
+        listaDep = Dependencia_Historia.objects.filter(historia__proyecto = msapp.proyecto)   
+        dependencias=[]
+        for dephu in listaDep:
+            id1= dephu.historia.id
+            id2= dephu.dependencia.id
+            vector= [id1, id2]
+            dependencias.append(vector)
+
+        cluster = Clustering('es', 'sm')
+        matrizCalls = cluster.calcularDistanciaCalls(msapp, dependencias)
+
+        vector = msapp.getDataMicroservicesBacklog(matrizCalls)
+        nodos= vector[0]
+        edjes= vector[1]
+                                                                                                                                                                                
+        return render(request, 'microservicios/microservicesbacklog.html', {'msapp': msapp, 'nodos': nodos, 'ejes': edjes, 'listaMS': listaMS})

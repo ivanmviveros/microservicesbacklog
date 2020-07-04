@@ -7,6 +7,7 @@ from django.contrib import messages
 from microservicios.models import MicroservicioApp, Microservicio, Microservicio_Historia
 from historiasUsuario.models import HistoriaUsuario, Dependencia_Historia
 from .models import Clustering, Individuo, AlgoritmoGenetico
+from historiasUsuario.models import Proyecto, Usuario
 from django.http import JsonResponse
 from metricas.models import Metrica
 import json
@@ -380,3 +381,83 @@ def algoritmoGenetico(request, **kwargs):
 
     messages.success(request, 'Error in GET method')
     return render(request, 'index.html')
+
+def compararDescomposiciones(request, **kwargs):
+    if request.method == 'GET':
+        usuario = get_object_or_404(Usuario, id=kwargs['pk'])
+        proyectos = Proyecto.objects.filter(usuario= usuario)        
+        return render(request, 'algoritmosAgrupamiento/compare.html', {'proyectos': proyectos, 'usuario':usuario})
+    
+    if request.method == 'POST':
+        idProyecto = request.POST.get('proyecto')         
+        proyecto = get_object_or_404(Proyecto, id=idProyecto)
+        listaMSApp = MicroservicioApp.objects.filter(proyecto= proyecto).order_by('valor_GM')
+
+        if listaMSApp:
+
+            mensaje =  "<div id='divMetrics' class='panel panel-primary'>"
+            mensaje += "<div class='panel-heading'>Microservices Decompositions Metrics</div>"
+            mensaje += "<div class='panel-body'>"
+            mensaje += "<table id='tblMetricas' class='table table-striped table-bordered'>"
+            mensaje += "<thead>"
+            mensaje += "<tr>"
+            mensaje += "<th>Methods</th>"
+            mensaje += "<th title='Number of microservices'>N</th>"
+            mensaje += "<th title='Total absolute importance between microservices '>AisT</th>"
+            mensaje += "<th title='Total absolute dependence between microservices '>AdsT</th>"
+            mensaje += "<th title='Total microservices interdependences'>SiyT</th>"
+            mensaje += "<th title='Total coupling'>CpT</th>"
+            mensaje += "<th title='Total cohesion'>CohT</th>"        
+            mensaje += "<th title='Total microservice interfaz count'>WsicT</th>"
+            mensaje += "<th title='Granularity metric'>GM</th>"
+            #mensaje += "<th title='Highest estimated points'>Max. Points</th>"
+            mensaje += "<th title='Avarege of calls between microservices'>Avg. Calls</th>"
+            mensaje += "<th title='Highest estimated development time'>Dev. Time</th>"
+            mensaje += "</tr>"
+            mensaje += "</thead>"
+            mensaje += "<tbody> "
+
+            for msapp in listaMSApp:
+                
+                mensaje += "<tr align='right'>"
+                mensaje += "<td align='left'>" + msapp.nombre + "</td>"
+                mensaje += "<td aling='rigth'>" + str(msapp.numero_microservicios) + "</td>"
+                mensaje += "<td>" + str(round(msapp.aist,2)) + "</td>"
+                mensaje += "<td>" + str(round(msapp.adst,2)) + "</td>"
+                mensaje += "<td>" + str(round(msapp.siyt,2)) + "</td>"
+                mensaje += "<td>" + str(round(msapp.coupling,2)) + "</td>"
+                mensaje += "<td>" + str(round(msapp.cohesion,2)) + "</td>"
+                mensaje += "<td>" + str(round(msapp.wsict,2)) + "</td>"
+                mensaje += "<td>" + str(round(msapp.valor_GM,2)) + "</td>"
+                #mensaje += "<td>" + str(round(msapp.puntos,2)) + "</td>"
+                mensaje += "<td>" + str(round(msapp.avg_calls,2)) + "</td>"
+                mensaje += "<td>" + str(round(msapp.tiempo_estimado_desarrollo,2)) + "</td>"                
+                mensaje += "</tr>"
+            
+            mensaje += "</tbody> "
+            mensaje += "</table>"
+            mensaje += "</div>"
+            mensaje += "</div>"
+            mensaje += "</div>"
+            mensaje += "<div class='box-footer'>"
+            mensaje += "<center>"        
+            mensaje += "<input type='button' id='btnReturn' name='btnReturn' value='Return' onclick='regresar()' class='btn btn-primary'/>"
+            mensaje += "</center>"
+            mensaje += "</div>"            
+            mensaje += "<script>"
+            mensaje += "$(document).ready(function() {"
+            mensaje += "$('#tblMetricas').DataTable({"
+            mensaje += "'dom': 'Bfrtip', "
+            mensaje += " });"
+            mensaje += "} );"
+            mensaje += "</script>"
+        
+        else:
+            mensaje = "There are not microservices decompositions."
+        
+        return JsonResponse({ 'content': { 'message': mensaje } })
+
+
+
+
+

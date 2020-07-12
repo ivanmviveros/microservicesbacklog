@@ -10,7 +10,7 @@
     <style type="text/css">
         #microservicesNetwork {
             width: 40%;
-            height: 520px;
+            height: 530px;
             border: 1px solid lightgray;
         }
         
@@ -33,7 +33,7 @@
                     <center>
                     <div class="row">
                         <div id="divMetricasMSApp" class="col-md-3">
-                            <div class="panel panel-info" style="height: 520px; overflow-y: auto;"> 
+                            <div class="panel panel-info" style="height: 530px;"> 
                                 <div class="panel-heading">Application Metrics (Decomposition) </div>                              
                                 <div class="panel-body">       
                                     <table class="table">
@@ -92,62 +92,13 @@
                         
                         
                         <div id="divMetricas" class="col-md-4">
-                            <div class="panel panel-info" style="height: 520px; overflow-y: auto;">   
-                                <div class="panel-heading">Microservices Metrics</div>                              
-                                <div class="panel-body">       
-                                    {% for ms in listaMS %}
-                                        <div id="{{ms.nombre}}" style="border: 1px solid black;">
-                                            <table class="table">
-                                                <tbody>
-                                                    <tr>
-                                                        <td colspan="2" align="center"><strong>Microservice: {{ms.nombre}}</strong></td>
-                                                    </tr>                                                                                                        
-                                                    <tr>
-                                                        <td><strong>User stories: ({{ ms.numero_historias }})</strong></td>
-                                                        <td>
-                                                            {% for hums in ms.getHistorias %} 
-                                                                {{ hums.historia.identificador }} - {{ hums.historia.nombre }} <br>
-                                                            {% endfor %}
-                                                        </td>
-                                                    </tr>                                                    
-                                                    <tr>
-                                                        <td><strong>Points:</strong></td>
-                                                        <td>{{ ms.total_puntos }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><strong>Coupling:</strong></td>
-                                                        <td>
-                                                            AIS: {{ ms.ais }} <br>
-                                                            ADS: {{ ms.ads }} <br>
-                                                            SIY: {{ ms.siy }} <br>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><strong>Cohesion:</strong></td>
-                                                        <td>
-                                                            Lack: {{ ms.lack }} <br>
-                                                            Cohesion grade: {{ ms.grado_cohesion|floatformat:2 }} <br>                                                            
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><strong>Calls:</strong></td>
-                                                        <td>{{ ms.calls }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><strong>Request:</strong></td>
-                                                        <td>{{ ms.request }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><strong>Estimated Dev. Time:</strong></td>
-                                                        <td>{{ ms.tiempo_estimado_desarrollo }}</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <br>
-                                    {% endfor %}
-                                </div>
-                            </div>    
+                            <div class='panel panel-info' style='height: 530px; overflow-y: auto;'>
+                                <div class='panel-heading'>Microservices Metrics</div>
+                                <div class='panel-body'>
+                                    <div class="alert alert-success" role="alert"><strong> Click on a microservice for detailing its metrics.</strong></div>
+                                </div>                            
+                            </div>
+                            
                         </div>                        
                     </div>
                     
@@ -157,8 +108,9 @@
                             </a>
                             <input type="hidden" id="nodos" value="{{nodos}}"\>
                             <input type="hidden" id="ejes" value="{{ejes}}"\>
+                            <input type="hidden" id="metricas" value="{{metricas}}"\>                            
                         </div>
-                    </center>                                                                              
+                    </center>                                                                                                  
                 </div>
             </div>                        
         </div>                        
@@ -196,13 +148,7 @@
                 }
             }
         }        
-
-        // create an array with edges
-        // {from: 1, to: 3, arrows:'to'},
-        //     {from: 1, to: 2, arrows:'to'},
-        //     {from: 2, to: 1, arrows:'to'},
-        //     {from: 2, to: 4, arrows:'to'},
-        //     {from: 2, to: 5, arrows:'to'}
+        
         ejes = datose.split("|")
         var edges = new vis.DataSet();        
         for(i=0; i<ejes.length; i++){
@@ -234,11 +180,11 @@
                 enabled: true,
                 solver: 'repulsion',
                 repulsion: {
-                    centralGravity: 0.2,
-                    springLength: 300,
+                    centralGravity: 0.1,
+                    springLength: 100,
                     springConstant: 0.05,
-                    nodeDistance: 100,
-                    damping: 0.09
+                    nodeDistance: 250,
+                    damping: 0.5
                 },
 
             },            
@@ -246,15 +192,68 @@
         };
 
         // initialize your network!
-        var network = new vis.Network(container, data, options);
-
+        var network = new vis.Network(container, data, options);        
+        
         network.on("click", function(params) {
             params.event = "[original event]";
-            document.getElementById("divMetricas").innerHTML =
-                "<h2>Click event:</h2>" + JSON.stringify(params, null, 4);
-            console.log(
-                "click event, getNodeAt returns: " + this.getNodeAt(params.pointer.DOM)
-            );
+            var nodo = this.getNodeAt(params.pointer.DOM);            
+            var datosm =  document.getElementById('metricas').value;                        
+            var metricasms = datosm.split("|");            
+            var tabla = "";
+            tabla += "<div class='panel panel-info' style='height: 530px; overflow-y: auto;'>";
+            tabla += "<div class='panel-heading'>Microservices Metrics</div>";                              
+            tabla += "<div class='panel-body'>";            
+            if (nodo==undefined){
+                tabla += "<div class='alert alert-success' role='alert'><strong> Click on a microservice for detailing its metrics.</strong></div>";
+            } else {
+                for(i=0; i<metricasms.length; i++ ){
+                    var valores = metricasms[i].split(",");
+                    var dato = valores[0];
+                    if (dato == null) dato="0";
+                    if (dato =='undefined') dato="0";
+                    if (dato =='') dato="0";                
+                    var index = parseInt(dato);
+                    if (nodo==index) {
+                        //tabla += "<div id='divMS' style='border: 1px solid black;'>";
+                        tabla += "<table class='table'>";
+                        tabla += "<tbody>";
+                        tabla += "<tr><td colspan='2' align='center'><strong>Microservice: " + valores[1] + "</strong></td></tr>";
+                        tabla += "<tr><td><strong>User stories: (" + valores[2] + ")</strong></td>";
+                        tabla += "<td>";
+                        var historias = valores[3];
+                        var datohu =  historias.split(";");
+
+                        for (j=0; j< datohu.length; j++){
+                            var valor = datohu[j];
+                            if (valor != null) {
+                                if (valor!= ''){
+                                    if (valor!='undefined'){
+                                        tabla +=  valor + "<br>";
+                                    }
+                                }
+                            }                        
+                        }
+                        tabla += "</td></tr>";
+                        tabla += "<tr><td><strong>Points:</strong></td><td>" + valores[4] + "</td></tr>";
+                        tabla += "<tr><td><strong>Coupling:</strong></td><td>AIS: "+ valores[5] + " <br>";
+                        tabla += "ADS: " + valores[6] +" <br> SIY: "+ valores[7] + " <br></td></tr>";
+                        tabla += "<tr><td><strong>Cohesion:</strong></td><td>";
+                        tabla += "Lack: "+ valores[8] +" <br> Cohesion grade: "+ valores[9] +"</td></tr>";
+                        tabla += "<tr><td><strong>Calls:</strong></td><td>"+ valores[10] +"</td></tr>";
+                        tabla += "<tr><td><strong>Request:</strong></td><td>"+ valores[11] +"</td></tr>";
+                        tabla += "<tr><td><strong>Estimated Dev. Time:</strong></td><td>"+ valores[12] +"</td></tr>";
+                        tabla += "</tbody></table>";
+                        //tabla += "</div>";
+                        break;
+                    }
+                }
+            }
+                                    
+                                    
+
+            tabla += "</div></div>";
+            
+            document.getElementById("divMetricas").innerHTML =tabla;                                
         });
                            
     </script>

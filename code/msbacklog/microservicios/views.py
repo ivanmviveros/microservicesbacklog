@@ -308,5 +308,6 @@ def microservicesBacklogDiagram(request, **kwargs):
         vector = msapp.getDataMicroservicesBacklog(matrizCalls)
         nodos= vector[0]
         edjes= vector[1]
+        metricas = vector[2]
                                                                                                                                                                                 
-        return render(request, 'microservicios/microservicesbacklog.html', {'msapp': msapp, 'nodos': nodos, 'ejes': edjes, 'listaMS': listaMS})
+        return render(request, 'microservicios/microservicesbacklog.html', {'msapp': msapp, 'nodos': nodos, 'ejes': edjes, 'metricas': metricas})

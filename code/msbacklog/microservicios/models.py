@@ -47,6 +47,7 @@ class MicroservicioApp (models.Model):
         microservicios = Microservicio.objects.filter(aplicacion = self)
         edjes=""
         nodos=""
+        metricas=""
         i=1
         mayor_puntos=0
 
@@ -56,11 +57,32 @@ class MicroservicioApp (models.Model):
                 colorg= randint(0,(255))
                 colorb= randint(0,(255))
 
-                nodos+= str(i) + "," +  ms.nombre + "," + str(colorr) + "," +  str(colorg) + "," +  str(colorb) + "," +str(ms.numero_historias) + "|"
+                valor = ms.total_puntos
+
+                nodos+= str(i) + "," +  ms.nombre + "," + str(colorr) + "," +  str(colorg) + "," +  str(colorb) + "," +str(valor) + "|"
 
                 if ms.total_puntos > mayor_puntos:
                     mayor_puntos= ms.total_puntos
                 
+                listaHistorias = ms.getHistorias()
+
+                metricas += str(i) + ","
+                metricas += ms.nombre + ","
+                metricas += str(ms.numero_historias) + ","
+
+                for hu in listaHistorias:
+                    metricas += hu.historia.identificador + " - " + hu.historia.nombre + ";"
+                metricas+= ","
+                metricas += str(ms.total_puntos) + "," 
+                metricas += str(ms.ais) + ","
+                metricas += str(ms.ads) + ","
+                metricas += str(ms.siy) + ","
+                metricas += str(ms.lack) + ","
+                metricas += str(round(ms.grado_cohesion,2) )+ ","
+                metricas += str(ms.calls) + ","
+                metricas += str(ms.request) + ","
+                metricas += str(round(ms.tiempo_estimado_desarrollo,2))
+                metricas += "|"
                 i+=1                                                            
 
             i=1            
@@ -73,7 +95,7 @@ class MicroservicioApp (models.Model):
                     j += 1
                 
                 i += 1
-        vector= [nodos, edjes]
+        vector= [nodos, edjes, metricas]
         return vector
 
     class Meta:

@@ -376,7 +376,7 @@ class Metrica (models.Model):
                 puntos += hu.puntos_estimados
         return puntos
     
-    def calcularMetricasIndividuo(self, microservicios, variables, dependencias):        
+    def calcularMetricasIndividuo(self, microservicios, variables, dependencias, penalizaCx):        
         if microservicios:
             sumacalls = 0.0
             sumarequest = 0.0
@@ -390,6 +390,9 @@ class Metrica (models.Model):
             mayor_puntos=0
             n= len(microservicios)
             contadorMS=0
+            vector_cgs=[] # Peso de los nodos o microservicios
+            vector_cxs=[] # Calls (out) de MS a otros
+            vector_cxrs=[] #  Calls (in) de otros a MS
 
             for dato in microservicios:                
                 contadorMS += 1
@@ -410,6 +413,12 @@ class Metrica (models.Model):
                 ms.numero_historias = rta[7]
                 ms.tiempo_estimado_desarrollo = rta[8]
                 ms.total_puntos = rta[9]                                                                
+
+                cgi = ms.total_puntos * ms.numero_historias # Peso de cada nodo del grafo de microservicios
+                vector=[cgi] 
+                vector_cgs.extend(vector) # Guardo los pesos de cada nodo de la aplicación.
+                vector_cxs.append(rta[11]) # Obtengo el valor de llamadas entre el microservicio y los otros aplicando la penalización si son bidireccionales.
+                vector_cxrs.append(rta[12])
 
                 if ms.tiempo_estimado_desarrollo > mayor_tiempo:
                     mayor_tiempo = ms.tiempo_estimado_desarrollo
@@ -432,6 +441,32 @@ class Metrica (models.Model):
                 vector= [ms, dato[1]]
                 listaMS.append(vector)            
 
+            # Calcular la complejidad cognitiva            
+
+            # Calls (out)
+            sumaCx=0 
+            for cx in vector_cxs:
+                sumaCxi=0
+                i=0                
+                for call in cx:
+                    cgmsi = vector_cgs[i]
+                    valor_cx = call * cgmsi
+                    sumaCxi += valor_cx
+                    i+=1
+                sumaCx += sumaCxi
+            
+            # Request (in)
+            sumaCxr=0
+            i=0
+            for cxr in vector_cxrs:
+                sumaCxri=0
+                for reques in cxr:
+                    cgmsi = vector_cgs[i]
+                    valor_cxr = reques * cgmsi
+                    sumaCxri += valor_cxr
+                sumaCxr+= sumaCxri
+                i+=1
+
             cua_coht=0
             cua_copt=0
             cua_wsict=0
@@ -445,9 +480,9 @@ class Metrica (models.Model):
 
             coht = math.sqrt(sucmacuaCoh)
 
-            wsict=mayor_wsic
-            cplt=mayor_puntos
-            semant=0
+            wsict = mayor_wsic
+            cplt = sumaCx + sumaCxr
+            semant = 0
             
             if variables:
                 for var in variables:
@@ -479,28 +514,34 @@ class Metrica (models.Model):
             msapp.avg_calls = sumacalls /  msapp.numero_microservicios
             msapp.avg_request = sumarequest /  msapp.numero_microservicios
 
+            msapp.complejidad_cognitiva = sumaCx + sumaCxr
             msapp.valor_GM = gm
             metricas= [msapp, listaMS]               
 
             return metricas
     
-    def calcularMetricasMicroservicio(self, msCalcular, microservicios, n, dependencias):
+    def calcularMetricasMicroservicio(self, msCalcular, microservicios, n, dependencias, penalizaCx):
         clientes=0 # Cuantos MS llaman a msCalcular
         request=0  # Cuantas veces llaman a msCalcular
         calls=0  # Cuantas llamadas hace msCalcular a otros MS
         provedores=0 # Cuantos MS usa o llama msCalcular
         interdependientes=0
         nointerdependientes=0
-        vector_callsIJ=[]        
+        vector_callsIJ=[]
+        vector_cx=[]
+        vector_cxr=[]        
         puntos=0
         tiempo=0
         valor=0
         valor2=0
         numero_historias=0
         i=0
+        cx=0 # Complejidad de llamadas (calls) del microservicio a otros microservicios.
+        cxr=0 # complejidad de peticiones (request) que hacen al microservicio
         if microservicios:            
             for ms in microservicios:                
                 callsIJ=0 # Llamadas que hace el MSCal a cada MS
+                requestIJ=0 # Peticiones que cada MS hace al MSCal
                 valor=0
                 valor2=0
                 if ms[0] != msCalcular[0]:
@@ -516,6 +557,7 @@ class Metrica (models.Model):
                             if [hu.id, hums.id] in dependencias:
                                 valor+=1
                                 request+=1
+                                requestIJ+=1
                             
                             #if cont2>0:
                             if [hums.id, hu.id] in dependencias:
@@ -534,16 +576,25 @@ class Metrica (models.Model):
                     if valor2>0:
                         provedores+=1
                     
+                    cx = callsIJ
+                    cxr = requestIJ
+                    
                     if valor>0 and valor2>0:
                         interdependientes+=1
+                        cx =  cx * penalizaCx
                     else:
                         nointerdependientes+=1
                 vector = [callsIJ]                
                 vector_callsIJ.extend(vector)    
                 grado_cohesion = nointerdependientes / n
                 wsic = numero_historias
+                vector1 = [cx]
+                vector_cx.extend(vector1)
+                vector2 = [cxr]
+                vector_cxr.extend(vector2)
     
-        respuesta = [clientes, request, provedores, calls, interdependientes, nointerdependientes, grado_cohesion, wsic, tiempo, puntos, vector_callsIJ]
+        respuesta = [clientes, request, provedores, calls, interdependientes, nointerdependientes, grado_cohesion, 
+                     wsic, tiempo, puntos, vector_callsIJ, vector_cx, vector_cxr]
         return respuesta
                                         
                     

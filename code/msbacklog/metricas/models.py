@@ -401,7 +401,7 @@ class Metrica (models.Model):
                 ms = Microservicio(nombre= nombreMS)
 
                 # calcular las métricas del microservicio
-                rta = self.calcularMetricasMicroservicio(dato, microservicios, n, dependencias)
+                rta = self.calcularMetricasMicroservicio(dato, microservicios, n, dependencias, penalizaCx)
 
                 ms.ais= rta[0]
                 ms.request = rta[1]
@@ -414,7 +414,9 @@ class Metrica (models.Model):
                 ms.tiempo_estimado_desarrollo = rta[8]
                 ms.total_puntos = rta[9]                                                                
 
-                cgi = ms.total_puntos * ms.numero_historias # Peso de cada nodo del grafo de microservicios
+                #cgi = ms.total_puntos * ms.numero_historias # Peso de cada nodo del grafo de microservicios
+                cgi = ms.total_puntos / ms.numero_historias # Peso de cada nodo del grafo de microservicios
+
                 vector=[cgi] 
                 vector_cgs.extend(vector) # Guardo los pesos de cada nodo de la aplicación.
                 vector_cxs.append(rta[11]) # Obtengo el valor de llamadas entre el microservicio y los otros aplicando la penalización si son bidireccionales.
@@ -448,10 +450,10 @@ class Metrica (models.Model):
             for cx in vector_cxs:
                 sumaCxi=0
                 i=0                
-                for call in cx:
-                    cgmsi = vector_cgs[i]
-                    valor_cx = call * cgmsi
-                    sumaCxi += valor_cx
+                for call in cx:                    
+                    cgmsi = vector_cgs[i]                    
+                    valor_cx = call * cgmsi                    
+                    sumaCxi = sumaCxi +  valor_cx
                     i+=1
                 sumaCx += sumaCxi
             
@@ -460,10 +462,10 @@ class Metrica (models.Model):
             i=0
             for cxr in vector_cxrs:
                 sumaCxri=0
-                for reques in cxr:
+                for reques in cxr:                    
                     cgmsi = vector_cgs[i]
                     valor_cxr = reques * cgmsi
-                    sumaCxri += valor_cxr
+                    sumaCxri = sumaCxri + valor_cxr
                 sumaCxr+= sumaCxri
                 i+=1
 
@@ -491,7 +493,7 @@ class Metrica (models.Model):
                     if var=="cohesion":
                         cua_coht = coht * coht
                     if var=="complexity":
-                        cua_cplt = cplt * cplt # Falta crear el método de calcular la complejidad cognitiva de la MSApp, toma mayor puntos
+                        cua_cplt = cplt * cplt 
                     if var=="wsict":
                         cua_wsict = wsict * wsict
                     if var=="semantic":
@@ -581,7 +583,7 @@ class Metrica (models.Model):
                     
                     if valor>0 and valor2>0:
                         interdependientes+=1
-                        cx =  cx * penalizaCx
+                        cx =  cx * int(penalizaCx)
                     else:
                         nointerdependientes+=1
                 vector = [callsIJ]                

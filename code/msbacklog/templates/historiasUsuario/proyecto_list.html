@@ -27,7 +27,9 @@
                 <tr>
                     <th>Abbr.</th>
                     <th>Name</th>        
-                    <th>Public</th>        
+                    <th>Public</th>
+                    <th>User Stories</th>
+                    <th>Points</th>        
                     <th>Options</th>
                 </tr>
                 </thead>
@@ -40,7 +42,9 @@
                         <tr>
                             <td><a href="{% url 'historias:detail-proyecto' proyecto.id %}" title="Details">{{ proyecto.sigla }}</a></td>                            
                             <td>{{ proyecto.nombre }}</td>
-                            <td>{{ proyecto.es_publico }}</td>                            
+                            <td>{{ proyecto.es_publico }}</td>
+                            <td>{{ proyecto.getNumeroHistorias }}</td>
+                            <td>{{ proyecto.getTotalPuntos }}</td>                            
                             <td>
                                 <a href="{% url 'historias:edit-proyecto' usuario.id proyecto.id %}" title="Edit">
                                     <img src="{% static 'images/edit_16.png'%}"></img>

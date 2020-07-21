@@ -22,6 +22,17 @@ class Proyecto (models.Model):
 
     def __str__(self): # __unicode__ en Python 2 
         return self.sigla
+    
+    def getTotalPuntos(self):
+        listaHu = HistoriaUsuario.objects.filter(proyecto=self)
+        total=0
+        for hu in listaHu:
+            total += hu.puntos_estimados
+        return total
+    
+    def getNumeroHistorias(self):
+        total = HistoriaUsuario.objects.filter(proyecto=self).count()
+        return total
 
     class Meta:
         ordering = ["sigla"]

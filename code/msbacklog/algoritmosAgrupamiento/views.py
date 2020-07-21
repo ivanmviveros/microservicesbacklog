@@ -239,13 +239,14 @@ def algoritmoGenetico(request, **kwargs):
         poblcacion = request.POST.get('poblacion') 
         iteraciones = request.POST.get('iteraciones') 
         hijos = request.POST.get('hijos') 
-        mutaciones = request.POST.get('mutaciones') 
+        mutaciones = request.POST.get('mutaciones')
+        penalizaCx = request.POST.get('penalizaCx') 
         variables = request.POST.getlist('objetivo')                 
 
         startime = time()
         #ind = Individuo(listaHu, dependencias)
         #ind.generarIndividuo(listaHu, variables)
-        genetico = AlgoritmoGenetico(int(poblcacion), int(iteraciones), int(hijos), int(mutaciones), variables, listaHu, dependencias)
+        genetico = AlgoritmoGenetico(int(poblcacion), int(iteraciones), int(hijos), int(mutaciones), variables, listaHu, dependencias, penalizaCx)
                         
         #genetico.generarPoblacion()                
         # genetico.reproducir()
@@ -309,6 +310,7 @@ def algoritmoGenetico(request, **kwargs):
         mensaje += "Cohesion: " + str(round(app.cohesion,3)) + "<br>"
         mensaje += "Wsict: " + str(app.wsict) + "<br>"        
         mensaje += "Microservices: " + str(app.numero_microservicios) + "<br>"
+        mensaje += "Cognitive Complexity: " + str(app.complejidad_cognitiva) + "<br>"
         mensaje += "GM: " + str(round(app.valor_GM,3)) + "<br>"
         #mensaje += "Cromosoma: " + ind.cromosoma + "<br>"
         mensaje += "</td>"

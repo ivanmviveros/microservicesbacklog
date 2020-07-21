@@ -427,7 +427,7 @@ class Individuo():
         self.dependencias = dependencias
         self.numero_microservicios=0        
 
-    def generarIndividuo(self, listaHistorias, variables):
+    def generarIndividuo(self, listaHistorias, variables, penalizaCx):
         self.cromosoma = ""
         self.valorFuncion = 0.0        
         
@@ -444,9 +444,9 @@ class Individuo():
                     matriz.append(vector)                
             
             self.matrizAsignacion.append(matriz)
-            self.instanciarMicroservicios(variables)
+        self.instanciarMicroservicios(variables, penalizaCx)
 
-    def instanciarMicroservicios(self, variables):
+    def instanciarMicroservicios(self, variables, penalizaCx):
         # Identificar los microservicios y asignarles las historias
         self.microservicios=[]
         cromo = ""
@@ -473,7 +473,7 @@ class Individuo():
 
         #Calcular las metricas para la descomposición generada
         metrica = Metrica()
-        self.metricas = metrica.calcularMetricasIndividuo(self.microservicios, variables, self.dependencias)
+        self.metricas = metrica.calcularMetricasIndividuo(self.microservicios, variables, self.dependencias, penalizaCx)
         app = self.metricas[0]
         self.valorFuncion = app.valor_GM
     
@@ -483,7 +483,7 @@ class Individuo():
         
 class AlgoritmoGenetico():
 
-    def __init__(self, tamanoPoblacion, iteraciones, hijos, mutaciones, variables, historias, dependencias):    
+    def __init__(self, tamanoPoblacion, iteraciones, hijos, mutaciones, variables, historias, dependencias, penalizaCx):    
         self.tamanoPoblacion = tamanoPoblacion
         self.iteraciones = iteraciones
         self.hijos = hijos
@@ -492,18 +492,19 @@ class AlgoritmoGenetico():
         self.historias = historias
         self.poblacion = []
         self.dependencias = dependencias
+        self.penalizaCx = penalizaCx
     
     def generarPoblacion(self):                        
         for i in range(0, self.tamanoPoblacion):
             ind = Individuo(self.historias, self.dependencias)
-            ind.generarIndividuo(self.historias, self.variables)
+            ind.generarIndividuo(self.historias, self.variables, self.penalizaCx)
             vector = [ind]
             self.poblacion.extend(vector)                        
     
     def generarPoblacionParalelo(self, inicio, fin):                
         for i in range(inicio, fin):
             ind = Individuo(self.historias, self.dependencias)
-            ind.generarIndividuo(self.historias, self.variables)
+            ind.generarIndividuo(self.historias, self.variables, self.penalizaCx)
             vector = [ind]
             self.poblacion.extend(vector)                    
             
@@ -536,7 +537,7 @@ class AlgoritmoGenetico():
                 else:
                     hijo.matrizAsignacion.append(matrizMadre[j])
             
-            hijo.instanciarMicroservicios(self.variables)
+            hijo.instanciarMicroservicios(self.variables, self.penalizaCx)
 
             # print("---------------------------------------------")
             # print("--------------Padre: " + padre.cromosoma)
@@ -585,7 +586,7 @@ class AlgoritmoGenetico():
                 mutado.matrizAsignacion[historia][microservicio][1]=1
                 mutado.matrizAsignacion[historia][bitMutar2][1]=0
                         
-            mutado.instanciarMicroservicios(self.variables)
+            mutado.instanciarMicroservicios(self.variables, self.penalizaCx)
 
             # print("------------------Mutacion")
             # print("--------------Mutar: " + mutar.cromosoma)        

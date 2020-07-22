@@ -427,7 +427,7 @@ class Individuo():
         self.dependencias = dependencias
         self.numero_microservicios=0        
 
-    def generarIndividuo(self, listaHistorias, variables, penalizaCx):
+    def generarIndividuo(self, listaHistorias, variables, penalizaCx, totalHistorias, totalPuntos):
         self.cromosoma = ""
         self.valorFuncion = 0.0        
         
@@ -444,9 +444,9 @@ class Individuo():
                     matriz.append(vector)                
             
             self.matrizAsignacion.append(matriz)
-        self.instanciarMicroservicios(variables, penalizaCx)
+        self.instanciarMicroservicios(variables, penalizaCx, totalHistorias, totalPuntos)
 
-    def instanciarMicroservicios(self, variables, penalizaCx):
+    def instanciarMicroservicios(self, variables, penalizaCx, totalHistorias, totalPuntos):
         # Identificar los microservicios y asignarles las historias
         self.microservicios=[]
         cromo = ""
@@ -473,7 +473,7 @@ class Individuo():
 
         #Calcular las metricas para la descomposición generada
         metrica = Metrica()
-        self.metricas = metrica.calcularMetricasIndividuo(self.microservicios, variables, self.dependencias, penalizaCx)
+        self.metricas = metrica.calcularMetricasIndividuo(self.microservicios, variables, self.dependencias, penalizaCx, totalHistorias, totalPuntos)
         app = self.metricas[0]
         self.valorFuncion = app.valor_GM
     
@@ -483,7 +483,7 @@ class Individuo():
         
 class AlgoritmoGenetico():
 
-    def __init__(self, tamanoPoblacion, iteraciones, hijos, mutaciones, variables, historias, dependencias, penalizaCx):    
+    def __init__(self, tamanoPoblacion, iteraciones, hijos, mutaciones, variables, historias, dependencias, penalizaCx, totalHistorias, totalPuntos):    
         self.tamanoPoblacion = tamanoPoblacion
         self.iteraciones = iteraciones
         self.hijos = hijos
@@ -493,18 +493,20 @@ class AlgoritmoGenetico():
         self.poblacion = []
         self.dependencias = dependencias
         self.penalizaCx = penalizaCx
+        self.totalHistorias = totalHistorias
+        self.totalPuntos = totalPuntos
     
     def generarPoblacion(self):                        
         for i in range(0, self.tamanoPoblacion):
             ind = Individuo(self.historias, self.dependencias)
-            ind.generarIndividuo(self.historias, self.variables, self.penalizaCx)
+            ind.generarIndividuo(self.historias, self.variables, self.penalizaCx, self.totalHistorias, self.totalPuntos)
             vector = [ind]
             self.poblacion.extend(vector)                        
     
     def generarPoblacionParalelo(self, inicio, fin):                
         for i in range(inicio, fin):
             ind = Individuo(self.historias, self.dependencias)
-            ind.generarIndividuo(self.historias, self.variables, self.penalizaCx)
+            ind.generarIndividuo(self.historias, self.variables, self.penalizaCx, self.totalHistorias, self.totalPuntos)
             vector = [ind]
             self.poblacion.extend(vector)                    
             
@@ -537,7 +539,7 @@ class AlgoritmoGenetico():
                 else:
                     hijo.matrizAsignacion.append(matrizMadre[j])
             
-            hijo.instanciarMicroservicios(self.variables, self.penalizaCx)
+            hijo.instanciarMicroservicios(self.variables, self.penalizaCx, self.totalHistorias, self.totalPuntos)
 
             # print("---------------------------------------------")
             # print("--------------Padre: " + padre.cromosoma)
@@ -586,7 +588,7 @@ class AlgoritmoGenetico():
                 mutado.matrizAsignacion[historia][microservicio][1]=1
                 mutado.matrizAsignacion[historia][bitMutar2][1]=0
                         
-            mutado.instanciarMicroservicios(self.variables, self.penalizaCx)
+            mutado.instanciarMicroservicios(self.variables, self.penalizaCx, self.totalHistorias, self.totalPuntos)
 
             # print("------------------Mutacion")
             # print("--------------Mutar: " + mutar.cromosoma)        

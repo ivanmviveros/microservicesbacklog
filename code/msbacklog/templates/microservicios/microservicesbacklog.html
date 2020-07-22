@@ -39,17 +39,23 @@
                                     <table class="table">
                                         <tbody>
                                             <tr>
+                                                <td><strong>Number of Microservices:</strong></td>
+                                                <td>
+                                                    <input type="text" id="number" name="number" value="{{ msapp.numero_microservicios }}" readonly="readonly" class="form-control"/>
+                                                </td>
+                                            </tr>                                            
+                                            <tr>
                                                 <td><strong>Granularity Metric (GM):</strong></td>
                                                 <td>
                                                     <input type="text" id="gm" name="gm" value="{{ msapp.valor_GM|floatformat:2 }}" readonly="readonly" class="form-control"/>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td><strong>Number of Microservices:</strong></td>
+                                                <td><strong>Cognitive complexity:</strong></td>
                                                 <td>
-                                                    <input type="text" id="number" name="number" value="{{ msapp.numero_microservicios }}" readonly="readonly" class="form-control"/>
+                                                    <input type="text" id="complexity" name="complexity" value="{{ msapp.complejidad_cognitiva |floatformat:2 }}" readonly="readonly" class="form-control"/>
                                                 </td>
-                                            </tr>
+                                            </tr>                                            
                                             <tr>
                                                 <td><strong>Coupling (CpT):</strong></td>
                                                 <td>

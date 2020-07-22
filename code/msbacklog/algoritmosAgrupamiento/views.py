@@ -246,7 +246,9 @@ def algoritmoGenetico(request, **kwargs):
         startime = time()
         #ind = Individuo(listaHu, dependencias)
         #ind.generarIndividuo(listaHu, variables)
-        genetico = AlgoritmoGenetico(int(poblcacion), int(iteraciones), int(hijos), int(mutaciones), variables, listaHu, dependencias, penalizaCx)
+        totalHistorias = msapp.proyecto.getNumeroHistorias()
+        totalPuntos = msapp.proyecto.getTotalPuntos()
+        genetico = AlgoritmoGenetico(int(poblcacion), int(iteraciones), int(hijos), int(mutaciones), variables, listaHu, dependencias, penalizaCx, totalHistorias, totalPuntos)
                         
         #genetico.generarPoblacion()                
         # genetico.reproducir()
@@ -285,6 +287,7 @@ def algoritmoGenetico(request, **kwargs):
         msapp.avg_requet = app.avg_request
         msapp.valor_GM = ind.valorFuncion
         msapp.numero_microservicios = app.numero_microservicios 
+        msapp.complejidad_cognitiva = app.complejidad_cognitiva
 
         msapp.save()
 
@@ -412,9 +415,10 @@ def compararDescomposiciones(request, **kwargs):
             mensaje += "<th title='Total cohesion'>CohT</th>"        
             mensaje += "<th title='Total microservice interfaz count'>WsicT</th>"
             mensaje += "<th title='Granularity metric'>GM</th>"
+            mensaje += "<th title='Cognitive complexity'>Complexity</th>"
             #mensaje += "<th title='Highest estimated points'>Max. Points</th>"
             mensaje += "<th title='Avarege of calls between microservices'>Avg. Calls</th>"
-            mensaje += "<th title='Highest estimated development time'>Dev. Time</th>"
+            mensaje += "<th title='Highest estimated development time'>Dev. Time</th>"            
             mensaje += "</tr>"
             mensaje += "</thead>"
             mensaje += "<tbody> "
@@ -431,6 +435,7 @@ def compararDescomposiciones(request, **kwargs):
                 mensaje += "<td>" + str(round(msapp.cohesion,2)) + "</td>"
                 mensaje += "<td>" + str(round(msapp.wsict,2)) + "</td>"
                 mensaje += "<td>" + str(round(msapp.valor_GM,2)) + "</td>"
+                mensaje += "<td>" + str(msapp.complejidad_cognitiva) + "</td>"
                 #mensaje += "<td>" + str(round(msapp.puntos,2)) + "</td>"
                 mensaje += "<td>" + str(round(msapp.avg_calls,2)) + "</td>"
                 mensaje += "<td>" + str(round(msapp.tiempo_estimado_desarrollo,2)) + "</td>"                

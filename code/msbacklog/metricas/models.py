@@ -38,7 +38,7 @@ class Metrica (models.Model):
             for ms_h in ms_historias:
                 puntos += ms_h.historia.puntos_estimados
         return puntos
-    
+                         
     # Calcula la métrica AIS y la cantidad de request o peticiones que le hacen al microservicio
     # devuelve un vector en el indice 0 está AIS y en el indice 1 está Request [AIS,Request]
     def calcularAisRequest( self, msCalcular, msapp):
@@ -215,168 +215,8 @@ class Metrica (models.Model):
 
             msapp.valor_GM = self.calcularMetricaGranularidadGM(msapp.cohesion, msapp.coupling, msapp.wsict)
             msapp.save()
-
-    def calcularPuntosMicroservicio(self, ms):
-        ms_historias = Microservicio_Historia.objects.filter(microservicio = ms)
-        puntos =0
-        if ms_historias:
-            for ms_h in ms_historias:
-                puntos += ms_h.historia.puntos_estimados
-        return puntos
     
-    # Calcula la métrica AIS y la cantidad de request o peticiones que le hacen al microservicio
-    # devuelve un vector en el indice 0 está AIS y en el indice 1 está Request [AIS,Request]
-    def calcularAisRequestIndividuo( self, msCalcular, microservicios):                
-        if microservicios:
-            clientes=0
-            peticiones=0
-            for ms in microservicios:
-                valor=0
-                if ms[0] != msCalcular[0]:
-                    historias = ms[1]
-                    historiasmscal = msCalcular[1]
-                    for hu in historias:                        
-                        for hums in historiasmscal:
-                            cont = Dependencia_Historia.objects.filter(historia = hu, dependencia = hums).count()
-                            if cont>0:
-                                valor+=1
-                                peticiones+=1
-                    if valor>0:
-                        clientes += 1
-        respuesta = [clientes, peticiones]
-        return respuesta
-    
-    # Calcula la métrica ADS y la cantidad de calls o llamadas que hace el microservicio a otros
-    # devuelve un vector en el indice 0 está ADS y en el indice 1 está Calls [ADS, Calls]
-    def calcularAdsCallsIndividuo( self, msCalcular, microservicios):        
-        if microservicios:
-            clientes=0
-            calls=0
-            for ms in microservicios:
-                valor=0
-                if ms[0] != msCalcular[0]:
-                    historias = msCalcular[1]
-                    historiasmscal = ms[1]
-                    for hu in historias:                        
-                        for hums in historiasmscal:
-                            cont = Dependencia_Historia.objects.filter(historia = hu, dependencia = hums).count()
-                            if cont>0:
-                                valor+=1
-                                calls+=1
-                    if valor>0:
-                        clientes += 1
-        respuesta = [clientes, calls]
-        return respuesta
-
-    def calcularSiyLackIndividuo (self, msCalcular, microservicios):        
-        interdependientes=0
-        nointerdependientes=0
-        if microservicios:
-            for ms in microservicios:
-                valor = 0
-                valor2 = 0
-                if ms[0] != msCalcular[0]:
-                    historias = ms[1]
-                    historiasmscal = msCalcular[1]
-                    for hu in historiasmscal:
-                        for hums in historias:                            
-                            cont = Dependencia_Historia.objects.filter(historia = hums, dependencia = hu).count()
-                            if cont>0:
-                                valor+=1
-                    if valor>0:
-                        for hu in historias:
-                            for hums in historiasmscal:                                
-                                cont = Dependencia_Historia.objects.filter(historia = hums, dependencia = hu).count()
-                                if cont>0:
-                                    valor2+=1
-                    if valor>0 and valor2>0:
-                        interdependientes+=1
-                    else:
-                        nointerdependientes+=1
-        grado_cohesion = nointerdependientes / len(microservicios)
-        respuesta = [interdependientes, nointerdependientes, grado_cohesion]
-        return respuesta
-    
-    def calcularNumeroHistoriasIndividuo(self, msCalcular):        
-        wsic = len(msCalcular[1])        
-        return wsic
-    
-    def calcularTiempoDesarrolloIndividuo(self, msCalcular):        
-        tiempo =0.0
-        if msCalcular[1]:
-            for hu in msCalcular[1]:
-                tiempo += hu.tiempo_estimado
-        return tiempo
-    
-    def calcularAcoplamientoIndividuo(self, microservicios):        
-        if microservicios:
-            sumaais=0
-            sumaads=0
-            sumasiy=0
-            for datos in microservicios:
-                ms = datos[0]
-                sumaais += ms.ais * ms.ais 
-                sumaads += ms.ads * ms.ads
-                sumasiy += ms.siy * ms.siy
-            aist = math.sqrt(sumaais)
-            adst = math.sqrt(sumaads)
-            siyt = math.sqrt(sumasiy)
-            cpt = math.sqrt( (aist*aist) + (adst*adst) + (siyt*siyt))
-        respuesta = [aist, adst, siyt, cpt]
-        return respuesta
-    
-    def calcularCohesionIndividuo(self, microservicios):        
-        if microservicios:
-            sumacoh = 0
-            for datos in microservicios:
-                ms = datos[0]
-                sumacoh += ms.grado_cohesion * ms.grado_cohesion 
-            coht = math.sqrt(sumacoh)
-        return coht
-    
-    def calcularWsicTIndividuo(self, microservicios):        
-        if microservicios:
-            mayor = 0
-            for datos in microservicios:
-                ms = datos[0]
-                if ms.numero_historias > mayor:
-                    mayor = ms.numero_historias
-        return mayor
-    
-    def calcularGMIndividuo(self, variables, microservicios):
-        coht=0
-        copt=0
-        wsict=0
-        cplt=0
-        semant=0
-        
-        if variables:
-            for var in variables:
-                if var=="coupling":
-                    rta = self.calcularAcoplamientoIndividuo(microservicios)
-                    copt = rta[3]
-                if var=="cohesion":
-                    coht = self.calcularCohesionIndividuo(microservicios)
-                if var=="complexity":
-                    cplt = 0 # Falta crear el método de calcular la complejidad cognitiva de la MSApp
-                if var=="wsict":
-                    wsict = self.calcularWsicTIndividuo(microservicios)
-                if var=="semantic":
-                    semant = 0 # Falta crear el método de calcular la similitud semantica de la MSApp
-
-        gm = math.sqrt( (coht*coht) + (copt*copt) + (wsict*wsict) + (cplt*cplt) + (semant*semant) )
-        return gm
-    
-    def calcularPuntosMSIndividuo(self, fila):
-        
-        ms_historias = fila[1]
-        puntos =0
-        if ms_historias:
-            for hu in ms_historias:
-                puntos += hu.puntos_estimados
-        return puntos
-    
-    def calcularMetricasIndividuo(self, microservicios, variables, dependencias, penalizaCx):        
+    def calcularMetricasIndividuo(self, microservicios, variables, dependencias, penalizaCx, totalHistorias, totalPuntos):        
         if microservicios:
             sumacalls = 0.0
             sumarequest = 0.0
@@ -415,7 +255,9 @@ class Metrica (models.Model):
                 ms.total_puntos = rta[9]                                                                
 
                 #cgi = ms.total_puntos * ms.numero_historias # Peso de cada nodo del grafo de microservicios
-                cgi = ms.total_puntos / ms.numero_historias # Peso de cada nodo del grafo de microservicios
+                #cgi = ms.total_puntos / ms.numero_historias # Peso de cada nodo del grafo de microservicios
+                #cgi = ms.total_puntos + ms.numero_historias
+                cgi = float(ms.total_puntos + ms.numero_historias) / float(totalHistorias + totalPuntos)
 
                 vector=[cgi] 
                 vector_cgs.extend(vector) # Guardo los pesos de cada nodo de la aplicación.

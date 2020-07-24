@@ -185,6 +185,7 @@ class Metrica (models.Model):
         i=0
         cx=0 # Complejidad de llamadas (calls) del microservicio a otros microservicios.
         cxr=0 # complejidad de peticiones (request) que hacen al microservicio
+        historiasmscal = Microservicio_Historia.objects.filter(microservicio = msCalcular)
 
         if microservicios:
             for ms in microservicios:
@@ -194,8 +195,7 @@ class Metrica (models.Model):
                 valor2=0
 
                 if ms.id != msCalcular.id:
-                    historias = Microservicio_Historia.objects.filter(microservicio = ms)
-                    historiasmscal = Microservicio_Historia.objects.filter(microservicio = msCalcular)
+                    historias = Microservicio_Historia.objects.filter(microservicio = ms)                    
                     for hu in historias:                        
                         for hums in historiasmscal:
                             #cont = Dependencia_Historia.objects.filter(historia = hu, dependencia = hums).count()
@@ -211,12 +211,7 @@ class Metrica (models.Model):
                             if [hums.historia.id, hu.historia.id] in dependencias:
                                 valor2+=1
                                 calls+=1
-                                callsIJ+=1
-                            
-                            if i==0:
-                                tiempo+=hums.tiempo_estimado
-                                puntos+=hums.puntos_estimados
-                                numero_historias += 1
+                                callsIJ+=1                                                        
                                 
                         i+=1
                     if valor>0:
@@ -230,16 +225,24 @@ class Metrica (models.Model):
                     if valor>0 and valor2>0:
                         interdependientes+=1
                         cx =  cx * int(penalizaCx)
+                        cxr = cxr * int(penalizaCx)
                     else:
-                        nointerdependientes+=1
+                        nointerdependientes+=1                                
+
                 vector = [callsIJ]                
-                vector_callsIJ.extend(vector)    
-                grado_cohesion = nointerdependientes / n
-                wsic = numero_historias
+                vector_callsIJ.extend(vector)                                    
                 vector1 = [cx]
                 vector_cx.extend(vector1)
                 vector2 = [cxr]
                 vector_cxr.extend(vector2)
+            
+            for hums in historiasmscal:
+                tiempo+=hums.historia.tiempo_estimado
+                puntos+=hums.historia.puntos_estimados
+                numero_historias += 1
+            
+            grado_cohesion = nointerdependientes / n
+            wsic = numero_historias
     
         respuesta = [clientes, request, provedores, calls, interdependientes, nointerdependientes, grado_cohesion, 
                      wsic, tiempo, puntos, vector_callsIJ, vector_cx, vector_cxr]
@@ -268,7 +271,7 @@ class Metrica (models.Model):
             for ms in microservicios:
                 contadorMS += 1
                 # calcular las métricas del microservicio
-                rta = self.calcularMetricasMicroservicio(ms, microservicios, n, dependencias, penalizaCx)
+                rta = self.calcularMetricasMS(ms, microservicios, n, dependencias, penalizaCx)
 
                 ms.ais= rta[0]
                 ms.request = rta[1]
@@ -283,8 +286,8 @@ class Metrica (models.Model):
 
                 #cgi = ms.total_puntos * ms.numero_historias # Peso de cada nodo del grafo de microservicios
                 #cgi = ms.total_puntos / ms.numero_historias # Peso de cada nodo del grafo de microservicios
-                #cgi = ms.total_puntos + ms.numero_historias
-                cgi = float(ms.total_puntos + ms.numero_historias) / float(totalHistorias + totalPuntos)
+                cgi = ms.total_puntos + ms.numero_historias
+                #cgi = float(ms.total_puntos + ms.numero_historias) / float(totalHistorias + totalPuntos)
 
                 vector=[cgi] 
                 vector_cgs.extend(vector) # Guardo los pesos de cada nodo de la aplicación.
@@ -316,23 +319,26 @@ class Metrica (models.Model):
 
             # Calls (out)
             sumaCx=0 
+            i=0
             for cx in vector_cxs:
                 sumaCxi=0
-                i=0                
+                j=0         
+                cgmsi =  vector_cgs[i]       
                 for call in cx:                    
-                    cgmsi = vector_cgs[i]                    
-                    valor_cx = call * cgmsi                    
+                    cgmsj = vector_cgs[j]                    
+                    valor_cx = call * cgmsj                    
                     sumaCxi = sumaCxi +  valor_cx
-                    i+=1
-                sumaCx += sumaCxi
+                    j+=1
+                sumaCx += sumaCxi + cgmsi
+                i+=1
             
             # Request (in)
             sumaCxr=0
             i=0
             for cxr in vector_cxrs:
                 sumaCxri=0
-                for reques in cxr:                    
-                    cgmsi = vector_cgs[i]
+                cgmsi = vector_cgs[i]
+                for reques in cxr:                                        
                     valor_cxr = reques * cgmsi
                     sumaCxri = sumaCxri + valor_cxr
                 sumaCxr+= sumaCxri
@@ -384,7 +390,7 @@ class Metrica (models.Model):
             msapp.avg_calls = sumacalls /  msapp.numero_microservicios
             msapp.avg_request = sumarequest /  msapp.numero_microservicios
 
-            msapp.complejidad_cognitiva = sumaCx + sumaCxr
+            msapp.complejidad_cognitiva = sumaCx +  msapp.numero_microservicios
             msapp.valor_GM = self.calcularMetricaGranularidadGM(msapp.cohesion, msapp.coupling, msapp.wsict)
             msapp.save()
 
@@ -479,8 +485,8 @@ class Metrica (models.Model):
 
                 #cgi = ms.total_puntos * ms.numero_historias # Peso de cada nodo del grafo de microservicios
                 #cgi = ms.total_puntos / ms.numero_historias # Peso de cada nodo del grafo de microservicios
-                #cgi = ms.total_puntos + ms.numero_historias
-                cgi = float(ms.total_puntos + ms.numero_historias) / float(totalHistorias + totalPuntos)
+                cgi = ms.total_puntos + ms.numero_historias
+                #cgi = float(ms.total_puntos + ms.numero_historias) / float(totalHistorias + totalPuntos)
 
                 vector=[cgi] 
                 vector_cgs.extend(vector) # Guardo los pesos de cada nodo de la aplicación.
@@ -512,23 +518,26 @@ class Metrica (models.Model):
 
             # Calls (out)
             sumaCx=0 
+            i=0
             for cx in vector_cxs:
                 sumaCxi=0
-                i=0                
+                j=0 
+                cgmsi =  vector_cgs[i]           
                 for call in cx:                    
-                    cgmsi = vector_cgs[i]                    
-                    valor_cx = call * cgmsi                    
+                    cgmsj = vector_cgs[j]                    
+                    valor_cx = call * cgmsj                    
                     sumaCxi = sumaCxi +  valor_cx
-                    i+=1
-                sumaCx += sumaCxi
+                    j+=1
+                sumaCx += sumaCxi + cgmsi
+                i+=1
             
             # Request (in)
             sumaCxr=0
             i=0
             for cxr in vector_cxrs:
                 sumaCxri=0
-                for reques in cxr:                    
-                    cgmsi = vector_cgs[i]
+                cgmsi = vector_cgs[i]
+                for reques in cxr:                                        
                     valor_cxr = reques * cgmsi
                     sumaCxri = sumaCxri + valor_cxr
                 sumaCxr+= sumaCxri
@@ -581,7 +590,7 @@ class Metrica (models.Model):
             msapp.avg_calls = sumacalls /  msapp.numero_microservicios
             msapp.avg_request = sumarequest /  msapp.numero_microservicios
 
-            msapp.complejidad_cognitiva = sumaCx + sumaCxr
+            msapp.complejidad_cognitiva = sumaCx + sumaCxr + msapp.numero_microservicios
             msapp.valor_GM = gm
             metricas= [msapp, listaMS]               
 
@@ -630,13 +639,7 @@ class Metrica (models.Model):
                             if [hums.id, hu.id] in dependencias:
                                 valor2+=1
                                 calls+=1
-                                callsIJ+=1
-                            
-                            if i==0:
-                                tiempo+=hums.tiempo_estimado
-                                puntos+=hums.puntos_estimados
-                                numero_historias += 1
-                                
+                                callsIJ+=1                                                                                        
                         i+=1
                     if valor>0:
                         clientes+=1 
@@ -649,16 +652,25 @@ class Metrica (models.Model):
                     if valor>0 and valor2>0:
                         interdependientes+=1
                         cx =  cx * int(penalizaCx)
+                        cxr = cxr * int(penalizaCx) 
                     else:
                         nointerdependientes+=1
                 vector = [callsIJ]                
-                vector_callsIJ.extend(vector)    
-                grado_cohesion = nointerdependientes / n
-                wsic = numero_historias
+                vector_callsIJ.extend(vector)                                    
                 vector1 = [cx]
                 vector_cx.extend(vector1)
                 vector2 = [cxr]
                 vector_cxr.extend(vector2)
+
+            historiasmscal = msCalcular[1]
+
+            for hums in historiasmscal:
+                tiempo+=hums.tiempo_estimado
+                puntos+=hums.puntos_estimados
+                numero_historias += 1
+
+            grado_cohesion = nointerdependientes / n
+            wsic = numero_historias
     
         respuesta = [clientes, request, provedores, calls, interdependientes, nointerdependientes, grado_cohesion, 
                      wsic, tiempo, puntos, vector_callsIJ, vector_cx, vector_cxr]

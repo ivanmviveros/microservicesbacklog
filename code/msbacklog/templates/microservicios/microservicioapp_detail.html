@@ -36,6 +36,12 @@
                                 <td>
                                     <input type="text" id="cohesion" name="cohesion" value="{{ msapp.cohesion|floatformat:2 }}" readonly="readonly" class="form-control"/>
                                 </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Complexity:</strong></td>
+                                <td>
+                                    <input type="text" id="complexity" name="complexity" value="{{ msapp.complejidad_cognitiva|floatformat:2 }}" readonly="readonly" class="form-control"/>
+                                </td>
                             </tr>         
                             <tr>
                                 <td><strong>Avg. Calls:</strong></td>
@@ -63,8 +69,7 @@
                         <div class="panel-body">
                             <table class="table table-striped table-bordered">
                                 <thead>
-                                    <tr>
-                                        <th>Id.</th>
+                                    <tr>                                        
                                         <th>Name</th>
                                         <th>User stories</th>        
                                         <th>Points</th>        
@@ -76,8 +81,7 @@
                                     <tbody>
                                         {% for ms in microservicios %}  
                                         
-                                            <tr>
-                                                <td>{{ ms.id }}</td>                            
+                                            <tr>                                                
                                                 <td>{{ ms.nombre }}</td>
                                                 <td>{{ ms.numero_historias }}</td>
                                                 <td>{{ ms.total_puntos }}</td>

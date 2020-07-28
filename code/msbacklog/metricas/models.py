@@ -288,6 +288,7 @@ class Metrica (models.Model):
                 #cgi = ms.total_puntos / ms.numero_historias # Peso de cada nodo del grafo de microservicios
                 cgi = ms.total_puntos + ms.numero_historias
                 #cgi = float(ms.total_puntos + ms.numero_historias) / float(totalHistorias + totalPuntos)
+                ms.complejidad_cognitiva = cgi
 
                 vector=[cgi] 
                 vector_cgs.extend(vector) # Guardo los pesos de cada nodo de la aplicación.
@@ -326,7 +327,7 @@ class Metrica (models.Model):
                 cgmsi =  vector_cgs[i]       
                 for call in cx:                    
                     cgmsj = vector_cgs[j]                    
-                    valor_cx = call * cgmsj                    
+                    valor_cx = call #* cgmsj                    
                     sumaCxi = sumaCxi +  valor_cx
                     j+=1
                 sumaCx += sumaCxi + cgmsi
@@ -339,7 +340,7 @@ class Metrica (models.Model):
                 sumaCxri=0
                 cgmsi = vector_cgs[i]
                 for reques in cxr:                                        
-                    valor_cxr = reques * cgmsi
+                    valor_cxr = reques #* cgmsi
                     sumaCxri = sumaCxri + valor_cxr
                 sumaCxr+= sumaCxri
                 i+=1
@@ -390,7 +391,7 @@ class Metrica (models.Model):
             msapp.avg_calls = sumacalls /  msapp.numero_microservicios
             msapp.avg_request = sumarequest /  msapp.numero_microservicios
 
-            msapp.complejidad_cognitiva = sumaCx +  msapp.numero_microservicios
+            msapp.complejidad_cognitiva = sumaCx + sumaCxr +  msapp.numero_microservicios
             msapp.valor_GM = self.calcularMetricaGranularidadGM(msapp.cohesion, msapp.coupling, msapp.wsict)
             msapp.save()
 

@@ -83,7 +83,8 @@ class MicroservicioApp (models.Model):
                 metricas += str(round(ms.grado_cohesion,2) )+ ","
                 metricas += str(ms.calls) + ","
                 metricas += str(ms.request) + ","
-                metricas += str(round(ms.tiempo_estimado_desarrollo,2))
+                metricas += str(round(ms.tiempo_estimado_desarrollo,2)) + ","
+                metricas += str(ms.total_puntos + ms.numero_historias)
                 metricas += "|"
                 i+=1                                                            
 
@@ -136,7 +137,7 @@ class Microservicio (models.Model):
     
     def getHistorias(self):
         historias = Microservicio_Historia.objects.filter(microservicio = self)
-        return historias
+        return historias        
 
 class Operacion (models.Model):
     nombre = models.CharField(max_length=255)    

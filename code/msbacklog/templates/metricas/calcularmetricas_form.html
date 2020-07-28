@@ -28,6 +28,7 @@
                                     <th>SiyT</th>
                                     <th>CpT</th>                                    
                                     <th>CohT</th>
+                                    <th>CxT</th>
                                     <th>WsicT</th>        
                                     <th>Avg. Calls</th>        
                                     <th>Avg. Request</th>
@@ -40,7 +41,8 @@
                                     <td>{{ msapp.adst|floatformat:2 }}</td>
                                     <td>{{ msapp.siyt|floatformat:2 }}</td>
                                     <td>{{ msapp.coupling|floatformat:2 }}</td>
-                                    <td>{{ msapp.cohesion|floatformat:2 }}</td>                                                                
+                                    <td>{{ msapp.cohesion|floatformat:2 }}</td>
+                                    <td>{{ msapp.complejidad_cognitiva|floatformat:2 }}</td>                                                                
                                     <td>{{ msapp.wsict }}</td>
                                     <td>{{ msapp.avg_calls|floatformat:2 }}</td>
                                     <td>{{ msapp.avg_request|floatformat:2 }}</td>
@@ -85,7 +87,7 @@
                                             <td>{{ ms.grado_cohesion|floatformat:2 }}</td>
                                             <td>{{ ms.calls|floatformat:2 }}</td>
                                             <td>{{ ms.request|floatformat:2 }}</td>
-                                            <td>{{ ms.complejidad_cognitiva|floatformat:2 }}</td>                                                                            
+                                            <td>{{ ms.complejidad_cognitiva}}</td>                                                                            
                                         </tr>
                                     {% endfor %}
                                 </tbody>

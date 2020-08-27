@@ -84,7 +84,7 @@ class MicroservicioApp (models.Model):
                 metricas += str(ms.calls) + ","
                 metricas += str(ms.request) + ","
                 metricas += str(round(ms.tiempo_estimado_desarrollo,2)) + ","
-                metricas += str(ms.total_puntos + ms.numero_historias)
+                metricas += str(ms.total_puntos)
                 metricas += "|"
                 i+=1                                                            
 

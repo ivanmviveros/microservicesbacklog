@@ -260,13 +260,16 @@ class Metrica (models.Model):
             sumacuaADS=0
             sumacuaSIY=0
             sucmacuaCoh=0
+            sumaCgi=0
+            sumaPuntos=0
             mayor_wsic=0
             mayor_puntos=0
             n= len(microservicios)
             contadorMS=0
             vector_cgs=[] # Peso de los nodos o microservicios
-            vector_cxs=[] # Calls (out) de MS a otros
-            vector_cxrs=[] #  Calls (in) de otros a MS
+            vector_cxs=[] # Calls (out) de MS a otros con penalización si es bidireccional
+            vector_cxrs=[] #  Calls (in) de otros a MS con penalización si es bidireccional
+            vector_callsij=[] # número de calls entre MS
 
             for ms in microservicios:
                 contadorMS += 1
@@ -286,18 +289,23 @@ class Metrica (models.Model):
 
                 #cgi = ms.total_puntos * ms.numero_historias # Peso de cada nodo del grafo de microservicios
                 #cgi = ms.total_puntos / ms.numero_historias # Peso de cada nodo del grafo de microservicios
-                cgi = ms.total_puntos + ms.numero_historias
+                #cgi = ms.total_puntos + ms.numero_historias
                 #cgi = float(ms.total_puntos + ms.numero_historias) / float(totalHistorias + totalPuntos)
-                ms.complejidad_cognitiva = cgi
+                cgi = ms.total_puntos
+                ms.complejidad_cognitiva = ms.total_puntos
 
                 vector=[cgi] 
                 vector_cgs.extend(vector) # Guardo los pesos de cada nodo de la aplicación.
+                vector2 = [ms,rta[10]]
+                vector_callsij.append(vector2)
                 vector_cxs.append(rta[11]) # Obtengo el valor de llamadas entre el microservicio y los otros aplicando la penalización si son bidireccionales.
                 vector_cxrs.append(rta[12])
 
                 if ms.tiempo_estimado_desarrollo > mayor_tiempo:
                     mayor_tiempo = ms.tiempo_estimado_desarrollo
 
+                sumaCgi += (ms.total_puntos * ms.calls) + (ms.total_puntos * ms.request )
+                sumaPuntos += ms.total_puntos
                 sumacalls += ms.calls
                 sumarequest += ms.request
 
@@ -315,35 +323,73 @@ class Metrica (models.Model):
                 
                 ms.save()
                 
+            # Calcular la complejidad cognitiva
+            cgt=0  # Cgt guarda el valor de la profundidad multiplicada por el peso de cada nodo por donde pasa hasta encontrar un ciclo.
+            i=0           
+            for i in range (0, n):                
+                p=0
+                calls=0
+                fila = vector_callsij[i]
+                ms1 = fila[0]
+                #cgt += ms.complejidad_cognitiva
+                memo = []
+                p = self.calcularProfundidad(vector_callsij, n, i, memo, p, cgt, calls)
+                #cgt += vector[0] * vector[1]   
+                if p==0:
+                    prof=0
+                else:
+                    prof = len(memo)       
+                cgi=0                      
+                # for ind in memo:
+                #     ms = vector_callsij[ind][0]
+                #     cgi += ms.complejidad_cognitiva 
+                
+                cgt += prof
+                #print("--------------- Memo: " + memo)
+            
+            # Complejidad del mayor numero de historias asociadas a un microservicio y el numero de microservicios
+            cgh = msapp.numero_microservicios * mayor_wsic 
 
-            # Calcular la complejidad cognitiva            
+            if sumacalls>0:
+                valor1= float(sumaCgi)  / float(sumacalls)
+            else:
+                valor1=0
+
+            # Complejidad cognitiva total - Dificultad de entender, mantener e implenetar la solución planteada.
+            cxt = ( valor1 + mayor_puntos ) + cgh + cgt
+ 
+            # Calcular complejidad cognitiva en relación a la complejidad mas baja: 1 microservicios con 1 historia de usuario y 1 punto de historia
+            # Pare el caso de menor complejidad la complejidad cognitiva sería 2
+            msapp.complejidad_cognitiva = cxt / 2
+
+            #cxt= valor1/0
 
             # Calls (out)
-            sumaCx=0 
-            i=0
-            for cx in vector_cxs:
-                sumaCxi=0
-                j=0         
-                cgmsi =  vector_cgs[i]       
-                for call in cx:                    
-                    cgmsj = vector_cgs[j]                    
-                    valor_cx = call #* cgmsj                    
-                    sumaCxi = sumaCxi +  valor_cx
-                    j+=1
-                sumaCx += sumaCxi + cgmsi
-                i+=1
+            # sumaCx=0 
+            # i=0
+            # for cx in vector_cxs:
+            #     sumaCxi=0
+            #     j=0         
+            #     cgmsi =  vector_cgs[i]       
+            #     for call in cx:                    
+            #         cgmsj = vector_cgs[j]                    
+            #         valor_cx = call #* cgmsj                    
+            #         sumaCxi = sumaCxi +  valor_cx
+            #         j+=1
+            #     sumaCx += sumaCxi + cgmsi
+            #     i+=1
             
             # Request (in)
-            sumaCxr=0
-            i=0
-            for cxr in vector_cxrs:
-                sumaCxri=0
-                cgmsi = vector_cgs[i]
-                for reques in cxr:                                        
-                    valor_cxr = reques #* cgmsi
-                    sumaCxri = sumaCxri + valor_cxr
-                sumaCxr+= sumaCxri
-                i+=1
+            # sumaCxr=0
+            # i=0
+            # for cxr in vector_cxrs:
+            #     sumaCxri=0
+            #     cgmsi = vector_cgs[i]
+            #     for reques in cxr:                                        
+            #         valor_cxr = reques #* cgmsi
+            #         sumaCxri = sumaCxri + valor_cxr
+            #     sumaCxr+= sumaCxri
+            #     i+=1
 
             cua_coht=0
             cua_copt=0
@@ -391,10 +437,40 @@ class Metrica (models.Model):
             msapp.avg_calls = sumacalls /  msapp.numero_microservicios
             msapp.avg_request = sumarequest /  msapp.numero_microservicios
 
-            msapp.complejidad_cognitiva = sumaCx + sumaCxr +  msapp.numero_microservicios
+            #msapp.complejidad_cognitiva = sumaCx + sumaCxr +  msapp.numero_microservicios
+            #msapp.complejidad_cognitiva = cgt
             msapp.valor_GM = self.calcularMetricaGranularidadGM(msapp.cohesion, msapp.coupling, msapp.wsict)
             msapp.save()
 
+    def calcularProfundidad(self, matrizCalls, n, index, memo, p, cgt, calls):
+        fila = matrizCalls[index]
+        ms = fila[0]
+        callsij = fila[1]
+        #cgt += ms.complejidad_cognitiva * calls        
+        if not index in memo:
+            #cgt += ms.complejidad_cognitiva
+            #p+=1            
+        #else:            
+            if ms.calls > 0:
+                for j in range(0, n):
+                    vec = [index]         
+                    if not index in memo:
+                        memo.extend(vec)
+                    if callsij[j] > 0:
+                        p+=1                                  
+                        p = self.calcularProfundidad(matrizCalls, n, j, memo, p, cgt, callsij[j])
+                        #p= vec[0]
+                        #cgt = vec[1]
+            else:
+                vec = [index]         
+                if not index in memo:
+                    memo.extend(vec)
+        
+        #vector= [p,cgt]
+        #return vector
+        return p
+
+            
     def calcularMetricas(self, msapp):
         microservicios = Microservicio.objects.filter(aplicacion = msapp)
 
@@ -451,11 +527,14 @@ class Metrica (models.Model):
             sumacalls = 0.0
             sumarequest = 0.0
             mayor_tiempo=0
+
             listaMS=[]
             sumacuaAIS=0
             sumacuaADS=0
             sumacuaSIY=0
             sucmacuaCoh=0
+            sumaCgi=0
+            sumaPuntos=0
             mayor_wsic=0
             mayor_puntos=0
             n= len(microservicios)
@@ -463,6 +542,7 @@ class Metrica (models.Model):
             vector_cgs=[] # Peso de los nodos o microservicios
             vector_cxs=[] # Calls (out) de MS a otros
             vector_cxrs=[] #  Calls (in) de otros a MS
+            vector_callsij=[] # numero de calls entre MS
 
             for dato in microservicios:                
                 contadorMS += 1
@@ -486,17 +566,23 @@ class Metrica (models.Model):
 
                 #cgi = ms.total_puntos * ms.numero_historias # Peso de cada nodo del grafo de microservicios
                 #cgi = ms.total_puntos / ms.numero_historias # Peso de cada nodo del grafo de microservicios
-                cgi = ms.total_puntos + ms.numero_historias
+                #cgi = ms.total_puntos + ms.numero_historias
                 #cgi = float(ms.total_puntos + ms.numero_historias) / float(totalHistorias + totalPuntos)
+                cgi = ms.total_puntos
+                ms.complejidad_cognitiva = ms.total_puntos
 
                 vector=[cgi] 
                 vector_cgs.extend(vector) # Guardo los pesos de cada nodo de la aplicación.
+                vector2= [ms, rta[10]]
+                vector_callsij.append(vector2)
                 vector_cxs.append(rta[11]) # Obtengo el valor de llamadas entre el microservicio y los otros aplicando la penalización si son bidireccionales.
                 vector_cxrs.append(rta[12])
 
                 if ms.tiempo_estimado_desarrollo > mayor_tiempo:
                     mayor_tiempo = ms.tiempo_estimado_desarrollo
 
+                sumaCgi += (ms.total_puntos * ms.calls) + (ms.total_puntos * ms.request)
+                sumaPuntos += ms.total_puntos
                 sumacalls += ms.calls
                 sumarequest += ms.request
 
@@ -516,33 +602,67 @@ class Metrica (models.Model):
                 listaMS.append(vector)            
 
             # Calcular la complejidad cognitiva            
+            cgt=0
+            i=0
 
-            # Calls (out)
-            sumaCx=0 
-            i=0
-            for cx in vector_cxs:
-                sumaCxi=0
-                j=0 
-                cgmsi =  vector_cgs[i]           
-                for call in cx:                    
-                    cgmsj = vector_cgs[j]                    
-                    valor_cx = call * cgmsj                    
-                    sumaCxi = sumaCxi +  valor_cx
-                    j+=1
-                sumaCx += sumaCxi + cgmsi
-                i+=1
+            for i in range (0, n):                
+                p=0
+                calls=0
+                fila = vector_callsij[i]
+                ms1 = fila[0]
+                #cgt += ms.complejidad_cognitiva
+                memo = []
+                p = self.calcularProfundidad(vector_callsij, n, i, memo, p, cgt, calls)
+                #cgt += vector[0] * vector[1]   
+                if p==0:
+                    prof=0
+                else:
+                    prof = len(memo)       
+                cgi=0                      
+                # for ind in memo:
+                #     ms = vector_callsij[ind][0]
+                #     cgi += ms.complejidad_cognitiva 
+                
+                cgt += prof
+                #print("--------------- Memo: " + memo)
             
-            # Request (in)
-            sumaCxr=0
-            i=0
-            for cxr in vector_cxrs:
-                sumaCxri=0
-                cgmsi = vector_cgs[i]
-                for reques in cxr:                                        
-                    valor_cxr = reques * cgmsi
-                    sumaCxri = sumaCxri + valor_cxr
-                sumaCxr+= sumaCxri
-                i+=1
+            # Complejidad del mayor numero de historias asociadas a un microservicio y el numero de microservicios
+            cgh = contadorMS * mayor_wsic 
+
+            if sumacalls>0:
+                valor1= float(sumaCgi)  / float(sumacalls)
+            else:
+                valor1=0
+
+            # Complejidad cognitiva total - Dificultad de entender, mantener e implenetar la solución planteada.
+            cxt = ( valor1 + mayor_puntos ) + cgh + cgt
+            
+            # Calls (out)
+            # sumaCx=0 
+            # i=0
+            # for cx in vector_cxs:
+            #     sumaCxi=0
+            #     j=0 
+            #     cgmsi =  vector_cgs[i]           
+            #     for call in cx:                    
+            #         cgmsj = vector_cgs[j]                    
+            #         valor_cx = call * cgmsj                    
+            #         sumaCxi = sumaCxi +  valor_cx
+            #         j+=1
+            #     sumaCx += sumaCxi + cgmsi
+            #     i+=1
+            
+            # # Request (in)
+            # sumaCxr=0
+            # i=0
+            # for cxr in vector_cxrs:
+            #     sumaCxri=0
+            #     cgmsi = vector_cgs[i]
+            #     for reques in cxr:                                        
+            #         valor_cxr = reques * cgmsi
+            #         sumaCxri = sumaCxri + valor_cxr
+            #     sumaCxr+= sumaCxri
+            #     i+=1
 
             cua_coht=0
             cua_copt=0
@@ -558,7 +678,7 @@ class Metrica (models.Model):
             coht = math.sqrt(sucmacuaCoh)
 
             wsict = mayor_wsic
-            cplt = sumaCx + sumaCxr
+            cplt = cxt / 2
             semant = 0
             
             if variables:
@@ -591,7 +711,11 @@ class Metrica (models.Model):
             msapp.avg_calls = sumacalls /  msapp.numero_microservicios
             msapp.avg_request = sumarequest /  msapp.numero_microservicios
 
-            msapp.complejidad_cognitiva = sumaCx + sumaCxr + msapp.numero_microservicios
+            # Calcular complejidad cognitiva en relación a la complejidad mas baja: 1 microservicios con 1 historia de usuario y 1 punto de historia
+            # Pare el caso de menor complejidad la complejidad cognitiva sería 2
+            msapp.complejidad_cognitiva = cxt / 2
+            #msapp.complejidad_cognitiva = sumaCx + sumaCxr + msapp.numero_microservicios
+            
             msapp.valor_GM = gm
             metricas= [msapp, listaMS]               
 

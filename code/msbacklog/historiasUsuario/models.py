@@ -45,7 +45,7 @@ class HistoriaUsuario (models.Model):
     prioridad = models.IntegerField()
     puntos_estimados = models.IntegerField()
     tiempo_estimado = models.FloatField()
-    escenario = models.CharField(max_length=500, null=True)
+    escenario = models.CharField(max_length=1000, null=True)
     observaciones = models.CharField(max_length=500, null=True)
     fecha_creacion = models.DateField(auto_now_add=True)
 

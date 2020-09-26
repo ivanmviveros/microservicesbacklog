@@ -270,6 +270,7 @@ class Metrica (models.Model):
             vector_cxs=[] # Calls (out) de MS a otros con penalización si es bidireccional
             vector_cxrs=[] #  Calls (in) de otros a MS con penalización si es bidireccional
             vector_callsij=[] # número de calls entre MS
+            suma_siy=0
 
             for ms in microservicios:
                 contadorMS += 1
@@ -314,6 +315,7 @@ class Metrica (models.Model):
                 sumacuaSIY += ms.siy * ms.siy
 
                 sucmacuaCoh += ms.grado_cohesion * ms.grado_cohesion
+                suma_siy += ms.siy
 
                 if ms.numero_historias > mayor_wsic:
                     mayor_wsic = ms.numero_historias
@@ -339,7 +341,7 @@ class Metrica (models.Model):
                     prof=0
                 else:
                     prof = len(memo)       
-                cgi=0                      
+                #cgi=0                      
                 # for ind in memo:
                 #     ms = vector_callsij[ind][0]
                 #     cgi += ms.complejidad_cognitiva 
@@ -348,7 +350,7 @@ class Metrica (models.Model):
                 #print("--------------- Memo: " + memo)
             
             # Complejidad del mayor numero de historias asociadas a un microservicio y el numero de microservicios
-            cgh = msapp.numero_microservicios * mayor_wsic 
+            cgh = n * mayor_wsic 
 
             if sumacalls>0:
                 valor1= float(sumaCgi)  / float(sumacalls)
@@ -356,7 +358,8 @@ class Metrica (models.Model):
                 valor1=0
 
             # Complejidad cognitiva total - Dificultad de entender, mantener e implenetar la solución planteada.
-            cxt = ( valor1 + mayor_puntos ) + cgh + cgt
+            # suma_siy --> suma del número de microservicios que son interdependientes
+            cxt = ( valor1 + mayor_puntos ) + cgh + cgt + suma_siy
  
             # Calcular complejidad cognitiva en relación a la complejidad mas baja: 1 microservicios con 1 historia de usuario y 1 punto de historia
             # Pare el caso de menor complejidad la complejidad cognitiva sería 2

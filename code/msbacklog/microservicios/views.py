@@ -247,7 +247,7 @@ class MicroserviciosHistoriaUdpateView(UpdateView):
 
     def get_context_data(self, **kwargs):               
         self.microservicio = get_object_or_404(Microservicio, id=self.kwargs['pk'])
-        self.historias = HistoriaUsuario.objects.order_by('prioridad')
+        self.historias = HistoriaUsuario.objects.filter(proyecto= self.microservicio.aplicacion.proyecto).order_by('prioridad')
         self.asociadas = Microservicio_Historia.objects.filter(microservicio = self.microservicio).order_by('id')
         context = super(MicroserviciosHistoriaUdpateView, self).get_context_data(**kwargs)              
         context['microservico'] = self.microservicio
@@ -257,7 +257,7 @@ class MicroserviciosHistoriaUdpateView(UpdateView):
     
     def get_initial(self):        
         self.microservicio = get_object_or_404(Microservicio, id=self.kwargs['pk'])
-        self.historias = HistoriaUsuario.objects.order_by('prioridad')
+        self.historias = HistoriaUsuario.objects.filter(proyecto= self.microservicio.aplicacion.proyecto).order_by('prioridad')
         self.asociadas = Microservicio_Historia.objects.filter(microservicio = self.microservicio).order_by('id')
         return { 'microservicio': self.microservicio, 'historias':self.historias, 'asociadas':self.asociadas }
                 
@@ -267,7 +267,7 @@ class MicroserviciosHistoriaUdpateView(UpdateView):
 
         if self.request.method == 'POST':
             datos = self.request.POST['itemsSelecciona']
-            historias = datos.split(",")
+            historias = datos.split(",") 
 
             for h in historias:
                 if h!="":

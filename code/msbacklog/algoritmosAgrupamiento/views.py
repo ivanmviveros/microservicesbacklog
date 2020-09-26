@@ -433,7 +433,7 @@ def compararDescomposiciones(request, **kwargs):
                 mensaje += "<td>" + str(round(msapp.siyt,2)) + "</td>"
                 mensaje += "<td>" + str(round(msapp.coupling,2)) + "</td>"
                 mensaje += "<td>" + str(round(msapp.cohesion,2)) + "</td>"
-                mensaje += "<td>" + str(msapp.complejidad_cognitiva) + "</td>"
+                mensaje += "<td>" + str(round(msapp.complejidad_cognitiva,2)) + "</td>"
                 mensaje += "<td>" + str(round(msapp.wsict,2)) + "</td>"
                 mensaje += "<td>" + str(round(msapp.valor_GM,2)) + "</td>"                
                 #mensaje += "<td>" + str(round(msapp.puntos,2)) + "</td>"

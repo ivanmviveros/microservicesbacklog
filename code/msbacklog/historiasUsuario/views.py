@@ -248,10 +248,11 @@ def historiaUsuario_uploadfile(request, **kwargs):
                 cont=0
                 existen=0
                 for row in reader:
-                    try:
-                        historia = HistoriaUsuario.objects.get(identificador = row['id'])
+                    
+                    historia = HistoriaUsuario.objects.filter(identificador = row['id'], proyecto= proyectoCarga)
+                    if historia:
                         existen = existen + 1                        
-                    except HistoriaUsuario.DoesNotExist:
+                    else:
                         historia_add = HistoriaUsuario(
                             identificador = row['id'],
                             nombre = row['name'],
@@ -284,7 +285,7 @@ class HistoriaDependenciaUdpateView(UpdateView):
 
     def get_context_data(self, **kwargs):               
         self.historia = get_object_or_404(HistoriaUsuario, id=self.kwargs['pk'])
-        self.historias = HistoriaUsuario.objects.order_by('prioridad')
+        self.historias = HistoriaUsuario.objects.filter(proyecto= self.historia.proyecto).order_by('prioridad')
         self.dependencias = Dependencia_Historia.objects.filter(historia = self.historia).order_by('id')
         context = super(HistoriaDependenciaUdpateView, self).get_context_data(**kwargs)              
         context['historia'] = self.historia
@@ -294,7 +295,7 @@ class HistoriaDependenciaUdpateView(UpdateView):
     
     def get_initial(self):        
         self.historia = get_object_or_404(HistoriaUsuario, id=self.kwargs['pk'])
-        self.historias = HistoriaUsuario.objects.order_by('prioridad')
+        self.historias = HistoriaUsuario.objects.filter(proyecto= self.historia.proyecto).order_by('prioridad')
         self.dependencias = Dependencia_Historia.objects.filter(historia = self.historia).order_by('id')
         return { 'historia': self.historia, 'historias':self.historias, 'dependencias':self.dependencias }
                 

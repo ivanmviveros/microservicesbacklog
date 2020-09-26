@@ -1,46 +1,391 @@
 id,name,description,points,time,scenario,observations,priority
-HU1,Crear viaje de carga,"Como Operador deseo crear un viaje (Voyage) para una carga dada, especificando los movimientos necesarios para llegar a su destino para registrar cargas en el sistema.",3,5,"1. Especificar el número del viaje y su información 
-2. Adicionar los movimientos del transportista necesarios para el viaje desde su inicio hasta su final. 
-3. Guardar datos del viaje y su movimiento. ",,1
-HU2,Gestionar evento de carga,Como operador deseo registrar o crear un evento en una localización indicando la fecha cuando termina el evento.,3,5,"1. Especificar la localización 
-2. Especificar la fecha de terminación del evento. 
-3. Guardar los datos ",,2
-HU3,Agregar movimiento del transportista,"Como operador deseo agregar un movimiento de transportista para un viaje creado, especifica en donde se encuentra el transportista en una fecha dada.",5,7,"1. Especificar el viaje al que pertenece 
-2. Especificar la localización de llegada y partida 
-3. Especificar las fechas de partida y de llegada 
-4. Guardar los datos. ",,3
-HU4,Crear localización,Como operador deseo crear una localización especificando su nombre e identificador.,2,3,"1. Especificar el nombre e identificador de la localizacion
-2. Guardar los datos.",,4
-HU5,Ver seguimiento del viaje o carga enviada,Como operador deseo consultar el seguimiento del viaje o carga según el “TrackinId”,3,5,"1. Especificar el “TrackinId” 
-2. Buscar y presentar los eventos registrados para ese “TrackinId ",,5
-HU6,Crear carga,"Como operador deseo crear una carga a transportar. Se genera un “TrackinId. Se asocia un itinerario (Itinerary), una especificación de ruta (Route specification) y una entrega (Delivery).",7,10,"1. Generar un TrackinId 
-2. Especificar el itinerario 
-3. Especificar la especificación de ruta 
-4. Especificar la entrega 
-5. Guardar datos ",,6
-HU7,Crear itinerario de la carga,Como operador deseo crear un itinerario de una carga especificando sus paradas.,5,7,"1. Especificar la carga 
-2. Generar número de itinerario. 
-3. Crear y asociar las paradas 
-4. Guardar datos del itinerario y las paradas. ",,7
-HU8,Crear Parada,Como operador deseo crear una parada para un itinerario,2,3,"1. Especificar la localización de carga y de descarga 
-2. Especificar los tiempos de carga y descarga. 
-3. Guardar datos de la parada y asociar a itinerario. ",,8
-HU9,Programar carga – crear especificación de ruta,"Como operador deseo crear el envío de la carga, se especifica la ruta ingresando una localización origen y destino y se establece una fecha límite de entrega.",5,7,"1. Especificar o asociar la carga 
-2. Especificar las localizaciones de origen y destino 
-3. Establecer la fecha límite de entrega 
-4. Guardar datos de la especificación de ruta y asociar a Carga ",,9
-HU10,Cambiar destino de carga,Como operador deseo modificar el destino de una carga enviada.,1,2,"1. Especificar la nueva Localización de descarga 
-2. Especificar la nueva fecha limite 
-3. Guardar datos con los cambios realizados ",,10
-HU11,Crear entrega,"Como operador deseo crear y asociar al cargo una entrega, calcula una fecha estimada de entrega teniendo en cuanta el estado de los transportistas y el estado de las rutas.",7,10,"1. Asociar carga 
-2. Consultar estado de transportistas 
-3. Consultar estado de rutas 
-4. Consultar eventos 
-5. Calcular fecha estimada de entrega 
-6. Guardar datos de la entrega. ",,11
-HU12,Obtener localizaciones,Como operador deseo obtener el listado de las localizaciones disponibles,2,3,"1. Consultar las localizaciones disponibles 
-2. Devolver un listado con las localizaciones. ",,12
-HU13,Consultar estado de transportistas,Como operador deseo obtener el estado de los transportistas,3,5,"1. Consultar en que localización se encuentran los transportistas 
-2. Devolver el estado del transportista. ",,13
-HU14,Consultar estado de rutas,Como operador deseo obtener el estado de las rutas.,3,5,"1. Consultar el estado de las rutas 
-2. Devolver el estado de las rutas ",,14
+HU1,Crear club deportivo,Como usuario requiero crear  el club deportivo para gestionar la información de sus equipos. Teniendo en cuenta que cada usuario principal soló puede tener un club.,3,6,"1. Se asume que como usuario inicio sesión en el sistema. 
+2. Ingresar datos del club: nombre, direccion, telefono, ciudad, foto, logo, estadio, pais.
+3. Guardar la informacion.
+4. Presentar al usuario confirmación y mostrar los datos guardados.",,1
+HU2,Editar club deportivo,Como usuario requiero editar el club deportivo.,2,4,"1. Obtener los datos del club a editar (HU4)
+2. Modificar la información.
+3. Guardar los cambios.
+4. Presentar mensaje de confirmación al usuario.",,2
+HU3,Eliminar club deportivo,Como usuario requiero eliminar el club deportivo. Permite eliminar el club cuándo no tenga información de equipos relacionada.,1,2,"1. Obtener el club a eliminar (HU4)
+2. Eliminar el club.
+3. Presentar mensaje de confirmacion.",,3
+HU4,Obtener club deportivo,"Como usuario requiero consultar la información del club deportivo para gestionar la información de sus equipos, para editarlo o eliminarlo.",1,2,"1. Obtener la información del usuario que inica sesion (HU71).
+2. Obtener el club deportivo que tiene registrado.
+3. Presentar los datos al usuario con las opciones de editar club, eliminar club  y listar equipos.
+4. Al dar click en listar se presenta el listado de equipos creados para el club. (HU7)",,4
+HU5,Crear equipo,Como  usuario requiero crear la información de los equipos que pertenecen al club deportivo. Los equipos deben estar asociados a una categoria,5,10,"1. Cargar el formulario con los datos a ingresar del club: nombre, ciudad, telefono, dirección, escudo, categoria.
+2. Obtener el listado de categorias (HU9)
+3. Ingresar los datos y validarlos.
+4. Guardar los datos.
+5. Presentar mensaje de confirmación al usuario.",,5
+HU6,Modificar equipo,Como usuario requiero editar la información de los equipos registrados para un club deportivo.,4,8,"1. Obtener los datos del equipo a editar (HU73)
+2. Obtener el listado de categorias (HU9)
+3. Modificar la información.
+4. Guardar los cambios.
+5. Presentar mensaje de confirmación al usuario.",,6
+HU7,Eliminar equipo,"Como usuario requiero eliminar el equipo, si tiene jugadores o cuerpo tecnico relacionado no se puede eliminar.",3,6,"1. Obtener los datos del equipo a eliminar (HU73)
+2. Eliminar la información.
+3. Presentar mensaje de confirmación al usuario.",,7
+HU73,Obtener equipo,Como usuario requiero obtener los datos de un Equipo para ser editado o eliminado.,1,2,"1. Obtener el id del equipo.
+2. Consultar los datos del equipo.
+3. Presentar los datos del equipo.",,8
+HU8,Listar equipos,Como usuario deseo consultar o listar los equipos que pertenecen a un club deportivo para asociar jugadores y cuerpo tecnico.,2,4,"1. Obtener la información del club (HU4).
+2. Obtener el club deportivo que tiene registrado.
+3. Presentar los datos al usuario con las opciones de editar, eliminar el equipo y listar jugadores y cuerpo técnico.
+4. Al dar click en jugadores se presenta el listado de jugadores del equipo. (HU18)
+5. Al dar click en cuerpo tecnico se presenta el listado de integrantes del cuerpo técnico del equipo. (HU13)",,9
+HU9,Obtener categorias,Como usuario requiero listar las categorias para ser relacionadas a equipos y jugadores.,1,2,"1. Consultar las categorias.
+2. Presentar el listado de categorias.",,10
+HU10,Crear cuerpo técnico del equipo,"Como usuario requiero crear el cuerpo técnico del equipo. El cuerpo técnico del equipo está conformado por entrenadores, preparadores físicos, medicos, director técnico y asistente técnico.",2,4,"1. Presentar el formulario para capturar el documento, el nombre, apellido, email, etc.
+2. Obtener el listado del tipo de cuerpo tecnico. (HU14)
+3. El usuario ingresa los datos.
+4. El sistema valida y guarda los datos.
+5. Presentar mensaje de confirmación al usuario.",,11
+HU11,Editar cuerpo técnico del equipo,Como usuario requiero modificar los datos del cuerpo técnico del equipo.,2,4,"1. Obtener la información del cuerpo técnico a editar (HU74)
+Presentar el formulario para capturar el documento, el nombre, apellido, email, etc.
+2. Obtener el listado del tipo de cuerpo tecnico. (HU14)
+3. El usuario ingresa los datos.
+4. El sistema valida y guarda los datos.
+5. Presentar mensaje de confirmación al usuario.",,12
+HU74,Obtener datos de integrante del cuerpo técnico,Como usuario requiero obtener los datos del integrante del cuerpo técnico para ser editado o eliminado.,1,2,"1. Obtener el id del integrande del cuerpo técnico.
+2. Consultar los datos del integrante del cuerpo técnico.
+3. Presentar los datos del integrante del cuerpo técnico",,13
+HU12,Finalizar vigencia del cuerpo tecnico del equipo,Como usuario requiero finalizar la vigencia de un integrante del cuerpo técnico del equipo. Se realiza cuando finaliza su contrato y se requiere guardar el historial.,1,2,"1. Obtener la información del cuerpo técnico a finalizar vigencia (HU74)
+2. Presentar mensaje de confirmación.
+3. En caso positivo finalizar la vigencia del integrante del cuerpot técnico especificando la fecha de finalización.
+4. Presentar mensaje de confirmación.",,14
+HU13,Listar cuerpo técnico del equipo,Como usuario requiero listar los integrantes del cuerpo técnico del equipo para gestionar su información.,2,4,"1. Obtener la información del equipo (HU73).
+2. Consultar los datos de los integrantes del cuerpo técnico del equipo.
+3. Presentar los datos al usuario con las opciones de editar, eliminar integrantes del cuerpo técnico.",,15
+HU14,Listar tipo de cuerpo técnico,"Como usuario requiero listar los tipo de cuerpo tecnico, que indica si es entrenador, preparador físico, medico, director técnico y asistente técnico. Estan preestablecidos en el sistema.",1,2,"1. Consultar las tipos de integrantes del cuerpo técnico.
+2. Presentar el listado de tipos de integrantes del cuerpo técnico.",,16
+HU15,Crear la ficha del jugador,"Como usuario requiero crear la ficha del jugador donde se especifican los datos personales, su fisiologia, su indumentaria, lesiones, estado.",10,20,"1. Presentar el formulario para capturar el documento, Nombres, apellidos, fecha de nacimiento, teléfono, dirección, celular, correo, pase, estado (lesionado, activo, inactivo, retirado), Indumentaria: Tallas, sudadera, camiseta, pantaloneta, zapato deportivo, Tipo de sangre, nivel de hemoglobina, consumo de 02, nivel de lactato en sangre.
+2. Obtener el listado del tipo de cuerpo tecnico. (HU14)
+3. El usuario ingresa los datos.
+4. El sistema valida y guarda los datos.
+5. Presentar mensaje de confirmación al usuario.",,17
+HU75,Obtener ficha de un jugador,Como usuario requiero obtener la ficha del jugador para ser editada o eliminada,1,2,"1. Obtener el id de la ficha del jugador
+2. Consultar los datos de la ficha del jugador.
+3. Presentar los datos de la ficha del jugador",,18
+HU16,Editar la ficha del jugador,"Como usuario requiero editar la fichaa del jugador modificando sus datos personales, su fisiologia, su indumentaria, lesiones y estado.",6,12,"1. Obtener la información de la ficha del jugador (HU75)
+2. Presentar el formulario para capturar los datos de la ficha del jugador.
+3. El usuario ingresa los datos.
+4. El sistema valida y guarda los datos.
+5. Presentar mensaje de confirmación al usuario.",,19
+HU17,Eliminar ficha del jugador,"Como usuario requiero eliminar la ficha del jugador, es posible eliminarla cuando no tenga información relacionada.",5,10,"1. Obtener la información de la ficha del jugador (HU75)
+2. Presentar los datos de la ficha del jugador.
+3. Presentar mensaje de confirmación de la eliminación.
+4. El sistema elimina la ficha del jugador
+5. Presentar mensaje de confirmación al usuario.",,20
+HU18,Listar los jugadores de un equipo,Como usuario requiero listar los jugadores que pertenecen a un equipo para gestionar su información.,2,4,"1. Obtener la información del equipo (HU73).
+2. Consultar el listado de los jugadores del equipo.  
+3. Presentar los datos al usuario con las opciones de editar, eliminar la ficha del jugador y lesiones.
+4. Al dar click en lesiones se presenta el listado de las lesiones del jugador. (HU18)",,21
+HU19,Finalizar la vigencia de un jugador del equipo,"Como usuario requiero finalizar la vigencia del jugador en el equipo, pero le interesa guardar el histórico, sucede cuando finaliza el contrato con el equipo.",2,4,"1. Obtener la información de la ficha del jugador (HU75)
+2. Presentar los datos de la ficha del jugador.
+3. Presentar mensaje de confirmación de finalizacion de vigencia.
+4. El sistema actualiza la fecha de fin vigencia del jugador
+5. Presentar mensaje de confirmación al usuario.",,22
+HU20,Crear lesión de un jugador,Como usuario requiero crear una lesión al jugador.,2,4,"1. Obtener la información de la ficha del jugador (HU75)
+2. Presentar el formulario para crear la lesión del jugador con los siguientes datos: Fecha inicio, fecha fin, tratamiento, observaciones.
+3. El usuario ingresa los datos
+4. El sistema valida y guarda los datos de la lesión.
+5. Presentar mensaje de confirmación al usuario.",,23
+HU76,Obtener los detalles de una lesion del jugador,Como usuario requiero obtener los detalles de la lesión de un jugador,1,2,"1. Obtener el id de la lesión del jugador
+2. Consultar los datos de la lesión del jugador.
+3. Presentar los datos de la lesión del jugador",,24
+HU21,Editar lesion de un jugador,Como usuario requiero modificar los datos de la lesión de un jugador.,2,4,"1. Obtener los detalles de la lesión del jugador. (HU76)
+2. Presentar el formulario con los dos de la lesión del jugador para ser editado.
+3. El usuario modifica los datos.
+4. Guardar los cambios en la base de  datos.
+5. Presentar mensaje de confirmación al usuario.",,25
+HU22,Eliminar lesión de un jugador,Como usuario requiero eliminar una lesión de un jugador.,1,2,"1. Obtener los detalles de la lesión del jugador. (HU76)
+2. Presentar el formulario con los dos de la lesión del jugador para ser editado.
+3. El usuario modifica los datos.
+4. Guardar los cambios en la base de  datos.
+5. Presentar mensaje de confirmación al usuario.",,26
+HU23,Listar las lesiones de un jugador.,Como usuario requiero listar las lesiones de un jugador.,1,2,"1. Obtener los datos de la ficha del jugador. (HU75)
+2. Consultar las lesiones del jugador.
+3. Presentar al usuario las lesiones del jugador  con las opciones de editar y eliminar las lesiones registradas.",,27
+HU24,Crear el plan de entrenamiento del equipo.,"Como usuario requiero crear el plan de entrenamiento del equipo, especificando los macrociclos, los microciclos, las sesiones de entrenamiento, los test y ejercicios a realizar.",15,30,"1. Obtener la información del equipo al cual crear el plan de entrenamiento. (HU73)
+2. Presentar un formulario con los datos del plan de entrenamiento: fecha de inicio, fecha fin, descripción, observaciones.
+3. Crear los mesociclos del plan de entrenamiento. (HU28)
+4. Para cada mesociclo crear los microciclos. (HU92)
+5. Para cada microciclo crear las sesiones de entrenamiento. (HU36)
+6. Guardar el plan de entrenamiento en la base de datos.
+7. Presentar mensaje de confirmación.",,28
+HU77,Obtener los detalles del plan de entrenamiento,Como usuario requiero obtener los detalles del plan de entrenamiento para ser editados o eliminados.,4,8,"1. Obtener el id del plan de entrenamiento.
+2. Consultar los detalles del plan de entrenamiento.
+3. Obtener el listado de los mesociclos del plan de entrenamiento. (HU31). 
+4. Presentar al usuario los detalles del plan y los mesociclos creados.",,29
+HU25,Editar el plan de entrenamiento del equipo,Como usuario requiero modificar el plan de entrenamiento de un equipo.,10,20,"1. Obtener los detalles del plan de entrenamiento a editar. (HU77)
+2. Presentar el formulario para editar los datos del plan de entrenamiento.
+3. El usuario modifica los datos que requiera.
+4. El usuario puede editar los mesociclos creados para el plan. (HU29)
+4. Validar los datos suministrados.
+5. Guardar los datos suministrados.
+6. Presentar al usuario un mensaje de confirmación.",,30
+HU26,Eliminar el plan de entrenamiento del equipo,Como usuario requiero eliminar el plan de entrenamiento de un equipo.,5,10,"1. Obtener los detalles del plan de entrenamiento a eliminar. (HU77)
+2. Presentar mensaje de confirmación para eliminar.
+3. Eliminar el plan de entrenamiento sino tiene información relacionada
+4. Presentar al usuario un mensaje de confirmación.",,31
+HU27,Listar los planes de entrenamiento de un equipo.,Como usuario requiero listar los planes de entrenamiento de un equipo.,5,10,"1. Obtener el equipo a consultar su plan de entrenamiento. (HU73)
+2. Consultar los planes de entrenamiento creados para el equipo, ordenados del mas reciente al más viejo.
+3. Presentar al usuario el listado de los planes de entrenamiento con las opciones de editar y eliminar.",,32
+HU28,Crear mesociclo para el plan de entramiento,"Como usuario requiero crear un mesociclo para el plan de entrenamiento, estableciendo la fecha de inico, fecha de finalización, un estado y un tipo de mesociclo. Un mesociclo contiene muchos microciclos.",4,8,"1. El usuario se encuentra en crear o editar el plan de entrenamiento y requiere crear un mesociclo.
+2. Obtener el listado de los tipos de mesociclo. (HU33)
+3. Obtener el listado de los estados del mesociclo. (HU32)
+4. Obtener el listado de los microciclos que ya fueron creados. (HU34) Con las opciones de agrear, editar y eliminar microciclos.
+5. Presentar el formulario con los datos del mesociclo. 
+6. El usuario ingresa los datos del mesociclo.
+7. Validar los datos ingresados.
+8. Guardar el mesociclo.
+9. Presentar mensaje de confirmación.",,33
+HU29,Editar mesociclo del plan de entrenamiento,Como usuario requiero modificar los datos del mesociclo creado para un plan de entrenamiento.,3,6,"1.  Obtener los detalles del mesociclo a editar. (HU78)
+2. Obtener el listado de los tipos de mesociclo. (HU33)
+3. Obtener el listado de los estados del mesociclo. (HU32)
+4. Obtener el listado de los microciclos que ya fueron creados. (HU34) Con las opciones de agrear, editar y eliminar microciclos.
+5. Presentar el formulario con los datos del mesociclo. 
+6. El usuario modifica los datos del mesociclo.
+7. Validar los datos ingresados.
+8. Guardar el mesociclo.
+9. Presentar mensaje de confirmación.",,34
+HU78,Obtener los detalles del mesociclo,Como usuairo requiero obtener los detalles del mesociclo para ser editado o eliminados.,2,4,"1. Obtener el id del mesociclo a consultar sus detalles.
+2. Consultar los datos del mesociclo.
+3. Presentar al usuario los detalles del mesociclo.",,35
+HU30,Eliminar un mesociclo del plan de entrenamiento,Como usuario requiero eliminar un mesociclo del plan de entrenamiento. Se puede eliminar si no tiene información relacionada.,2,4,"1.  Obtener los detalles del mesociclo a eliminar. (HU78)
+2. Presentar los detalles del mesociclo a eliminar con un mensaje de confirmación.
+3. Eliminar el mesociclo sino tiene información relacionada.",,36
+HU31,Listar los mesociclos del plan de entrenamiento,Como usuario requiero listar los mesociclos asignados al plan de entrenamiento.,2,4,"1. Obtener los detalles del plan de entrenamiento. (HU77)
+2. Consultar los mesociclos del plan de entrenamiento.
+3. Presentar al usuario el listado de mesociclos del plan de entrenamiento con las opciones de crear y editar mesociclos.",,37
+HU32,Listar estados de mesociclo,Como usuario requiero listar los estados de los mesociclos para ser relacionado en crear o editar el mesociclo.,1,2,"1. Obtener el listado de los estados de los mesociclos.
+2. Presentar el listado de los estados de los mesociclos.",,38
+HU33,Listar los tipos de mesociclo,Como usuario requiero listar los tipos de mesociclos para ser relacionados al crear o editar el mesociclo.,1,2,"1. Obtener el listado de los tipos de mesociclos.
+2. Presentar el listado de los tipos de mesociclos.",,39
+HU92,Crear microciclos del  mesociclo.,"Como usuario requiero crear un microciclo para un mesociclo del plan de entrenamiento, estableciendo un nombre, descripción, la fecha de inico, fecha de finalización y un estado. Un microciclo contiene muchas sesiones de entrenamiento.",4,8,"1. El usuario se encuentra en crear o editar el mesociclo y requiere crear un microciclo.
+2.  Obtener el listado de los estados del microciclo. (HU35)
+3. Obtener el listado de las sesiones de entrenamiento que ya fueron creadas. (HU39) Con las opciones de agrear, editar y eliminar sesiones de entrenamiento.
+4. Presentar el formulario con los datos del microciclo. 
+5. El usuario ingresa los datos del microciclo.
+6. Validar los datos ingresados.
+7. Guardar el microciclo.
+8. Presentar mensaje de confirmación.",,40
+HU93,Editar microciclo del mesociclo,Como usuario requiero modificar los datos del microciclo creado para un mesociclo del plan de entrenamiento.,3,6,"1.  Obtener los detalles del microciclo a editar. (HU79)
+2. Obtener el listado de los estados del microciclo. (HU35)
+3. Obtener el listado de las sesiones de entrenamiento ya fueron creadas. (HU34) Con las opciones de agrear, editar y eliminar microciclos.
+4. Presentar el formulario con los datos del mesociclo. 
+5. El usuario modifica los datos del mesociclo.
+6. Validar los datos ingresados.
+7. Guardar el mesociclo.
+8. Presentar mensaje de confirmación.",,41
+HU79,Obtener los detalles del microciclo,Como usuario requiero obtener los detalles del microciclo a editar o eliminar.,1,2,"1. Obtener el id del microciclo a consultar sus detalles.
+2. Consultar los datos del microciclo.
+3. Presentar al usuario los detalles del microciclo.",,42
+HU94,Eliminar un microciclo del mesociclo,Como usuario requiero eliminar un microciclo del plan de entrenamiento. Se puede eliminar si no tiene información relacionada.,2,4,"1.  Obtener los detalles del microciclo a eliminar. (HU79)
+2.  Presentar los detalles del microciclo y un mensaje de confirmación. 
+3. Eliminar el microciclo.
+4. Presentar mensaje de confirmación.",,43
+HU34,Listar los microciclos del mesociclo,Como usuario requiero listar los microciclos asignados al mesociclo del plan de entrenamiento.,2,4,"1. Obtener los detalles del mesociclo. (HU78)
+2. Consultar los microciclos del mesociclos.
+3. Presentar al usuario el listado de los microciclos del mesociclo con las opciones de crear y editar mesociclos.",,44
+HU35,Listar estados de microciclo,Como usuario requiero listar los estados de los microciclos para ser relacionado en el mesociclo.,1,2,"1. Obtener el listado de los tipos de mesociclos.
+2. Presentar el listado de los tipos de mesociclos.",,45
+HU36,Crear sesión de entrenamiento,"Como usuario requiero crear una sesión de entrenamiento del microciclo. Debe permitir asignar varios métodos de entrenamiento (ejercicios, partidos y/o test)",7,14,"1.  Obtener los detalles del microciclo donde se crea la sesión de entrenamiento. (HU79)
+2. Obtener el listado de los métodos de entrenamiento que pueden ser relacionados. (HU42)
+3.. Obtener el listado de los tipos de sesiones de entrenamiento que pueden ser relacionados. (HU82)  
+4. Obtener el listado de los métodos de entrenamiento que ya fueron creados. (HU80) Con las opciones de agrear, editar y eliminar método.
+5. Presentar el formulario con los datos de la sesión de entrenamiento.
+6. El usuario ingresa los datos de la sesión de entrenamiento.
+7. Validar los datos ingresados.
+8. Guardar la sesión de entrenamiento.
+9. Presentar mensaje de confirmación.",,46
+HU80,Obtener metodos de entrenamiento de la sesión de entrenamiento.,Como usuario requiero obtener los métodos de entrenamiento registrados para una sesión de entrenamiento.,2,4,"1. Obtener el la sesión de entrenamiento. 
+2.  Obtener el listado de los métodos de entrenamiento de la sesión.
+3. Presentar el listado de los métodos de entrenamiento de la sesión.",,47
+HU82,Obtener el listado de los tipos de sesión de entrenamiento,Como usuario requiero obtener el listado de los tipos de sesiones de entrenamiento para ser relacionadas a una sesión de entremiento que hace parte de un microciclo.,2,4,"1. Obtener el listado de los tipos de sesiones de entrenamiento.
+2. Presentar el listado de los tipos de sesiones de entrenamiento.",,48
+HU37,Editar la sesión de entrenamiento,Como usuario requiero editar la sesión de entrenamiento. Se pueden modificar los metodos de entrenamiento que habian sido asignados.,5,10,"1.  Obtener los detalles de la sesión de entrenamiento a editar. (HU83)
+2. Obtener el listado de los métodos de entrenamiento que pueden ser relacionados. (HU42)
+3. Obtener el listado de los tipos de sesiones de entrenamiento que pueden ser relacionados. (HU82)  
+4. Obtener el listado de los métodos de entrenamiento que ya fueron creados. (HU80) Con las opciones de agrear, editar y eliminar método.
+5. Presentar el formulario con los datos de la sesión de entrenamiento.
+6. El usuario ingresa los datos de la sesión de entrenamiento.
+7. Validar los datos ingresados.
+8. Guardar la sesión de entrenamiento.
+9. Presentar mensaje de confirmación.",,49
+HU83,Obtener los detalles de una sesión de entrenamiento,Como usuario requiero obtener los detalles de la sesión de entrenamiento para ser editada o eliminada.,2,4,"1. Obtener el id de la sesión de entrenamiento  a consultar sus detalles.
+2. Consultar los datos de la  sesión de entrenamiento
+3. Presentar al usuario los detalles de la sesión de entrenamiento.",,50
+HU38 ,Eliminar la sesión de entrenmiento,Como usuairo requiero eliminar la sesión de entrenamiento que habia sido relacionada a un microciclo. Se eliminan la sesión que no tenga metodos de entrenamiento relacionados.,2,4,"1. Obtener los detalles de la sesión de entrenamiento a eliminar. (HU83)
+2. Presentar los detalles de la sesión de entrenamiento. 
+3. Presentar mensaje de confirmación.
+4. Eliminar la sesión de entrenamiento.
+5. Presentar mensaje al usuario.",,51
+HU39,Listar sesiones de entrenamiento del microciclo.,Como usuairo requiero listar las sesiones de entremiento relacionadas a un microciclo.,2,4,"1.  Obtener los detalles del microciclo donde se crea la sesión de entrenamiento. (HU79)
+2. Consultar las sesiones de entrenamiento para el microciclo.
+3. Presentar el listado de las sesiones de entrenamiento del microciclo.",,52
+HU40,Crear método de entrenamiento,"Como usuario requiero crear un método de entrenamiento para ser relacionado en una sesión de entrenamiento. Los metodos de entrenamiento son los ejercicios o actividades que se realizan en una sesion de entrenamiento. Se especifica una carga, una intensidad y una duración del método de entrenamiento.",6,12,"1. Cargar el fomulario de registro del metodo de entrenamiento: nombre, descripción, carga, intensidad, duración.
+2. El usuario debe especificar si el método es público o privado.
+3. El usuario ingresa los datos del método de entrenamiento.
+4. El sistema valida los datos ingresados.
+5. Guardar el método de entrenamiento en  el sistema.
+6. Presentar mensaje de confirmación.",,53
+HU84,Obtener los detalles de un método de entrenamiento.,Como usuario requiero obtener los detalles de un método de entrenamiento para ser relacionado ,2,4,"1. Obtener el id del método de entrenamiento  a consultar sus detalles.
+2. Consultar los datos del método de entrenamiento.
+3. Presentar al usuario los detalles del método de entrenamiento.",,54
+HU41,Editar método de entrenamiento,Como usuario requiero editar un método de entrenamiento para ser relacionado en una sesión de entrenamiento.,4,8,"1. Obtener el método de entrenamiento a editar. (HU84)
+2. Cargar el fomulario de edición del metodo de entrenamiento: nombre, descripción, carga, intensidad, duración.
+3. El usuario debe especificar si el método es público o privado.
+4. El usuario ingresa los datos del método de entrenamiento.
+5. El sistema valida los datos ingresados.
+6. Guardar el método de entrenamiento en  el sistema.
+7. Presentar mensaje de confirmación.",,55
+HU42,Listar los métodos de entrenamiento,Como usuario requiero listar los método de entrenamiento para ser relacionados en las sesiones de entrenamiento.,4,8,"1. Obtener el listado de los métodos de entrenamiento.
+2. Presentar el listado de los métodos de entrenamiento.",,56
+HU81,Eliminar método de entrenamiento,Como usuario requiero eliminar un método de entrenamiento,3,6,"1. Obtener el método de entrenamiento a eliminar. (HU84)
+2. Presentar los detalles del método de entrenamiento y presentar mensaje de confirmación.
+3. Eliminar método de entrenamiento del sistema.
+4. Presentar mensaje de confirmación.",,57
+HU85,Obtener el listado de los archivos explicativos del método de entrenamiento.,Como usuairo requiero obtener el listado delos archivos explicativos relacionados para un método de entrenamiento.,2,4,"1. Obtener el método de entrenamiento a consultar. (HU84)
+2. Consultar los archivos explicativos del metodo de entrenamiento.
+3. Presenatar al usuario los archivos explicativos del método de entrenamiento.",,58
+HU43,Cargar archivos explicativos del método de entrenamiento,"Como usuario requiero cargar archivos (fotos, videos, documentos) a un método de entrenamiento.",6,12,"1. Obtener el método de entrenamiento. (HU84)
+2. Presentar el formulario de registro del archivo explicativos.
+3. Subir al servidor el archivo explicativo.
+4. Guardar los datos del archivo explicativo.
+5. Presentar mensaje de confirmación al usuario.",,59
+HU44,Eliminar archivo explicativo del método de entrenamiento,"Como usuario requiero eliminar un archivo (fotos, videos, documentos) de un método de entrenamiento.",3,6,"1. Obtener el archivo explicativo a eliminar.
+2. Presentar los detalles del archivo explicativo.
+3. Presentar mensaje de confirmación al usuario.
+4.  Eliminar el archivo explicativo del sistema.
+5. Presentar mensaje de confirmación al usuario.",,60
+HU45,Generar calendario de sesiones de entrenamiento,"Como usuairo requiero consultar el calendario de sesiones de entrenamiento establecidas para el plan de entrenamiento.  Realizando filtros por día, por semana, por mes y por equipo.",8,16,"1. Obtener el plan de entrenamiento a consultar. (HU77)
+2. Cargar los filtros a aplicar en la consulta del plan de entrenamiento: por día, semana, mes, equipo.
+3. El usuario establece los filtros.
+4. Generar el calendario de las sesiones de entrenamiento con las opciones de ver sus detalles y editarlas.
+5. Presentar al usuario el calendario del plan de entrenamiento.",,61
+HU46,Generar pagina inicial (landing page),"Como usuario requieron ingresar a la pagina inicial de sinplafut, desde la cual pueda acceder a sus funcionalidades.",10,20,"1. Presentar al usuario la pagina inicial del sistema o landing page.
+2. Presentar la opción de iniciar sesión. (HU47)",,62
+HU47,Iniciar sesión de usuario en sinplafut,Como usuairo requiero iniciar sesión en el sistema especificando el correo y el password de ingreso.,8,16,"1. Cargar el fomulario de inicio de sesión por correo y un password prestablecido. Con la opción de registro al sistema (HU48)
+2. El usuario ingresa su correo y password.
+3. El sistema valida en la base de datos si tiene acceso al sistema.
+4. Obter las opciones de menú a las cuales el usuario tiene permiso según su perfil de usuario. (HU58)
+5. Presentar al usuario la página de inicio del sistema con las funcionalidades correspondientes.",,63
+HU48,Registrarme a sinplafut,"Como usuario requiero registrarme al sistema sinplafut, suministrando un documento, nombre, apellido, institucion, email, password de ingreso, seleccionando un plan de membresia, y perfil de usuario.",12,24,"1. Presentar el formulario de registro al usuario.
+2. Cargar el listado de perfiles de usuario. (HU52)
+3. El usuario ingresa los datos.
+4. El sistema valida los datos introducidos.
+5. Guardar los datos de usuario en el sistema.
+6. Presentar un mensaje de confirmación al usuario.",,64
+HU49,Crear un perfil de usuario,Como usuairo (administrador) requiero crear un perfil de usuario para asignar permisos de ingreso a las funcionalidades del sistema,4,8,"1. Presentar el formulario de registro del pefil de usuario.
+2. El usuario ingresa los datos del perfil.
+3. El sistema valida los datos.
+4. El sistema presenta un mensaje de confirmación al usuario.",,65
+HU86,Obtener los detalles de un perfil de usuario.,Como usuario requiero obtener los detalles de un perfil de usuario para ser editado o eliminado.,1,2,"1. Obtener el id del perfil de usuario.
+2. Consultar los datos del perfil de usuario.
+3. Presentar al usuario los detalles del perfil de usuario.",,66
+HU50,Editar perfil de usuario,Como usuario (administrador) requiero modificar la información del perfil de usuario.,2,4,"1. Obtener el perfil de usuario a editar. (HU86)
+2. Presentar los detalles del perfil de usuario y el formulario de edición.
+3. El usuario estable los datos que requiera cambiar.
+4. El sistema valida los datos ingresados.
+5. El sistema guarda los datos y presenta un mensaje de confirmación.",,67
+HU51,Eliminar perfil de usuario,Como usuario (administrador) requiero eliminar un perfil de usuario que no tenga información relacionada,2,4,"1. Obtener el perfil de usuario a eliminar. (HU86)
+2. Presentar los detalles del perfil de usuario a eliminar y presentar mensaje de confirmación.
+3. Eliminar el perfil de usuario del sistema.
+4. Presentar mensaje de confirmación.",,68
+HU52,Listar perfiles de usuario,Como usuario requiero listar los perfiles de usuario para ser relacionados en el registro,2,4,"1. Obtener el listado de los perfiles de usuario (sin incluir el perfil administrador)
+2. Presentar el listado de los perfiles de usuario.",,69
+HU53,Crear funcionalidad de Sinplafut,Como usuario (administrador) requiero crear una funcionalidad del sistema,3,6,"1. Presentar el formulario de registro de la funcionalidad del sistema.
+2. El usuario ingresa los datos de la funcionalidad del sistema.
+3. El sistema valida los datos.
+4. El sistema presenta un mensaje de confirmación al usuario.",,70
+HU87,Obtener detalles de la funcionalidad del sistema,Como usuario requiero obtener los detalles de una funcionalidad del sistema.,1,2,"1. Obtener el id de la funcionalidad del sistema.
+2. Consultar los datos de la funcionalidad del sistema.
+3. Presentar al usuario los detalles de la funcionalidad del sistema.",,71
+HU54,Editar funcionalidad de Sinplafut,Como usuario requiero modificar las funcionalidad del sistema,2,4,"1. Obtener el perfil de usuario a editar. (HU87)
+2. Presentar los detalles del perfil de usuario y el formulario de edición.
+3. El usuario estable los datos que requiera cambiar.
+4. El sistema valida los datos ingresados.
+5. El sistema guarda los datos y presenta un mensaje de confirmación.",,72
+HU55,Eliminar funcionalidad de Sinplafut,"Como usuario requiero eliminar una funcionalidad del sistema, se puede eliminar si no tiene información relacionadad",2,4,"1. Obtener la funcionalidad del sistema a eliminar. (HU87)
+2. Presentar los detalles de la funcionalidad a eliminar y presentar mensaje de confirmación.
+3. Eliminar el la funcionalidad del sistema.
+4. Presentar mensaje de confirmación.",,73
+HU56,Listar funcionaliades de Sinplafut,Como usuario requiero listar las funcionalidades de Sinplafut para ser asignadas a los perfiles de usuario,2,4,"1. Obtener el listado de las funcionalidades del sistema
+2. Presentar el listado de las funcionalidades del sistema",,74
+HU57,Asignar permiso funcionalidad usuario,"Como usuario (administrador) requiero asignar un permiso al perfil de usuario y la funcionalidad, implica que el usuario tiene acceso a esa funcionalidad",3,6,"1. Obtener el perfil de usuario a relacionar. (HU86)
+2. Obatener el listado de funcionalidades del sistema (HU56)
+3. Seleccionar la funcionalidad a asignar.
+4. Guardar en el sistema el permiso asignado.",,75
+HU58,Listar permisos por usuario,Como usuario requiero listar las funcionalidades que tiene asignadas un perfil de usuario,2,4,"1. Obtener el perfil de usuario a relacionar. (HU86)
+2. Consultar el listado de funcionalidades o permisos asignados al perfil de usuario.
+3. Presentar el listado de las funcionalidades asignadas al perfil de usuario.",,76
+HU59,Verificar permiso usuario,Como usuario requiero verificar si un usuario tiene acceso a una funcionalidad de Sinplafut dada.,2,4,"1. Obtener los datos del usuario. (HU71)
+2. Obtener la funcionalidad a verificar (HU87)
+3. Consultar en el sistema si el usuario tiene asignada esa funcionalidad.
+4.  Presentar un mensaje de confirmación.",,77
+HU60,Crear test deportivo,"Como usuario requiero crear la información base de un test deportivo, especificando un nombre, una descripción, un objetivo y un procedimiento de aplicación, duración y video explicativo. Los test se aplican en las sesiones de entrenamiento. También se debe indicar si es público (para todos los usuario) o privado (solo para el usuario).",6,12,"1. Presentar el formulario de registro del test deportivo.
+2. El usuario ingresa los datos del test deportivo.
+3. El sistema valida los datos ingresados.
+4. El sistema guarda en la base de datos el test deportivo.
+5. El sistema presenta un mensaje de confirmación al usuario.",,78
+HU88,Obtener detalles de test deportivo,Como usuario requiero obtener los detalles del test deportivo dada su identificación para ser editado o eliminado.,1,2,"1. Obtener el id del  test deportivo.
+2. Consultar los datos del test deportivo en el sistema.
+3. Presentar al usuario los detalles del test deportivo.",,79
+HU61,Modificar test deportivo,Como usuario requiero modificar la información del test deportivo,3,6,"1. Obtener el test deportivo a editar. (HU88)
+2. Presentar los detalles del test deportivo y el formulario de edición.
+3. El usuario estable los datos que requiera cambiar.
+4. El sistema valida los datos ingresados.
+5. El sistema guarda los datos y presenta un mensaje de confirmación.",,80
+HU62,Eliminar test deportivo,Como usuario requiero eliminar el test deportivo que no tenga información relacionada.,2,4,"1. Obtener el test deportivo a eliminar. (HU88)
+2. Presentar los detalles del test deportivo a eliminar y presentar mensaje de confirmación.
+3. Eliminar el test deportivo del sistema.
+4. Presentar mensaje de confirmación al usuario.",,81
+HU63,Listar tests deportivos,Como usuario requiero listar los test deportivos para ser relacionados en las sesiones de entrenamiento. Se incluyen los test publicos y los creados por el usuario.,2,4,"1. Obtener los datos del usuario. (HU71)
+2. Consultar los test deportivos registrados en el sistema que sean publicos o privados creados por el usurio.
+3. Presentar el listado de los test deportivos.",,82
+HU64 ,Crear tabla de valoración del test,Como usuairo requiero crear una tabla de valoración para el test a aplicar en las sesiones de entrenamiento,4,8,"1. Obtener el test deportivo. (HU88)
+2. Presentar los detalles del test deportivo.
+3. Presentar el formulario de registro de la tabla de valoración.
+4. El usuario ingresa los datos de la tabla de valoración del test.
+5. El sistema valida los datos ingresados.
+6. El sistema guarda los datos y presenta un mensaje de confirmación.",,83
+HU89,Obtener los detalles de una tabla de valoración de test,Como usuario requiero obtener los detalles de la tabla de valoración para ser editadas o eliminadas.,1,2,"1. Obtener el id de la  tabla de valoración del test.
+2. Consultar los datos de la tabla de valoración en el sistema.
+3. Presentar al usuario los detalles de la tabla de valoración del test deportivo.",,84
+HU65 ,Modificar tabla de valoracion del test,Como usuairo requiero modificar la tabla de valoración  para el test a aplicar en las sesiones de entrenamiento.,3,6,"1. Obtener el  la tabla de valoración del test deportivo a editar. (HU89)
+2. Presentar los detalles de la tabla de valoración del test deportivo y el formulario de edición.
+3. El usuario estable los datos que requiera cambiar.
+4. El sistema valida los datos ingresados.
+5. El sistema guarda los datos y presenta un mensaje de confirmación.",,85
+HU66,Eliminar tabla de valoración del test,Como usuario requiero eliminar la tabla de valoración de un test.,2,4,"1. Obtener la tabla de valoración del test deportivo a eliminar. (HU89)
+2. Presentar los detalles de la tabla de valoración del test deportivo a eliminar y presentar mensaje de confirmación.
+3. Eliminar la tabla de valoración del test deportivo del sistema.
+4. Presentar mensaje de confirmación al usuario.",,86
+HU67,Consultar tabla de valoración del test,Como usuairo requiero consultar la tabla de valoración de un test.,2,4,"1. Obtener el test deportivo. (HU88)
+2. Consultar su tabla de valoración.
+3. Presentar al usuario la tabla de valoración del test.",,87
+HU68,Aplicar test deportivo a jugador,Como usuario requiero registrar resultado o aplicar un test deportivo a un jugador registrando su resultado en una sesión de entrenamiento. ,8,16,"1. Obtener los datos del jugador a registrar el resultado del test. (HU75)
+2. Obtener los datos del test aplicado (HU88)
+3. El usuario estable la valoración del test.
+4.  El sistema guarda esta valoración en la base de datos.
+5. Presentar mensaje de confirmación al usuario.",,88
+HU69,Obtener valoración del test para el jugador.,"Como usuario requiero obtener la valoración del test deportivo aplicado al jugador, se debe consultar la tabla de valoración.",4,8,"1. Obtener los datos del jugador a registrar el resultado del test. (HU75)
+2. Obtener los datos del test aplicado (HU88)
+3. Consultar la tabla de valoración del test. (HU67)
+4. Obtener la valoración del jugador obtenida en el test.
+5. Guardar en el sistema la valoraciones del test del jugador.
+6. Presentar mensaje de confirmación al usuario.",,89
+HU70,Obtener valoración del test para el equipo.,Como usuario requiero obtener la valoración del test deportivo aplicado a los jugadores totalizado para el equipo.,8,16,"1. Obtener los datos del equipo a obtener la valoración del test. (HU73)
+2. Obtener los datos del test a consultar (HU88)
+3. Consultar las valoraciones hechas a cada  jugador y generar estadisticas del test. (HU90)
+4. Presentar al usuario estadísticas del test aplicado al equipo.",,90
+HU71,Obtener los datos del usuario,Como usuario requiero consultar los datos registrados en el sistema por la identificación de usuario o correo electrónico.,2,4,"1. Obtener el id o correo del usuario.
+2. Consultar los datos del usuario en el sistema.
+3. Presentar los datos del usuario.",,91
+HU90,Generar estadísticas del test a nivel de equipo,Como usuario requiero generar las estadísticas de un test aplicado a un equipo para evaluar el estado del equipo.,6,12,"1. Obtener los datos del equipo a obtener la valoración del test. (HU73)
+2. Obtener los datos del test a consultar (HU88)
+3. Generar estadísticas según la tabla de valoración del test.
+4. Presentar las estadisticas al usuario.",,92

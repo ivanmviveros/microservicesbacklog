@@ -75,6 +75,39 @@ class Clustering():
             matrizSimilitud.append(similitudes)
         return matrizSimilitud 
     
+    def calcularDiccionarioSimilitud(self, listaHistorias, aplicarEn ):
+        dicSimilitud={}
+        textos=[]
+        for historia in listaHistorias:
+            lista = self.identificarVerbosEntidades(historia)
+            textos.append(lista)
+        
+        for texto in textos:
+            hu = texto[0]            
+            tex = texto[1]
+            lem = texto[2]
+            if aplicarEn == 'lemma':
+                doc1 = self.nlp(lem)                
+            if aplicarEn == 'text':
+                doc1 = self.nlp(tex)            
+            similitudes=[hu]
+
+            for tex_hu in textos:                
+                hu2 = tex_hu[0]
+                texto2 = tex_hu[1]
+                lemma2 = tex_hu[2]
+                if aplicarEn == 'lemma':
+                    doc2 = self.nlp(lemma2)
+                if aplicarEn == 'text':
+                    doc2 = self.nlp(texto2)
+                similitud = doc1.similarity(doc2)                
+                dicc = [hu2, similitud]
+                similitudes.append(dicc)
+                key = hu.identificador + "-" + hu2.identificador
+                dicSimilitud[key] = similitud 
+                        
+        return dicSimilitud
+    
     def agruparHistorias(self, mastrizSimilitud, n, pAgrupar):
         lista=[]                
         idUsados=[]

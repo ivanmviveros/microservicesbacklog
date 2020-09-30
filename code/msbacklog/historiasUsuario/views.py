@@ -70,6 +70,7 @@ class ProyectoCrearView(CreateView):
         proyecto = Proyecto(
             nombre = form.cleaned_data['nombre'],
             descripcion = form.cleaned_data['descripcion'],
+            idioma = form.cleaned_data['idioma'],
             sigla = form.cleaned_data['sigla'],
             es_publico = form.cleaned_data['es_publico'],
             usuario = self.usuario,                        

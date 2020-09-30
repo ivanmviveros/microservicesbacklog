@@ -17,6 +17,7 @@ class Proyecto (models.Model):
     descripcion = models.CharField(max_length=500)
     fecha_creacion = models.DateField(auto_now_add=True)
     es_publico = models.BooleanField(default= True)
+    idioma = models.CharField(max_length=5, null=True, default="es")
 
     usuario = models.ForeignKey(Usuario, on_delete=models.PROTECT)
 

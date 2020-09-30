@@ -536,6 +536,7 @@ class Metrica (models.Model):
             sumacuaADS=0
             sumacuaSIY=0
             sucmacuaCoh=0
+            suma_siy=0
             sumaCgi=0
             sumaPuntos=0
             mayor_wsic=0
@@ -594,6 +595,7 @@ class Metrica (models.Model):
                 sumacuaSIY += ms.siy * ms.siy
 
                 sucmacuaCoh += ms.grado_cohesion * ms.grado_cohesion
+                suma_siy += ms.siy
 
                 if ms.numero_historias > mayor_wsic:
                     mayor_wsic = ms.numero_historias
@@ -638,7 +640,7 @@ class Metrica (models.Model):
                 valor1=0
 
             # Complejidad cognitiva total - Dificultad de entender, mantener e implenetar la solución planteada.
-            cxt = ( valor1 + mayor_puntos ) + cgh + cgt
+            cxt = ( valor1 + mayor_puntos ) + cgh + cgt + suma_siy
             
             # Calls (out)
             # sumaCx=0 

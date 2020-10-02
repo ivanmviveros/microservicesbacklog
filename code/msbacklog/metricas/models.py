@@ -525,7 +525,7 @@ class Metrica (models.Model):
             msapp.save()
 
     # Método usado para calcular las metricas del individuo usado por el algoritmo genético
-    def calcularMetricasIndividuo(self, microservicios, variables, dependencias, penalizaCx, totalHistorias, totalPuntos):        
+    def calcularMetricasIndividuo(self, microservicios, variables, dependencias, penalizaCx, totalHistorias, totalPuntos, similitud):        
         if microservicios:
             sumacalls = 0.0
             sumarequest = 0.0
@@ -547,6 +547,7 @@ class Metrica (models.Model):
             vector_cxs=[] # Calls (out) de MS a otros
             vector_cxrs=[] #  Calls (in) de otros a MS
             vector_callsij=[] # numero de calls entre MS
+            suma_similitud =0           
 
             for dato in microservicios:                
                 contadorMS += 1
@@ -555,7 +556,7 @@ class Metrica (models.Model):
                 ms = Microservicio(nombre= nombreMS)
 
                 # calcular las métricas del microservicio
-                rta = self.calcularMetricasMicroservicio(dato, microservicios, n, dependencias, penalizaCx)
+                rta = self.calcularMetricasMicroservicio(dato, microservicios, n, dependencias, penalizaCx, similitud)
 
                 ms.ais= rta[0]
                 ms.request = rta[1]
@@ -582,6 +583,8 @@ class Metrica (models.Model):
                 vector_cxs.append(rta[11]) # Obtengo el valor de llamadas entre el microservicio y los otros aplicando la penalización si son bidireccionales.
                 vector_cxrs.append(rta[12])
 
+                ms.similitud_semantica = rta[13]
+
                 if ms.tiempo_estimado_desarrollo > mayor_tiempo:
                     mayor_tiempo = ms.tiempo_estimado_desarrollo
 
@@ -596,6 +599,7 @@ class Metrica (models.Model):
 
                 sucmacuaCoh += ms.grado_cohesion * ms.grado_cohesion
                 suma_siy += ms.siy
+                suma_similitud += ms.similitud_semantica
 
                 if ms.numero_historias > mayor_wsic:
                     mayor_wsic = ms.numero_historias
@@ -640,34 +644,7 @@ class Metrica (models.Model):
                 valor1=0
 
             # Complejidad cognitiva total - Dificultad de entender, mantener e implenetar la solución planteada.
-            cxt = ( valor1 + mayor_puntos ) + cgh + cgt + suma_siy
-            
-            # Calls (out)
-            # sumaCx=0 
-            # i=0
-            # for cx in vector_cxs:
-            #     sumaCxi=0
-            #     j=0 
-            #     cgmsi =  vector_cgs[i]           
-            #     for call in cx:                    
-            #         cgmsj = vector_cgs[j]                    
-            #         valor_cx = call * cgmsj                    
-            #         sumaCxi = sumaCxi +  valor_cx
-            #         j+=1
-            #     sumaCx += sumaCxi + cgmsi
-            #     i+=1
-            
-            # # Request (in)
-            # sumaCxr=0
-            # i=0
-            # for cxr in vector_cxrs:
-            #     sumaCxri=0
-            #     cgmsi = vector_cgs[i]
-            #     for reques in cxr:                                        
-            #         valor_cxr = reques * cgmsi
-            #         sumaCxri = sumaCxri + valor_cxr
-            #     sumaCxr+= sumaCxri
-            #     i+=1
+            cxt = ( valor1 + mayor_puntos ) + cgh + cgt + suma_siy                        
 
             cua_coht=0
             cua_copt=0
@@ -683,8 +660,8 @@ class Metrica (models.Model):
             coht = math.sqrt(sucmacuaCoh)
 
             wsict = mayor_wsic
-            cplt = cxt / 2
-            semant = 0
+            cplt = cxt / 2            
+            semant = suma_similitud / n
             
             if variables:
                 for var in variables:
@@ -697,7 +674,7 @@ class Metrica (models.Model):
                     if var=="wsict":
                         cua_wsict = wsict * wsict
                     if var=="semantic":
-                        cua_semant = semant * semant # Falta crear el método de calcular la similitud semantica de la MSApp
+                        cua_semant = (1-semant)*(1-semant) 
 
             gm = math.sqrt( (cua_coht) + (cua_copt) + (cua_wsict) + (cua_cplt) + (cua_semant) )
 
@@ -715,6 +692,7 @@ class Metrica (models.Model):
 
             msapp.avg_calls = sumacalls /  msapp.numero_microservicios
             msapp.avg_request = sumarequest /  msapp.numero_microservicios
+            msapp.similitud_semantica = semant
 
             # Calcular complejidad cognitiva en relación a la complejidad mas baja: 1 microservicios con 1 historia de usuario y 1 punto de historia
             # Pare el caso de menor complejidad la complejidad cognitiva sería 2
@@ -726,7 +704,7 @@ class Metrica (models.Model):
 
             return metricas
     
-    def calcularMetricasMicroservicio(self, msCalcular, microservicios, n, dependencias, penalizaCx):
+    def calcularMetricasMicroservicio(self, msCalcular, microservicios, n, dependencias, penalizaCx, similitud):
         clientes=0 # Cuantos MS llaman a msCalcular
         request=0  # Cuantas veces llaman a msCalcular
         calls=0  # Cuantas llamadas hace msCalcular a otros MS
@@ -798,12 +776,26 @@ class Metrica (models.Model):
                 tiempo+=hums.tiempo_estimado
                 puntos+=hums.puntos_estimados
                 numero_historias += 1
+            
+            suma_similitud=0
+            similitudMs=0
+
+            # Calcular la similitud semantica del microservicio
+            for k in range(0, (numero_historias - 1)):
+                for l in range ((k+1), numero_historias):
+                    hu1 = historiasmscal[k]
+                    hu2 = historiasmscal[l]
+                    key = hu1.identificador + "-" + hu2.identificador
+                    valor = similitud.get(key)
+                    suma_similitud += valor
+            
+            similitudMs = suma_similitud / numero_historias
 
             grado_cohesion = nointerdependientes / n
             wsic = numero_historias
     
         respuesta = [clientes, request, provedores, calls, interdependientes, nointerdependientes, grado_cohesion, 
-                     wsic, tiempo, puntos, vector_callsIJ, vector_cx, vector_cxr]
+                     wsic, tiempo, puntos, vector_callsIJ, vector_cx, vector_cxr, similitudMs]
         return respuesta
                                         
                     

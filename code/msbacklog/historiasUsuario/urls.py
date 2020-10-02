@@ -1,5 +1,4 @@
 from django.conf.urls import url
-from . import restviews
 from .views import (
     ProyectoCrearView,
     ProyectoDetailView,
@@ -31,13 +30,4 @@ urlpatterns = [
     url(r'^cargar-historias/(?P<id_proyecto>\d+)$', historiaUsuario_uploadfile, name='load-historias'),
     url(r'^dependencias-historias/(?P<pk>\d+)$', HistoriaDependenciaUdpateView.as_view(), name='dependencias-historias'),
     
-    #Rest Api        
-    url(r'^api/proyectos/(?P<id_usuario>[0-9]+)/$', restviews.proyecto_list),
-    url(r'^api/crear-proyecto/$', restviews.proyecto_create),
-    url(r'^api/detalle-proyecto/(?P<pk>[0-9]+)/$', restviews.proyecto_detail),
-
-    url(r'^api/historias/(?P<id_proyecto>[0-9]+)/$', restviews.historias_list),
-    url(r'^api/crear-historia/$', restviews.historia_create),
-    url(r'^api/detalle-historia/(?P<pk>[0-9]+)/$', restviews.historia_detail),    
-
 ]

@@ -10,6 +10,7 @@ from random import randint
 import math
 import copy
 import threading
+from time import time
 
 # Create your models here.
 class Clustering():
@@ -76,36 +77,36 @@ class Clustering():
         return matrizSimilitud 
     
     def calcularDiccionarioSimilitud(self, listaHistorias, aplicarEn ):
-        dicSimilitud={}
-        textos=[]
-        for historia in listaHistorias:
-            lista = self.identificarVerbosEntidades(historia)
-            textos.append(lista)
-        
-        for texto in textos:
-            hu = texto[0]            
-            tex = texto[1]
-            lem = texto[2]
-            if aplicarEn == 'lemma':
-                doc1 = self.nlp(lem)                
-            if aplicarEn == 'text':
-                doc1 = self.nlp(tex)            
-            similitudes=[hu]
+        dicSimilitud={}              
+        n = len(listaHistorias)
 
-            for tex_hu in textos:                
-                hu2 = tex_hu[0]
-                texto2 = tex_hu[1]
-                lemma2 = tex_hu[2]
+        for i in range(0, n-1):
+            for j in range (i+1, n):                                
+                historia = listaHistorias[i]
+                historia2 = listaHistorias[j]
+
+                texto1 = self.identificarVerbosEntidades(historia)
+                texto2 = self.identificarVerbosEntidades(historia2)
+                            
+                tex = texto1[1]
+                lem = texto1[2]
+
+                tex2 = texto2[1]
+                lem2 = texto2[2]
+
+                #tex = historia.nombre + ":" + historia.descripcion
+                #tex2 = historia2.nombre + ":" + historia2.descripcion
+
                 if aplicarEn == 'lemma':
-                    doc2 = self.nlp(lemma2)
+                    doc1 = self.nlp(lem)                
+                    doc2 = self.nlp(lem2)
                 if aplicarEn == 'text':
-                    doc2 = self.nlp(texto2)
-                similitud = doc1.similarity(doc2)                
-                dicc = [hu2, similitud]
-                similitudes.append(dicc)
-                key = hu.identificador + "-" + hu2.identificador
-                dicSimilitud[key] = similitud 
-                        
+                    doc1 = self.nlp(tex)
+                    doc2 = self.nlp(tex2)    
+                
+                similitud = doc1.similarity(doc2)
+                key = historia.identificador + "-" + historia2.identificador
+                dicSimilitud[key] = similitud              
         return dicSimilitud
     
     def agruparHistorias(self, mastrizSimilitud, n, pAgrupar):
@@ -450,7 +451,7 @@ class Clustering():
 
 class Individuo():
 
-    def __init__(self, listaHistorias, dependencias):
+    def __init__(self, listaHistorias, dependencias, similitud):
         self.numeroHistorias = len(listaHistorias)
         self.matrizAsignacion = []
         self.microservicios = []
@@ -459,6 +460,7 @@ class Individuo():
         self.valorFuncion = 0.0
         self.dependencias = dependencias
         self.numero_microservicios=0        
+        self.similitud = similitud
 
     def generarIndividuo(self, listaHistorias, variables, penalizaCx, totalHistorias, totalPuntos):
         self.cromosoma = ""
@@ -506,7 +508,7 @@ class Individuo():
 
         #Calcular las metricas para la descomposición generada
         metrica = Metrica()
-        self.metricas = metrica.calcularMetricasIndividuo(self.microservicios, variables, self.dependencias, penalizaCx, totalHistorias, totalPuntos)
+        self.metricas = metrica.calcularMetricasIndividuo(self.microservicios, variables, self.dependencias, penalizaCx, totalHistorias, totalPuntos, self.similitud)
         app = self.metricas[0]
         self.valorFuncion = app.valor_GM
     
@@ -516,7 +518,7 @@ class Individuo():
         
 class AlgoritmoGenetico():
 
-    def __init__(self, tamanoPoblacion, iteraciones, hijos, mutaciones, variables, historias, dependencias, penalizaCx, totalHistorias, totalPuntos):    
+    def __init__(self, tamanoPoblacion, iteraciones, hijos, mutaciones, variables, historias, dependencias, penalizaCx, totalHistorias, totalPuntos, similitud):    
         self.tamanoPoblacion = tamanoPoblacion
         self.iteraciones = iteraciones
         self.hijos = hijos
@@ -528,17 +530,18 @@ class AlgoritmoGenetico():
         self.penalizaCx = penalizaCx
         self.totalHistorias = totalHistorias
         self.totalPuntos = totalPuntos
+        self.similitud = similitud
     
     def generarPoblacion(self):                        
         for i in range(0, self.tamanoPoblacion):
-            ind = Individuo(self.historias, self.dependencias)
+            ind = Individuo(self.historias, self.dependencias, self.similitud)
             ind.generarIndividuo(self.historias, self.variables, self.penalizaCx, self.totalHistorias, self.totalPuntos)
             vector = [ind]
             self.poblacion.extend(vector)                        
     
     def generarPoblacionParalelo(self, inicio, fin):                
         for i in range(inicio, fin):
-            ind = Individuo(self.historias, self.dependencias)
+            ind = Individuo(self.historias, self.dependencias, self.similitud)
             ind.generarIndividuo(self.historias, self.variables, self.penalizaCx, self.totalHistorias, self.totalPuntos)
             vector = [ind]
             self.poblacion.extend(vector)                    
@@ -551,7 +554,7 @@ class AlgoritmoGenetico():
     def reproducir(self):        
         n = len(self.historias)
         for i in range(0, self.hijos):
-            hijo= Individuo(self.historias, self.dependencias)            
+            hijo= Individuo(self.historias, self.dependencias, self.similitud)            
             indexPadre = randint(0, self.tamanoPoblacion-1)
             indexMadre = randint(0, self.tamanoPoblacion-1)
 
@@ -665,12 +668,12 @@ class AlgoritmoGenetico():
         #for i in range (0, self.iteraciones):            
         converge=False
         cont=0
-        while converge==False:
+        while converge==False and cont < self.iteraciones:
             cont+=1
             self.reproducir()                        
             self.mutar()                        
             self.seleccionarMejores()            
-            converge = self.converge(0.3)
+            converge = self.converge(0.1)
         mejor = self.poblacion[0]
         self.iteraciones = cont        
         return mejor     

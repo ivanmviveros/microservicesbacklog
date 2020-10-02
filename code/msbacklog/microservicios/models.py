@@ -35,7 +35,8 @@ class MicroservicioApp (models.Model):
     avg_request = models.FloatField(null= True)
     valor_GM = models.FloatField(null= True)
 
-    complejidad_cognitiva = models.FloatField(null= True)   
+    complejidad_cognitiva = models.FloatField(null= True)
+    similitud_semantica = models.FloatField(null= True)   
 
     numero_microservicios = models.IntegerField(null= True)
 

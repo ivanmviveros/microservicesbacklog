@@ -1,6 +1,6 @@
 appdirs
 defusedxml
-Django
+Django==1.11.29
 django-bootstrap3
 django-material
 django-tenant-schemas
@@ -19,5 +19,5 @@ requests-oauthlib
 six
 social-auth-app-django
 social-auth-core
-spacy==2.2.4
 django-rest-framework
+spacy==2.3.1

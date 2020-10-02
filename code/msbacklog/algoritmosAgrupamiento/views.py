@@ -223,11 +223,11 @@ def clusteringCalls(request, **kwargs):
     # Create your views here.  
 def algoritmoGenetico(request, **kwargs):
     if request.method == 'GET':
-        msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])             
-        return render(request, 'algoritmosAgrupamiento/genetic.html', {'msapp': msapp})
+        msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])              
+        return render(request, 'algoritmosAgrupamiento/genetic.html', {'msapp': msapp })
     
     if request.method == 'POST':
-        msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
+        msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])         
         listaHu = HistoriaUsuario.objects.filter(proyecto= msapp.proyecto)
 
         listaDep = Dependencia_Historia.objects.filter(historia__proyecto = msapp.proyecto)   
@@ -236,6 +236,12 @@ def algoritmoGenetico(request, **kwargs):
             vector= [dephu.historia.id, dephu.dependencia.id]
             dependencias.append(vector)
 
+        startime = time()        
+        lenguaje = msapp.proyecto.idioma        
+        cluster = Clustering(lenguaje, 'md')         
+        similitud = cluster.calcularDiccionarioSimilitud(listaHu, 'lemma')                                       
+        dura = time() - startime                
+        
         poblcacion = request.POST.get('poblacion') 
         iteraciones = request.POST.get('iteraciones') 
         hijos = request.POST.get('hijos') 
@@ -248,7 +254,7 @@ def algoritmoGenetico(request, **kwargs):
         #ind.generarIndividuo(listaHu, variables)
         totalHistorias = msapp.proyecto.getNumeroHistorias()
         totalPuntos = msapp.proyecto.getTotalPuntos()
-        genetico = AlgoritmoGenetico(int(poblcacion), int(iteraciones), int(hijos), int(mutaciones), variables, listaHu, dependencias, penalizaCx, totalHistorias, totalPuntos)
+        genetico = AlgoritmoGenetico(int(poblcacion), int(iteraciones), int(hijos), int(mutaciones), variables, listaHu, dependencias, penalizaCx, totalHistorias, totalPuntos, similitud)
                         
         #genetico.generarPoblacion()                
         # genetico.reproducir()

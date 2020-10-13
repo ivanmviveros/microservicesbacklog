@@ -85,7 +85,10 @@ class MicroservicioApp (models.Model):
                 metricas += str(ms.calls) + ","
                 metricas += str(ms.request) + ","
                 metricas += str(round(ms.tiempo_estimado_desarrollo,2)) + ","
-                metricas += str(ms.total_puntos)
+                metricas += str(ms.total_puntos) + ","
+                if ms.similitud_semantica==None:
+                    ms.similitud_semantica=0.00
+                metricas += str(round(ms.similitud_semantica,2)) + ","
                 metricas += "|"
                 i+=1                                                            
 

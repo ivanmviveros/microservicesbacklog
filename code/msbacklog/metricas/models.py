@@ -779,6 +779,7 @@ class Metrica (models.Model):
             
             suma_similitud=0
             similitudMs=0
+            cont=0
 
             # Calcular la similitud semantica del microservicio
             for k in range(0, (numero_historias - 1)):
@@ -786,10 +787,21 @@ class Metrica (models.Model):
                     hu1 = historiasmscal[k]
                     hu2 = historiasmscal[l]
                     key = hu1.identificador + "-" + hu2.identificador
-                    valor = similitud.get(key)
-                    suma_similitud += valor
-            
-            similitudMs = suma_similitud / numero_historias
+                    valor = similitud.get(key)            
+                    if valor==None:
+                        key = hu2.identificador + "-" + hu1.identificador
+                        valor = similitud.get(key)
+                        if valor== None:
+                            valor=0
+                        else:
+                            suma_similitud += valor
+                            cont+=1    
+                    else:        
+                        suma_similitud += valor
+                        cont+=1
+            if cont==0:
+                cont=1
+            similitudMs = suma_similitud / cont
 
             grado_cohesion = nointerdependientes / n
             wsic = numero_historias

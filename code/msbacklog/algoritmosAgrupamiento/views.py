@@ -240,7 +240,7 @@ def algoritmoGenetico(request, **kwargs):
         lenguaje = msapp.proyecto.idioma        
         cluster = Clustering(lenguaje, 'md')         
         similitud = cluster.calcularDiccionarioSimilitud(listaHu, 'lemma')                                       
-        dura = time() - startime                
+        #dura = time() - startime                        
         
         poblcacion = request.POST.get('poblacion') 
         iteraciones = request.POST.get('iteraciones') 
@@ -249,53 +249,54 @@ def algoritmoGenetico(request, **kwargs):
         penalizaCx = request.POST.get('penalizaCx') 
         variables = request.POST.getlist('objetivo')                 
 
-        startime = time()
+        
         #ind = Individuo(listaHu, dependencias)
         #ind.generarIndividuo(listaHu, variables)
         totalHistorias = msapp.proyecto.getNumeroHistorias()
         totalPuntos = msapp.proyecto.getTotalPuntos()
-        genetico = AlgoritmoGenetico(int(poblcacion), int(iteraciones), int(hijos), int(mutaciones), variables, listaHu, dependencias, penalizaCx, totalHistorias, totalPuntos, similitud)
-                        
-        #genetico.generarPoblacion()                
+        #startime = time()
+        genetico = AlgoritmoGenetico(int(poblcacion), int(iteraciones), int(hijos), int(mutaciones), variables, listaHu, dependencias, penalizaCx, totalHistorias, totalPuntos, similitud)                        
+        genetico.generarPoblacion()                
         # genetico.reproducir()
         # genetico.mutar()
         # genetico.ordenarPoblacion()     
         #datos = genetico.poblacion
            
-        ind = genetico.ejecutar()                
+        #ind = genetico.ejecutar()                
         
         dura = time() - startime
         
-        metricas = ind.metricas
-        app = metricas[0]
-        datos = metricas[1]        
+        ## metricas = ind.metricas
+        ## app = metricas[0]
+        ## datos = metricas[1]        
         # app= msapp
 
         # Borrar las historias de los microservicios
-        lista = Microservicio.objects.filter(aplicacion = msapp)
-        for ms in lista:
-             Microservicio_Historia.objects.filter(microservicio=ms).delete()
+        ## lista = Microservicio.objects.filter(aplicacion = msapp)
+        ## for ms in lista:
+        ##     Microservicio_Historia.objects.filter(microservicio=ms).delete()
 
         #Borrar los microservicios que estaban antes
-        if lista:
-            Microservicio.objects.filter(aplicacion = msapp).delete()
+        ## if lista:
+        ##    Microservicio.objects.filter(aplicacion = msapp).delete()
 
-        msapp.tiempo_estimado_desarrollo = app.tiempo_estimado_desarrollo
-        msapp.coupling = app.coupling
-        msapp.aist = app.aist
-        msapp.adst = app.adst
-        msapp.siyt = app.siyt
+        ## msapp.tiempo_estimado_desarrollo = app.tiempo_estimado_desarrollo
+        ## msapp.coupling = app.coupling
+        ## msapp.aist = app.aist
+        ## msapp.adst = app.adst
+        ## msapp.siyt = app.siyt
         
-        msapp.cohesion = app.cohesion
-        msapp.wsict = app.wsict
+        ## msapp.cohesion = app.cohesion
+        ## msapp.wsict = app.wsict
 
-        msapp.avg_calls = app.avg_calls
-        msapp.avg_requet = app.avg_request
-        msapp.valor_GM = ind.valorFuncion
-        msapp.numero_microservicios = app.numero_microservicios 
-        msapp.complejidad_cognitiva = app.complejidad_cognitiva
+        ## msapp.avg_calls = app.avg_calls
+        ## msapp.avg_requet = app.avg_request
+        ## msapp.valor_GM = ind.valorFuncion
+        ## msapp.numero_microservicios = app.numero_microservicios 
+        ## msapp.complejidad_cognitiva = app.complejidad_cognitiva
+        ## msapp.similitud_semantica = app.similitud_semantica
 
-        msapp.save()
+        ## msapp.save()
 
         mensaje =  "<div id='divGenetico' class='panel panel-primary'>"
         mensaje += "<div class='panel-heading'>Microservices Grouped by Genetic Programming</div>"
@@ -314,18 +315,19 @@ def algoritmoGenetico(request, **kwargs):
         mensaje += "</td>"
         mensaje += "<td>"
         mensaje += "Execution time: " + str(round(dura,3)) + "<br>"
-        mensaje += "Iterations: " + str(genetico.iteraciones) + "<br>"
-        mensaje += "Coupling: " + str(round(app.coupling,3)) + "<br>"
-        mensaje += "Cohesion: " + str(round(app.cohesion,3)) + "<br>"
-        mensaje += "Wsict: " + str(app.wsict) + "<br>"        
-        mensaje += "Microservices: " + str(app.numero_microservicios) + "<br>"
-        mensaje += "Cognitive Complexity: " + str(app.complejidad_cognitiva) + "<br>"
-        mensaje += "GM: " + str(round(app.valor_GM,3)) + "<br>"
+        ## mensaje += "Iterations: " + str(genetico.iteraciones) + "<br>"
+        ## mensaje += "Coupling: " + str(round(app.coupling,3)) + "<br>"
+        ## mensaje += "Cohesion: " + str(round(app.cohesion,3)) + "<br>"
+        ## mensaje += "Wsict: " + str(app.wsict) + "<br>"        
+        ## mensaje += "Microservices: " + str(app.numero_microservicios) + "<br>"
+        ## mensaje += "Cognitive Complexity: " + str(round(app.complejidad_cognitiva,3)) + "<br>"
+        ## mensaje += "Semantic similarity: " + str(round(app.similitud_semantica,3)) + "<br>"
+        ## mensaje += "GM: " + str(round(app.valor_GM,3)) + "<br>"
         #mensaje += "Cromosoma: " + ind.cromosoma + "<br>"
         mensaje += "</td>"
         mensaje += "</tr>"         
 
-        for dato in datos:            
+        ## for dato in datos:            
             # mensaje += "<tr>"
             # #for hums in dato:
             # mensaje += "<td>"
@@ -334,48 +336,48 @@ def algoritmoGenetico(request, **kwargs):
             # mensaje += "</td>"
             # mensaje += "</tr>"
             
-            micro = dato[0]
-            micro.aplicacion = msapp
-            nombreMS = micro.nombre
-            micro.save()
+            ## micro = dato[0]
+            ## micro.aplicacion = msapp
+            ## nombreMS = micro.nombre
+            ## micro.save()
 
+            ## mensaje += "<tr>"
+            ## mensaje += "<td>"
+            ## mensaje += nombreMS + "<BR>"
+            ## mensaje += "historias: " + str(micro.numero_historias) + "<BR>"
+            ## mensaje += "puntos: " + str(micro.total_puntos) + "<BR>"
+            ## mensaje += "Dev. Time: " + str(micro.tiempo_estimado_desarrollo) + "<BR>"
+            ## mensaje += "ais: " + str(micro.ais) + "<BR>"
+            ## mensaje += "ads: " + str(micro.ads) + "<BR>"
+            ## mensaje += "siy: " + str(micro.siy) + "<BR>"
+            ## mensaje += "lack: " + str(micro.lack) + "<BR>"
+            ## mensaje += "Cohesion: " + str(round(micro.grado_cohesion,3)) + "<BR>"
+            ## mensaje += "calls: " + str(micro.calls) + "<BR>"
+            ## mensaje += "request: " + str(micro.request) + "<BR>"
+            ## mensaje += "</td>"
+            ## mensaje += "<td>"                        
+
+            ## for hu in dato[1]:                
+            ##    ms_hu = Microservicio_Historia(
+            ##        microservicio = micro,
+            ##        historia = hu
+            ##    )
+            ##    ms_hu.save()
+            ##    mensaje += hu.identificador + " - " + hu.nombre + "<br>"
+            ## mensaje += "</td>"
+            ## mensaje += "</tr>"
+
+        i=0
+        for dato in genetico.poblacion:
             mensaje += "<tr>"
-            mensaje += "<td>"
-            mensaje += nombreMS + "<BR>"
-            mensaje += "historias: " + str(micro.numero_historias) + "<BR>"
-            mensaje += "puntos: " + str(micro.total_puntos) + "<BR>"
-            mensaje += "Dev. Time: " + str(micro.tiempo_estimado_desarrollo) + "<BR>"
-            mensaje += "ais: " + str(micro.ais) + "<BR>"
-            mensaje += "ads: " + str(micro.ads) + "<BR>"
-            mensaje += "siy: " + str(micro.siy) + "<BR>"
-            mensaje += "lack: " + str(micro.lack) + "<BR>"
-            mensaje += "Cohesion: " + str(round(micro.grado_cohesion,3)) + "<BR>"
-            mensaje += "calls: " + str(micro.calls) + "<BR>"
-            mensaje += "request: " + str(micro.request) + "<BR>"
-            mensaje += "</td>"
-            mensaje += "<td>"                        
-
-            for hu in dato[1]:                
-                ms_hu = Microservicio_Historia(
-                    microservicio = micro,
-                    historia = hu
-                )
-                ms_hu.save()
-                mensaje += hu.identificador + " - " + hu.nombre + "<br>"
+            mensaje += "<td colspan='2'>"
+            #mensaje += hums[0].identificador + "-" + str(hums[1])
+            mensaje += dato.cromosoma + " - " + str(dato.valorFuncion)
             mensaje += "</td>"
             mensaje += "</tr>"
-
-        # i=0
-        # for dato in genetico.poblacion:
-        #     mensaje += "<tr>"
-        #     mensaje += "<td colspan='2'>"
-        #     #mensaje += hums[0].identificador + "-" + str(hums[1])
-        #     mensaje += dato.cromosoma + " - " + str(dato.valorFuncion)
-        #     mensaje += "</td>"
-        #     mensaje += "</tr>"
-        #     i+=1
-        #     if i==12:
-        #         break
+            i+=1
+            if i==12:
+                break
         
         mensaje += "</tbody> "
         mensaje += "</table>"
@@ -469,8 +471,5 @@ def compararDescomposiciones(request, **kwargs):
             mensaje = "There are not microservices decompositions."
         
         return JsonResponse({ 'content': { 'message': mensaje } })
-
-
-
 
 

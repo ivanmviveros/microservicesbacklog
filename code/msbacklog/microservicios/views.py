@@ -305,6 +305,9 @@ def microservicesBacklogDiagram(request, **kwargs):
         cluster = Clustering('es', 'sm')
         matrizCalls = cluster.calcularDistanciaCalls(msapp, dependencias)
 
+        if msapp.similitud_semantica == None:
+            msapp.similitud_semantica = 0.00
+
         vector = msapp.getDataMicroservicesBacklog(matrizCalls)
         nodos= vector[0]
         edjes= vector[1]

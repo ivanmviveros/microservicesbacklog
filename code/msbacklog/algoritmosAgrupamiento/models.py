@@ -9,8 +9,8 @@ from metricas.models import Metrica
 from random import randint
 import math
 import copy
-import threading
 from time import time
+from multiprocessing import Pool, cpu_count
 
 # Create your models here.
 class Clustering():
@@ -81,7 +81,7 @@ class Clustering():
         n = len(listaHistorias)
 
         for i in range(0, n-1):
-            for j in range (i+1, n):                                
+            for j in range ((i+1), n):                                
                 historia = listaHistorias[i]
                 historia2 = listaHistorias[j]
 
@@ -533,11 +533,22 @@ class AlgoritmoGenetico():
         self.similitud = similitud
     
     def generarPoblacion(self):                        
-        for i in range(0, self.tamanoPoblacion):
-            ind = Individuo(self.historias, self.dependencias, self.similitud)
-            ind.generarIndividuo(self.historias, self.variables, self.penalizaCx, self.totalHistorias, self.totalPuntos)
-            vector = [ind]
-            self.poblacion.extend(vector)                        
+        # for i in range(0, self.tamanoPoblacion):
+        #     ind = Individuo(self.historias, self.dependencias, self.similitud)
+        #     ind.generarIndividuo(self.historias, self.variables, self.penalizaCx, self.totalHistorias, self.totalPuntos)
+        #     vector = [ind]
+        #     self.poblacion.extend(vector)     
+        cpus = cpu_count()                    
+        with Pool(cpus) as p:            
+            vector = p.map(self.generarIndividuo, range(0, self.tamanoPoblacion))
+            p.close
+            p.join            
+            self.poblacion = vector                                     
+
+    def generarIndividuo(self, index):            
+        ind = Individuo(self.historias, self.dependencias, self.similitud)
+        ind.generarIndividuo(self.historias, self.variables, self.penalizaCx, self.totalHistorias, self.totalPuntos)
+        return ind
     
     def generarPoblacionParalelo(self, inicio, fin):                
         for i in range(inicio, fin):

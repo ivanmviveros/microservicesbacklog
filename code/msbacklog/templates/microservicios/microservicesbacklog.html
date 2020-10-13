@@ -75,6 +75,12 @@
                                                 </td>
                                             </tr>
                                             <tr>
+                                                <td><strong>Semantic similarity:</strong></td>
+                                                <td>
+                                                    <input type="text" id="avg_calls" name="avg_calls" value="{{ msapp.similitud_semantica|floatformat:2 }}" readonly="readonly" class="form-control"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
                                                 <td><strong>Estimated average Calls:</strong></td>
                                                 <td>
                                                     <input type="text" id="avg_calls" name="avg_calls" value="{{ msapp.avg_calls|floatformat:2 }}" readonly="readonly" class="form-control"/>
@@ -249,6 +255,7 @@
                         tabla += "<tr><td><strong>Calls:</strong></td><td>"+ valores[10] +"</td></tr>";
                         tabla += "<tr><td><strong>Request:</strong></td><td>"+ valores[11] +"</td></tr>";
                         tabla += "<tr><td><strong>Estimated Dev. Time:</strong></td><td>"+ valores[12] +"</td></tr>";
+                        tabla += "<tr><td><strong>Semantic similarity:</strong></td><td>"+ valores[14] +"</td></tr>";
                         tabla += "</tbody></table>";
                         //tabla += "</div>";
                         break;

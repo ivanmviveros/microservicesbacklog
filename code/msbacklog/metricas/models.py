@@ -352,10 +352,11 @@ class Metrica (models.Model):
             # Complejidad del mayor numero de historias asociadas a un microservicio y el numero de microservicios
             cgh = n * mayor_wsic 
 
-            if sumacalls>0:
-                valor1= float(sumaCgi)  / float(sumacalls)
-            else:
-                valor1=0
+            # if sumacalls>0:
+            #     valor1= float(sumaCgi)  / float(sumacalls)
+            # else:
+            #     valor1=0
+            valor1= sumaCgi
 
             # Complejidad cognitiva total - Dificultad de entender, mantener e implenetar la solución planteada.
             # suma_siy --> suma del número de microservicios que son interdependientes
@@ -638,12 +639,13 @@ class Metrica (models.Model):
             # Complejidad del mayor numero de historias asociadas a un microservicio y el numero de microservicios
             cgh = contadorMS * mayor_wsic 
 
-            if sumacalls>0:
-                valor1= float(sumaCgi)  / float(sumacalls)
-            else:
-                valor1=0
+            #if sumacalls>0:
+            #    valor1= float(sumaCgi)  / float(sumacalls)
+            #else:
+            #    valor1=0
 
             # Complejidad cognitiva total - Dificultad de entender, mantener e implenetar la solución planteada.
+            valor1= sumaCgi
             cxt = ( valor1 + mayor_puntos ) + cgh + cgt + suma_siy                        
 
             cua_coht=0
@@ -656,12 +658,13 @@ class Metrica (models.Model):
             adst = math.sqrt(sumacuaADS)
             siyt = math.sqrt(sumacuaSIY)
             cpt = math.sqrt( (aist*aist) + (adst*adst) + (siyt*siyt))
+            cpt = cpt * 10
 
             coht = math.sqrt(sucmacuaCoh)
 
             wsict = mayor_wsic
             cplt = cxt / 2            
-            semant = suma_similitud / n
+            semant = (suma_similitud / n)*100
             
             if variables:
                 for var in variables:
@@ -674,7 +677,7 @@ class Metrica (models.Model):
                     if var=="wsict":
                         cua_wsict = wsict * wsict
                     if var=="semantic":
-                        cua_semant = (1-semant)*(1-semant) 
+                        cua_semant = (100-semant)*(100-semant) 
 
             gm = math.sqrt( (cua_coht) + (cua_copt) + (cua_wsict) + (cua_cplt) + (cua_semant) )
 

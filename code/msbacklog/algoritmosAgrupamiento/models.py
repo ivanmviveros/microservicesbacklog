@@ -11,6 +11,7 @@ import math
 import copy
 from time import time
 from multiprocessing import Pool, cpu_count
+from collections import Counter
 
 # Create your models here.
 class Clustering():
@@ -43,7 +44,86 @@ class Clustering():
                 listLemmas += token.lemma_ + ' '
         lista = [historiaUsuario, listaText, listLemmas]
         return lista
+    
+    def identificarEntidadHistorias(self, listaHistorias):
+        listaEntidadesHU=[]
+        for historia in listaHistorias:
+            lista = self.identificarVerbosEntidades(historia)
+            textos= lista[1]
+            lemmas = lista[2]            
+            frecuenciaText = Counter(textos.split(' '))        
+            frecuencaLema = Counter(lemmas.split(' '))
+            
+            dicText = frecuenciaText.most_common(2)
+            dicLema = frecuencaLema.most_common(2)
 
+            entidadText=""
+            for txt in dicText:
+                entidadText += str(txt[0]) + " "
+            
+            entidadLema=""
+            for txt in dicLema:
+                entidadLema += str(txt[0]) + " "            
+
+            vector = [historia, entidadText, entidadLema]            
+            listaEntidadesHU.append(vector)        
+        return listaEntidadesHU
+    
+    def agruparPorFrecuenciaEntidad(self, listaFrecuencias, pAgrupar, aplicarEn):
+        listaMs=[]
+        index=0        
+        contador=0
+        similar = False        
+                
+        for dato in listaFrecuencias:    
+            index=0        
+            similar= False
+            for ms in listaMs: 
+                similitud=0.0               
+                #avg_simlitud=0
+                #dictTextoDato = dato[1]
+                #dictTextoMS = ms[1]                      
+
+                #dicMS = dictTextoMS[0]     
+
+                #textoMS = ms[0][0].nombre + " " + ms[0][0].descripcion                
+                #textoDato = dato[0].nombre + " " + dato[0].descripcion                               
+
+                pAgrupar = round(pAgrupar, 3) 
+
+                if aplicarEn == 'text':
+                    textoMS = ms[0][1]
+                    textoDato = dato[1]
+                    doc1 = self.nlp(textoMS)
+                    doc2 = self.nlp(textoDato)
+                    similitud = doc1.similarity(doc2)
+                    similitud = round(similitud, 3)
+
+                if aplicarEn == 'lemma':
+                    lemmaMS = ms[0][2]
+                    lemmaDato = dato[2]
+                    doc1 = self.nlp(lemmaMS)
+                    doc2 = self.nlp(lemmaDato)
+                    similitud = doc1.similarity(doc2)
+                    similitud = round(similitud, 3)                                
+
+                if similitud >= pAgrupar:
+                    vector =  listaMs[index]
+                    vector2 = dato
+                    vector.append(vector2)
+                    listaMs[index] = vector
+                    similar=True
+                    break
+
+                index += 1
+            
+            if similar==False:
+                vector= [dato]                
+                listaMs.append(vector)
+                contador += 1
+
+        return listaMs
+                        
     def calcularSimilitud(self, listaHistorias, aplicarEn ):
         matrizSimilitud=[]
         textos=[]
@@ -76,6 +156,45 @@ class Clustering():
             matrizSimilitud.append(similitudes)
         return matrizSimilitud 
     
+    def calcularSimilitudPar(self, index):
+        #dicSimilitud={}                      
+        #n = len(self.listaHistorias)
+        print("---- Inicio proceso: " + index)
+
+        i= index * index
+        print("---- Index: " + index)
+        
+        # for j in range ((i+1), n):                                
+        #     historia = self.listaHistorias[i]
+        #     historia2 = self.listaHistorias[j]
+
+        #     texto1 = self.identificarVerbosEntidades(historia)
+        #     texto2 = self.identificarVerbosEntidades(historia2)
+                        
+        #     tex = texto1[1]
+        #     lem = texto1[2]
+
+        #     tex2 = texto2[1]
+        #     lem2 = texto2[2]
+
+        #     #tex = historia.nombre + ":" + historia.descripcion
+        #     #tex2 = historia2.nombre + ":" + historia2.descripcion
+
+        #     if self.aplicarEn == 'lemma':
+        #         doc1 = self.nlp(lem)                
+        #         doc2 = self.nlp(lem2)
+        #     if self.aplicarEn == 'text':
+        #         doc1 = self.nlp(tex)
+        #         doc2 = self.nlp(tex2)    
+            
+        #     similitud = doc1.similarity(doc2)
+        #similitud = index
+        #key = historia.identificador + "-" + historia2.identificador
+        #key= self.listaHistorias[i].identificador + " - " + self.listaHistorias[i+1].identificador
+        #dicSimilitud[key] = similitud              
+        #return dicSimilitud
+        return i
+    
     def calcularDiccionarioSimilitud(self, listaHistorias, aplicarEn ):
         dicSimilitud={}              
         n = len(listaHistorias)
@@ -107,6 +226,21 @@ class Clustering():
                 similitud = doc1.similarity(doc2)
                 key = historia.identificador + "-" + historia2.identificador
                 dicSimilitud[key] = similitud              
+
+        # Programación en paralelo - No funcionó
+        # self.listaHistorias = listaHistorias
+        # self.aplicarEn = aplicarEn
+        # cpus = cpu_count()     
+        # print("----- CPUs: " + str(cpus) )               
+        # print("----- n: " + str(n) )               
+        # with Pool(cpus) as pr:            
+        #     print("---- Entro: ")
+        #     vector = pr.map(self.calcularSimilitudPar, range(0, n))
+        #     print("---- Sale: ")            
+        #     pr.close
+        #     pr.join            
+        #     dicSimilitud = diccionario
+        # print("---- Diccionario: " + str(diccionario))
         return dicSimilitud
     
     def agruparHistorias(self, mastrizSimilitud, n, pAgrupar):
@@ -540,7 +674,7 @@ class AlgoritmoGenetico():
         #     self.poblacion.extend(vector)     
         cpus = cpu_count()                    
         with Pool(cpus) as p:            
-            vector = p.map(self.generarIndividuo, range(0, self.tamanoPoblacion))
+            vector = p.map(self.generarIndividuo, range(0, self.tamanoPoblacion))            
             p.close
             p.join            
             self.poblacion = vector                                     

@@ -109,9 +109,56 @@
                                 <div class='panel-body'>
                                     <div class="alert alert-success" role="alert"><strong> Click on a microservice for detailing its metrics.</strong></div>
                                 </div>                            
-                            </div>
-                            
+                            </div>                            
                         </div>                        
+                    </div>                    
+                    <div class="row">
+                        <div id="divHUAsociadas" class="panel panel-primary">
+                            <div class="panel-heading">Microservices</div>
+                            <div class="panel-body">
+                                <table class="table table-striped table-bordered">
+                                    <thead>
+                                        <tr>                                        
+                                            <th>Name</th>                                                    
+                                            <th>Points</th>        
+                                            <th>Dev. time</th>
+                                            <th>Complexity</th>
+                                            <th>User stories</th>
+                                        </tr>
+                                    </thead>
+                                    {%  if microservicios %}
+                                        <tbody>
+                                            {% for ms in microservicios %}  
+                                            
+                                                <tr>                                                
+                                                    <td>{{ ms.nombre }}</td>                                                    
+                                                    <td>{{ ms.total_puntos }}</td>
+                                                    <td>{{ ms.tiempo_estimado_desarrollo|floatformat:2 }}</td>
+                                                    <td>{{ ms.complejidad_cognitiva|floatformat:2 }}</td>                                                                            
+                                                    <td>
+                                                        Number of user stories: {{ ms.numero_historias }} <br>
+                                                        {% for hums in ms.getHistorias %}
+                                                            {{ hums.historia.identificador }} - {{ hums.historia.nombre }} <br>
+                                                        {% endfor %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    {% else %}
+                                        <tbody>
+                                            <tr>
+                                                <td>There are not microservices.</td>
+                                                <td></td>                        
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>                                            
+                                            </tr>
+                                        </tbody>
+                                    {% endif %}
+                                </table>                        
+                            </div>
+                        </div> 
                     </div>
                     
                         <div class="box-footer">                                                                

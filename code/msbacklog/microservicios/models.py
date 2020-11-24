@@ -46,6 +46,14 @@ class MicroservicioApp (models.Model):
     def __str__(self): # __unicode__ en Python 2 
         return self.nombre
     
+    def getTotalCalls(self):
+        calls=0
+        microservicios = Microservicio.objects.filter(aplicacion = self)
+        if microservicios:
+            for ms in microservicios:
+                call += ms.calls        
+        return calls
+    
     def getDataMicroservicesBacklog(self, matrizCalls):
         microservicios = Microservicio.objects.filter(aplicacion = self)
         edjes=""

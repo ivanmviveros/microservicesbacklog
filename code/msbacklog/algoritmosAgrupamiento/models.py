@@ -123,6 +123,119 @@ class Clustering():
                 contador += 1
 
         return listaMs
+    
+    def reAgruparMicroservicios(self, msapp, dependencias, pAgrupar, pSemantica, aplicarEn):
+        matrizCalls = self.calcularDistanciaCalls(msapp, dependencias)
+        listMs = Microservicio.objects.filter(aplicacion = msapp)
+
+        n=len(listMs)
+        i=0
+        mem_agrupados=[]
+        microservicios=[]
+        total_calls = msapp.getTotalCalls()
+        for ms in listMs:
+                        
+            dato = matrizCalls[i]
+            unircon = []
+            for j in range(i+1,n):
+                vector= dato[j]
+                msCompara = vector[0]
+                call = vector[1]
+                reques = vector[2]
+
+                # Agrupar interdependientes
+                # Agrupar por entidades - Microservicios que se refieran a lo mismo
+                list1 = self.identificarEntidadesMicroservicio(ms)
+                list2 = self.identificarEntidadesMicroservicio(msCompara)
+
+                if aplicarEn == 'text':
+                    textoMS = list1[3]
+                    textoDato = list2[3]
+                    doc1 = self.nlp(textoMS)
+                    doc2 = self.nlp(textoDato)
+                    similitud = doc1.similarity(doc2)
+                    similitud = round(similitud, 3)
+
+                if aplicarEn == 'lemma':
+                    lemmaMS = list1[4]
+                    lemmaDato = list2[4]
+                    doc1 = self.nlp(lemmaMS)
+                    doc2 = self.nlp(lemmaDato)
+                    similitud = doc1.similarity(doc2)
+                    similitud = round(similitud, 3)                                
+
+                if similitud >= pSemantica:
+                    msnew = [msCompara]
+                    unircon.extend(msnew)
+                else:
+                    if call>0 and reques>0:
+                        msnew = [msCompara]
+                        unircon.extend(msnew)                    
+                    else:
+                        # Agrupar por distancia de agrupamiento
+                        distancia = float(call + reques) / float(total_calls)
+                        if (distancia>pAgrupar):
+                            msnew = [msCompara]
+                            unircon.extend(msnew)
+                        else:                                                        
+                            # Agrupar por punto critico
+                            #distancia = float(msCompara.request) / float(total_calls)
+
+                            #if distancia>pAgrupar:           
+
+            vector2= [ms, unircon]
+            microservicios.append(vector2)
+            i+=1
+
+
+        return msapp
+    
+    def identificarEntidadesMicroservicio(self, ms):
+        historias = ms.getHistorias()
+        texto=""
+        for hu in historias:
+            texto += hu.nombre + " " + hu.descripcion
+        
+        doc = self.nlp(texto)
+        for token in doc:
+            pos = token.pos_
+            if pos == 'NOUN' or pos == 'PROPN':                                                  
+                listaText += token.text + ' '
+                listLemmas += token.lemma_ + ' '
+        
+        frecuenciaText = Counter(listaText.split(' '))        
+        frecuencaLema = Counter(listLemmas.split(' '))
+            
+        dicText = frecuenciaText.most_common(3)
+        dicLema = frecuencaLema.most_common(3)
+
+        entidadText=""
+        for txt in dicText:
+            entidadText += str(txt[0]) + " "
+        
+        entidadLema=""
+        for txt in dicLema:
+            entidadLema += str(txt[0]) + " "            
+            
+        lista = [ms, listaText, listLemmas, entidadText, entidadLema]
+        return lista
+      
+    def unirMicroservicios(self, ms1, ms2):
+        ms = Microservicio(
+            nombre = ms1.nombre + "-" + ms2.nombre,
+            numero_historias = ms1.numero_historias + ms2.numero_historias,
+            similitud_semantica = ((ms1.similitud_semantica + ms2.similitud_semantica)/2),
+            aplicacion = ms1.msapp
+        )
+
+        historias1 = ms1.getHistorias()
+        historias2 = ms2.getHistorias() 
+
+        historias1.extend(historias2)
+        vector=[ms, historias1]
+        
+        return vector
+
                         
     def calcularSimilitud(self, listaHistorias, aplicarEn ):
         matrizSimilitud=[]
@@ -382,25 +495,32 @@ class Clustering():
         vector=[]        
         if listMS:
             for ms in listMS:
-                call=0       
+                call=0 
+                request=0      
                 vector = []         
                 for ms2 in listMS:
                     if ms.id == ms2.id:
                         call=0
+                        request=0
                         #dato = [ms, call]
                         #vector.append(dato)
                     else:
                         historias = Microservicio_Historia.objects.filter(microservicio = ms)
                         historiasmscal = Microservicio_Historia.objects.filter(microservicio = ms2)
                         valor=0
+                        valor2=0
                         for hu in historias:                        
                             for hums in historiasmscal:
                                 cont = Dependencia_Historia.objects.filter(historia = hu.historia, dependencia = hums.historia).count()                                
+                                cont2 = Dependencia_Historia.objects.filter(historia = hums.historia, dependencia = hu.historia).count()
                                 #if  [hu.id, hums.id] in dependencias:
                                 if cont>0:
                                     valor+=1
+                                if cont2>0:
+                                    valor2+=1
                         call = valor
-                    dato = [ms2, call]                                        
+                        request = valor2
+                    dato = [ms2, call, request]                                        
                     vector.append(dato)
                 matrizCalls.append(vector)                      
         return matrizCalls

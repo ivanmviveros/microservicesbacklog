@@ -53,8 +53,8 @@
                                     <td><strong>Semantic similarity on:</strong></td>
                                     <td>
                                         <select id="semantic" name="semantic" class="form-control" >
-                                            <option value="lemma" selected>Lemmatization of entities</option>
-                                            <option value="text" >Text of entities</option>                                                                                        
+                                            <option value="lemma" >Lemmatization of entities</option>
+                                            <option value="text" selected>Text of entities</option>                                                                                        
                                         </select>                                
                                     </td>
                                 </tr>
@@ -62,8 +62,8 @@
                                     <td><strong>Spacy module: </strong></td>
                                     <td>
                                         <select id="modulo" name="modulo" class="form-control" >
-                                            <option value="sm" selected >Small (Faster)</option>
-                                            <option value="md" >Medium (More precise)</option>                                                                                        
+                                            <option value="sm">Small (Faster)</option>
+                                            <option value="md" selected>Medium (More precise)</option>                                                                                        
                                         </select>                                
                                     </td>
                                 </tr>                                         
@@ -180,13 +180,16 @@
             var param = frmClusteringCalls.param.value;
             var leng = frmClusteringCalls.leng.value;
             var mdlo = frmClusteringCalls.mdlo.value;
-            var coup_parameter = frmClusteringCalls.coup_param.value;                       
-            post_url += '?coup_parameter= ' + coup_parameter;
+            var coup_parameter = frmClusteringCalls.coup_param.value;
+            var coup_parameter = frmClusteringCalls.coup_param.value;
+            var semantica = frmClusteringCalls.semantic.value;                
+                           
+            post_url += '?coup_parameter=' + coup_parameter + '&param='+param + '&semantica='+ semantica + '&leng='+ leng + '&mdlo='+ mdlo;
             $.ajax({
                 url: post_url,                
                 type: "GET", 
                 dataType: 'json',
-                data: {'msapp': msapp, 'param': param, 'leng':leng, 'mdlo': mdlo, 'coup_parameter': coup_parameter },
+                data: {'msapp': msapp, 'param': param, 'leng':leng, 'mdlo': mdlo, 'coup_parameter': coup_parameter, 'param':param, "semantica":semantica },
                 processData: false,
                 contentType: false,
 

@@ -292,18 +292,10 @@ class MicroserviciosHistoriaUdpateView(UpdateView):
 def microservicesBacklogDiagram(request, **kwargs):
     if request.method == 'GET':
         msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
-        listaMS = Microservicio.objects.filter(aplicacion = msapp)
-
-        listaDep = Dependencia_Historia.objects.filter(historia__proyecto = msapp.proyecto)   
-        dependencias=[]
-        for dephu in listaDep:
-            id1= dephu.historia.id
-            id2= dephu.dependencia.id
-            vector= [id1, id2]
-            dependencias.append(vector)
+        listaMS = Microservicio.objects.filter(aplicacion = msapp)        
 
         cluster = Clustering('es', 'sm')
-        matrizCalls = cluster.calcularDistanciaCalls(msapp, dependencias)
+        matrizCalls = cluster.calcularDistanciaCalls(msapp)
 
         if msapp.similitud_semantica == None:
             msapp.similitud_semantica = 0.00

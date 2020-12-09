@@ -124,78 +124,90 @@ class Clustering():
 
         return listaMs
     
-    def reAgruparMicroservicios(self, msapp, dependencias, pAgrupar, pSemantica, aplicarEn):
-        matrizCalls = self.calcularDistanciaCalls(msapp, dependencias)
+    def reAgruparMicroservicios(self, msapp, pAgrupar, pSemantica, aplicarEn):
+        matrizCalls = self.calcularDistanciaCalls(msapp)
         listMs = Microservicio.objects.filter(aplicacion = msapp)
 
         n=len(listMs)
-        i=0
-        mem_agrupados=[]
+        i=0        
         microservicios=[]
-        total_calls = msapp.getTotalCalls()
+        total_calls = msapp.getTotalCalls()       
         for ms in listMs:
                         
-            dato = matrizCalls[i]
+            dato = matrizCalls[i]            
             unircon = []
             for j in range(i+1,n):
                 vector= dato[j]
                 msCompara = vector[0]
                 call = vector[1]
                 reques = vector[2]
+                similitud=0
 
                 # Agrupar interdependientes
-                # Agrupar por entidades - Microservicios que se refieran a lo mismo
-                list1 = self.identificarEntidadesMicroservicio(ms)
-                list2 = self.identificarEntidadesMicroservicio(msCompara)
-
-                if aplicarEn == 'text':
-                    textoMS = list1[3]
-                    textoDato = list2[3]
-                    doc1 = self.nlp(textoMS)
-                    doc2 = self.nlp(textoDato)
-                    similitud = doc1.similarity(doc2)
-                    similitud = round(similitud, 3)
-
-                if aplicarEn == 'lemma':
-                    lemmaMS = list1[4]
-                    lemmaDato = list2[4]
-                    doc1 = self.nlp(lemmaMS)
-                    doc2 = self.nlp(lemmaDato)
-                    similitud = doc1.similarity(doc2)
-                    similitud = round(similitud, 3)                                
-
-                if similitud >= pSemantica:
+                if call>0 and reques>0:
                     msnew = [msCompara]
-                    unircon.extend(msnew)
+                    unircon.extend(msnew)                    
                 else:
-                    if call>0 and reques>0:
+                    # Agrupar por distancia de agrupamiento
+                    distancia = float(call + reques) / float(total_calls)
+                    if (distancia>pAgrupar):
                         msnew = [msCompara]
-                        unircon.extend(msnew)                    
-                    else:
-                        # Agrupar por distancia de agrupamiento
-                        distancia = float(call + reques) / float(total_calls)
-                        if (distancia>pAgrupar):
+                        unircon.extend(msnew)
+                    else:                                                        
+                        # Agrupar por punto critico
+                        #distancia = float(msCompara.request) / float(total_calls)
+
+                        #if distancia>pAgrupar:
+                        # Agrupar por entidades - Microservicios que se refieran a lo mismo
+                        list1 = self.identificarEntidadesMicroservicio(ms)
+                        list2 = self.identificarEntidadesMicroservicio(msCompara)                               
+                        
+                        if aplicarEn == 'text':
+                            textoMS = list1[1]
+                            textoDato = list2[1]
+                            doc1 = self.nlp(textoMS)
+                            doc2 = self.nlp(textoDato)
+                            similitud = doc1.similarity(doc2)
+                            similitud = round(similitud, 3)
+
+                        if aplicarEn == 'lemma':
+                            lemmaMS = list1[2]
+                            lemmaDato = list2[2]
+                            doc1 = self.nlp(lemmaMS)
+                            doc2 = self.nlp(lemmaDato)
+                            similitud = doc1.similarity(doc2)
+                            similitud = round(similitud, 3)                                            
+
+                        if similitud >= pSemantica:
                             msnew = [msCompara]
-                            unircon.extend(msnew)
-                        else:                                                        
-                            # Agrupar por punto critico
-                            #distancia = float(msCompara.request) / float(total_calls)
-
-                            #if distancia>pAgrupar:           
-
+                            unircon.extend(msnew)                                                                                   
             vector2= [ms, unircon]
             microservicios.append(vector2)
             i+=1
+        mem_agrupados=[]
+        listams=[]
+        for dato in microservicios:
+            ms= dato[0]
+            
+            if ms.id not in mem_agrupados:
+                vector = [ms.id]
+                mem_agrupados.extend(vector)
 
+                msunidos = self.unirMicroservicios(ms, dato[1], mem_agrupados)
+                mem_agrupados = msunidos[2]
 
-        return msapp
+                vector = [msunidos[0], msunidos[1]]
+                listams.append(vector)            
+        return listams
     
     def identificarEntidadesMicroservicio(self, ms):
         historias = ms.getHistorias()
         texto=""
+        listaText=""
+        listLemmas=""
         for hu in historias:
-            texto += hu.nombre + " " + hu.descripcion
-        
+            texto += " " + hu.historia.nombre + " " + hu.historia.descripcion + " "
+                        
         doc = self.nlp(texto)
         for token in doc:
             pos = token.pos_
@@ -220,19 +232,45 @@ class Clustering():
         lista = [ms, listaText, listLemmas, entidadText, entidadLema]
         return lista
       
-    def unirMicroservicios(self, ms1, ms2):
+    def unirMicroservicios(self, ms1, listaMs, memoria):
+        
+        historias1 = ms1.getHistorias()
+        nombre = ms1.nombre
+        numero= ms1.numero_historias
+        cont=1.0
+        suma= ms1.similitud_semantica
+        historias=[]
+        for hu in historias1:
+            historia_add = hu.historia
+            vect= [historia_add]
+            historias.extend(vect)
+        
+        for ms2 in listaMs:
+            vect=[]
+            if ms2.id not in memoria:
+                historias2 = ms2.getHistorias() 
+                for hu in historias2:
+                    historia_add = hu.historia
+                    vect=[historia_add]
+                    historias.extend(vect)
+                                
+                #nombre += " - " + ms2.nombre
+                numero += ms2.numero_historias
+                cont += 1
+                suma += ms2.similitud_semantica
+                vector2 = [ms2.id]
+                memoria.extend(vector2)                
+        
+        similitud = suma /  cont
+        
         ms = Microservicio(
-            nombre = ms1.nombre + "-" + ms2.nombre,
-            numero_historias = ms1.numero_historias + ms2.numero_historias,
-            similitud_semantica = ((ms1.similitud_semantica + ms2.similitud_semantica)/2),
-            aplicacion = ms1.msapp
+            nombre = nombre,
+            numero_historias = numero,
+            similitud_semantica = similitud,
+            aplicacion = ms1.aplicacion
         )
 
-        historias1 = ms1.getHistorias()
-        historias2 = ms2.getHistorias() 
-
-        historias1.extend(historias2)
-        vector=[ms, historias1]
+        vector=[ms, historias, memoria]
         
         return vector
 
@@ -489,7 +527,7 @@ class Clustering():
             i += 1
         return microservicios    
     
-    def calcularDistanciaCalls(self, msapp, dependencias):        
+    def calcularDistanciaCalls(self, msapp):        
         matrizCalls=[]
         listMS = Microservicio.objects.filter(aplicacion= msapp)
         vector=[]        

@@ -51,7 +51,7 @@ class MicroservicioApp (models.Model):
         microservicios = Microservicio.objects.filter(aplicacion = self)
         if microservicios:
             for ms in microservicios:
-                call += ms.calls        
+                calls += ms.calls        
         return calls
     
     def getDataMicroservicesBacklog(self, matrizCalls):

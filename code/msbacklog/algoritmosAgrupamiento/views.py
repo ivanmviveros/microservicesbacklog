@@ -22,12 +22,12 @@ def algoritmoClustering(request, **kwargs):
     if request.method == 'POST':
         msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
         historias = HistoriaUsuario.objects.filter(proyecto = msapp.proyecto)        
-        parametro = request.POST.get('parameter')
+        parametro = request.POST.get('parameter') # parametro de similitud semantecia
         coup_parametro = request.POST.get('coup_parameter')
         lenguaje = request.POST.get('lenguaje') 
         semantica_en = request.POST.get('semantic')
         modulo = request.POST.get('modulo')
-        token = request.POST.get('token')
+        token = request.POST.get('token')        
 
         # Borrar las historias de los microservicios
         listMs = Microservicio.objects.filter(aplicacion = msapp)
@@ -136,11 +136,16 @@ def algoritmoClustering(request, **kwargs):
         mensaje += "<input type='hidden' id='leng' name='leng' value='" + lenguaje + "'>"
         mensaje += "<input type='hidden' id='mdlo' name='mdlo' value='" + modulo + "'>"
         mensaje += "<input type='hidden' id='coup_param' name='coup_param' value='" + coup_parametro + "'>"    
+        mensaje += "<input type='hidden' id='semantic' name='semantic' value='" + semantica_en + "'>"
         mensaje += "<input type='button' id='btnRequest' name='btnRequest' value='Group by Coupling Metrics'  onclick='clustercalls()' class='btn btn-primary'/>"                
         mensaje += "   <input type='button' id='btnCancelar' name='btnCancelar' value='Cancel' onclick='regresar()' class='btn btn-primary'/>"
         mensaje += "</form>"        
         mensaje += "</center>"
         mensaje += "</div>"        
+
+        # Calcular las métricas
+        metrica = Metrica()
+        metrica.calcularMetricas(msapp)
 
         #return render(request, 'algoritmosAgrupamiento/clustering.html', {'msapp': aplicacion, 'lista': lista, 'dato':dato, })
         return JsonResponse({ 'content': { 'message': str(mensaje) } })
@@ -153,13 +158,21 @@ def clusteringCalls(request, **kwargs):
         lenguaje = request.GET.get('leng') 
         parametro = request.GET.get('param')
         modulo = request.GET.get('mdlo')                        
-        coup_parametro = request.GET.get('coup_parameter')        
-        cluster = Clustering(lenguaje, modulo)                                    
-        datos = cluster.calcularDistanciaCoupling(msapp)
-        microservicios = Microservicio.objects.filter(aplicacion = msapp)        
-        listaMs = cluster.agruparMicroservicios(datos, len(microservicios), float(coup_parametro) )
-        matrizMSHU = cluster.generarGrupoMS(listaMs)
+        coup_parametro = request.GET.get('coup_parameter')   
+        semantica_en = request.GET.get('semantica')
 
+        print('------ semantica_en: ' +  str(semantica_en))
+
+        cluster = Clustering(lenguaje, modulo) 
+        startime = time()                                                    
+        #simil_param = (float(parametro) - 0.05)
+        simil_param = float(parametro)
+        #datos = cluster.calcularDistanciaCoupling(msapp)
+        #microservicios = Microservicio.objects.filter(aplicacion = msapp)        
+        #listaMs = cluster.agruparMicroservicios(datos, len(microservicios), float(coup_parametro) )
+        #matrizMSHU = cluster.generarGrupoMS(listaMs) 
+        matrizMSHU = cluster.reAgruparMicroservicios(msapp, float(coup_parametro), simil_param, semantica_en )        
+        dura = time() - startime
         # Borrar las historias de los microservicios
         lista = Microservicio.objects.filter(aplicacion = msapp)
         for ms in lista:
@@ -169,7 +182,9 @@ def clusteringCalls(request, **kwargs):
         if lista:
             Microservicio.objects.filter(aplicacion = msapp).delete()
         
-        numero =0
+        #numero =0
+         # Calcular las métricas        
+        
         mensaje =  "<div id='divMSCoupling' class='panel panel-primary'>"
         mensaje += "<div class='panel-heading'>Microservices Grouped by Coupling Metrics</div>"
         mensaje += "<div class='panel-body'>"
@@ -181,22 +196,31 @@ def clusteringCalls(request, **kwargs):
         mensaje += "</tr>"
         mensaje += "</thead>"
         mensaje += "<tbody> "
+        mensaje += "<tr>"
+        mensaje += "<td colspan='2'>"
+        mensaje += "Microservices: " + str(len(matrizMSHU))
+        mensaje += "<br>Execution time: " + str(round(dura,3))
+        mensaje += "<br>Similarity param: " + str(round(simil_param,3))
+        mensaje += "</td>"
+        mensaje += "</tr>"
         
         for dato in matrizMSHU:
-            nombreMS = dato[0]
-            cont = len(dato[1])
+            #nombreMS = dato[0]
+            micro= dato[0]
+            #cont = len(dato[1])
             mensaje += "<tr>"
             mensaje += "<td>"
-            mensaje += nombreMS
+            mensaje += micro.nombre
+            mensaje += "<br>SIY: "+ str(micro.siy)
             mensaje += "</td>"
             mensaje += "<td>"
 
             # Guardar en la base de datos la descomposicion
-            micro = Microservicio(
-                nombre = nombreMS,
-                numero_historias = cont,                
-                aplicacion = msapp
-            )
+            # micro = Microservicio(
+            #     nombre = nombreMS,
+            #     numero_historias = cont,                
+            #     aplicacion = msapp
+            # )
             micro.save()
 
             for hu in dato[1]:                
@@ -214,21 +238,36 @@ def clusteringCalls(request, **kwargs):
         mensaje += "</div>"
         mensaje += "</div>"
         mensaje += "</div>"
+        #mensaje += "<div class='box-footer'>"
+        #mensaje += "<center>"
+        #mensaje += "<input type='button' id='btnReturn' name='btnReturn' value='Return' onclick='regresar()' class='btn btn-primary'/>"
+        #mensaje += "</center>"
+        #mensaje += "</div>"
         mensaje += "<div class='box-footer'>"
         mensaje += "<center>"
-        mensaje += "<input type='button' id='btnReturn' name='btnReturn' value='Return' onclick='regresar()' class='btn btn-primary'/>"
+        mensaje += "<form method='post' id='frmClusteringCalls' name='frmClusteringCalls' data-post-url='/algoritmos/clustering_calls/" + str(msapp.id) + "' class='form-horizontal' enctype='multipart/form-data'>" 
+        mensaje +=  "<input type='hidden' name='csrfmiddlewaretoken' value='nE6GZ9xyyhCoTAbGBK4ah9L1NEnqO1AL4VoYicImxP5Ru8yYhLwg2waAIqmCrQri' />"
+        mensaje += "<input type='hidden' id='msapp' name='msapp' value='" + str(msapp.id) + "'>"
+        mensaje += "<input type='hidden' id='param' name='param' value='" + str(simil_param) + "'>"
+        mensaje += "<input type='hidden' id='leng' name='leng' value='" + lenguaje + "'>"
+        mensaje += "<input type='hidden' id='mdlo' name='mdlo' value='" + modulo + "'>"
+        mensaje += "<input type='hidden' id='coup_param' name='coup_param' value='" + coup_parametro + "'>"    
+        mensaje += "<input type='hidden' id='semantic' name='semantic' value='" + str(semantica_en) + "'>"
+        mensaje += "<input type='button' id='btnRequest' name='btnRequest' value='Group by Coupling Metrics'  onclick='clustercalls()' class='btn btn-primary'/>"                
+        mensaje += "   <input type='button' id='btnCancelar' name='btnCancelar' value='Cancel' onclick='regresar()' class='btn btn-primary'/>"
+        mensaje += "</form>"        
         mensaje += "</center>"
-        mensaje += "</div>"
-        
-        # Calcular las métricas
-        metrica = Metrica()
-        metrica.calcularMetricas(msapp)
+        mensaje += "</div>"               
        
         # mensaje += "<tr>"
         # mensaje += "<td>"
         # mensaje += str(datos)
         # mensaje += "</td>"
-        # mensaje += "</tr>"        
+        # mensaje += "</tr>"
+        # 
+        #
+        metrica = Metrica()
+        metrica.calcularMetricas(msapp)        
     
         return JsonResponse({ 'content': { 'message': mensaje } })
         #return render(request, 'algoritmosAgrupamiento/clustering.html', {'msapp': msapp, 'lista':lista})        
@@ -241,7 +280,7 @@ def clusteringCalls(request, **kwargs):
         modulo = request.POST.get('mdlo')     
 
         cluster = Clustering(lenguaje, modulo)            
-        datos = cluster.calcularDistanciaCalls()
+        datos = cluster.calcularDistanciaCalls(msapp)
         mensaje = datos
     
         return JsonResponse({ 'content': { 'message': 'OK' } })

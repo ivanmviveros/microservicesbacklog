@@ -16,13 +16,15 @@ from collections import Counter
 # Create your models here.
 class Clustering():
     nlp=None
+    
     def __init__(self, lenguaje, modulo):
-        if lenguaje == 'es':
+        spacy.prefer_gpu()
+        if lenguaje == 'es':            
             if modulo == 'md':
                 self.nlp = spacy.load("es_core_news_md")
             if modulo == 'sm':
                 self.nlp = spacy.load("es_core_news_sm")
-        if lenguaje == 'en':
+        if lenguaje == 'en':            
             if modulo == 'md':
                 self.nlp = spacy.load("en_core_web_md")
             if modulo == 'sm':
@@ -163,16 +165,16 @@ class Clustering():
                         list2 = self.identificarEntidadesMicroservicio(msCompara)                               
                         
                         if aplicarEn == 'text':
-                            textoMS = list1[1]
-                            textoDato = list2[1]
+                            textoMS = list1[3]
+                            textoDato = list2[3]
                             doc1 = self.nlp(textoMS)
                             doc2 = self.nlp(textoDato)
                             similitud = doc1.similarity(doc2)
                             similitud = round(similitud, 3)
 
                         if aplicarEn == 'lemma':
-                            lemmaMS = list1[2]
-                            lemmaDato = list2[2]
+                            lemmaMS = list1[4]
+                            lemmaDato = list2[4]
                             doc1 = self.nlp(lemmaMS)
                             doc2 = self.nlp(lemmaDato)
                             similitud = doc1.similarity(doc2)

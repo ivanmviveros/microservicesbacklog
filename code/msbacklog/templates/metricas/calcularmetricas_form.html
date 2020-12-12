@@ -29,7 +29,8 @@
                                     <th>CpT</th>                                    
                                     <th>CohT</th>
                                     <th>CxT</th>
-                                    <th>WsicT</th>        
+                                    <th>WsicT</th>
+                                    <th>SsT</th>        
                                     <th>Avg. Calls</th>        
                                     <th>Avg. Request</th>
                                     <th>GM</th>                                        
@@ -44,6 +45,7 @@
                                     <td>{{ msapp.cohesion|floatformat:2 }}</td>
                                     <td>{{ msapp.complejidad_cognitiva|floatformat:2 }}</td>                                                                
                                     <td>{{ msapp.wsict }}</td>
+                                    <td>{{ msapp.similitud_semantica|floatformat:2 }}</td>
                                     <td>{{ msapp.avg_calls|floatformat:2 }}</td>
                                     <td>{{ msapp.avg_request|floatformat:2 }}</td>
                                     <th>{{ msapp.valor_GM|floatformat:2 }}</th>                                                                            
@@ -67,6 +69,7 @@
                                     <th>SIY</th>
                                     <th>Lack</th>
                                     <th>Cohesion</th>
+                                    <th>SS</th>
                                     <th>Calls</th>
                                     <th>Request</th>
                                     <th>Complexity</th>                                        
@@ -85,6 +88,7 @@
                                             <td>{{ ms.siy|floatformat:2 }}</td>
                                             <td>{{ ms.lack|floatformat:2 }}</td>
                                             <td>{{ ms.grado_cohesion|floatformat:2 }}</td>
+                                            <td>{{ ms.similitud_semantica|floatformat:2 }}</td>
                                             <td>{{ ms.calls|floatformat:2 }}</td>
                                             <td>{{ ms.request|floatformat:2 }}</td>
                                             <td>{{ ms.complejidad_cognitiva}}</td>                                                                            

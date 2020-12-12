@@ -167,7 +167,7 @@ class Metrica (models.Model):
         gm = math.sqrt( (coht*coht) + (cpt*cpt) + (wsict*wsict) )
         return gm
     
-    def calcularMetricasMS(self, msCalcular, microservicios, n, dependencias, penalizaCx):
+    def calcularMetricasMS(self, msCalcular, microservicios, n, dependencias, penalizaCx, similitud):
         clientes=0 # Cuantos MS llaman a msCalcular
         request=0  # Cuantas veces llaman a msCalcular
         calls=0  # Cuantas llamadas hace msCalcular a otros MS
@@ -241,14 +241,43 @@ class Metrica (models.Model):
                 puntos+=hums.historia.puntos_estimados
                 numero_historias += 1
             
+            suma_similitud=0
+            similitudMs=0
+            cont=0
+
+            # Calcular la similitud semantica del microservicio
+            for k in range(0, (numero_historias - 1)):
+                for l in range ((k+1), numero_historias):
+                    hu1 = historiasmscal[k]
+                    hu2 = historiasmscal[l]
+                    key = hu1.historia.identificador + "-" + hu2.historia.identificador
+                    valor = similitud.get(key)            
+                    if valor==None:
+                        key = hu2.historia.identificador + "-" + hu1.historia.identificador
+                        valor = similitud.get(key)
+                        if valor== None:
+                            valor=0
+                        else:
+                            suma_similitud += valor
+                            cont+=1    
+                    else:        
+                        suma_similitud += valor
+                        cont+=1
+            if cont==0:
+                cont=1
+            if numero_historias==1:
+                suma_similitud = 1
+                        
+            similitudMs = suma_similitud / cont
+            
             grado_cohesion = nointerdependientes / n
             wsic = numero_historias
     
         respuesta = [clientes, request, provedores, calls, interdependientes, nointerdependientes, grado_cohesion, 
-                     wsic, tiempo, puntos, vector_callsIJ, vector_cx, vector_cxr]
+                     wsic, tiempo, puntos, vector_callsIJ, vector_cx, vector_cxr, similitudMs]
         return respuesta
 
-    def calcularMetricasMSApp(self, msapp, dependencias, penalizaCx, totalHistorias, totalPuntos):
+    def calcularMetricasMSApp(self, msapp, dependencias, penalizaCx, totalHistorias, totalPuntos, similitud):
         microservicios = Microservicio.objects.filter(aplicacion = msapp)
 
         if microservicios:
@@ -271,11 +300,12 @@ class Metrica (models.Model):
             vector_cxrs=[] #  Calls (in) de otros a MS con penalización si es bidireccional
             vector_callsij=[] # número de calls entre MS
             suma_siy=0
+            suma_similitud=0
 
             for ms in microservicios:
                 contadorMS += 1
                 # calcular las métricas del microservicio
-                rta = self.calcularMetricasMS(ms, microservicios, n, dependencias, penalizaCx)
+                rta = self.calcularMetricasMS(ms, microservicios, n, dependencias, penalizaCx, similitud)
 
                 ms.ais= rta[0]
                 ms.request = rta[1]
@@ -286,7 +316,8 @@ class Metrica (models.Model):
                 ms.grado_cohesion = rta[6]
                 ms.numero_historias = rta[7]
                 ms.tiempo_estimado_desarrollo = rta[8]
-                ms.total_puntos = rta[9]                                                                
+                ms.total_puntos = rta[9]
+                ms.similitud_semantica = rta[13]                                                                
 
                 #cgi = ms.total_puntos * ms.numero_historias # Peso de cada nodo del grafo de microservicios
                 #cgi = ms.total_puntos / ms.numero_historias # Peso de cada nodo del grafo de microservicios
@@ -316,6 +347,7 @@ class Metrica (models.Model):
 
                 sucmacuaCoh += ms.grado_cohesion * ms.grado_cohesion
                 suma_siy += ms.siy
+                suma_similitud += ms.similitud_semantica
 
                 if ms.numero_historias > mayor_wsic:
                     mayor_wsic = ms.numero_historias
@@ -366,35 +398,6 @@ class Metrica (models.Model):
             # Pare el caso de menor complejidad la complejidad cognitiva sería 2
             msapp.complejidad_cognitiva = cxt / 2
 
-            #cxt= valor1/0
-
-            # Calls (out)
-            # sumaCx=0 
-            # i=0
-            # for cx in vector_cxs:
-            #     sumaCxi=0
-            #     j=0         
-            #     cgmsi =  vector_cgs[i]       
-            #     for call in cx:                    
-            #         cgmsj = vector_cgs[j]                    
-            #         valor_cx = call #* cgmsj                    
-            #         sumaCxi = sumaCxi +  valor_cx
-            #         j+=1
-            #     sumaCx += sumaCxi + cgmsi
-            #     i+=1
-            
-            # Request (in)
-            # sumaCxr=0
-            # i=0
-            # for cxr in vector_cxrs:
-            #     sumaCxri=0
-            #     cgmsi = vector_cgs[i]
-            #     for reques in cxr:                                        
-            #         valor_cxr = reques #* cgmsi
-            #         sumaCxri = sumaCxri + valor_cxr
-            #     sumaCxr+= sumaCxri
-            #     i+=1
-
             cua_coht=0
             cua_copt=0
             cua_wsict=0
@@ -409,9 +412,9 @@ class Metrica (models.Model):
             coht = math.sqrt(sucmacuaCoh)
 
             wsict = mayor_wsic
-            #cplt = sumaCx + sumaCxr
-            #semant = 0
-            
+            cplt = cxt / 2
+            semant = (suma_similitud / n) * 100
+            msapp.similitud_semantica = semant
             # if variables:
             #     for var in variables:
             #         if var=="coupling":                    
@@ -426,6 +429,13 @@ class Metrica (models.Model):
             #             cua_semant = semant * semant # Falta crear el método de calcular la similitud semantica de la MSApp
 
             #gm = math.sqrt( (cua_coht) + (cua_copt) + (cua_wsict) + (cua_cplt) + (cua_semant) )
+            cua_copt = (cpt*10) * (cpt*10) 
+            cua_coht = coht * coht
+            cua_cplt = cplt * cplt
+            cua_wsict = wsict * wsict
+            cua_semant = (100-semant)*(100-semant)
+
+            gm = math.sqrt( (cua_coht) + (cua_copt) + (cua_wsict) + (cua_cplt) + (cua_semant) )
             
             msapp.aist = aist
             msapp.adst = adst
@@ -443,7 +453,8 @@ class Metrica (models.Model):
 
             #msapp.complejidad_cognitiva = sumaCx + sumaCxr +  msapp.numero_microservicios
             #msapp.complejidad_cognitiva = cgt
-            msapp.valor_GM = self.calcularMetricaGranularidadGM(msapp.cohesion, msapp.coupling, msapp.wsict)
+            #msapp.valor_GM = self.calcularMetricaGranularidadGM(msapp.cohesion, msapp.coupling, msapp.wsict)
+            msapp.valor_GM = gm
             msapp.save()
 
     def calcularProfundidad(self, matrizCalls, n, index, memo, p, cgt, calls):

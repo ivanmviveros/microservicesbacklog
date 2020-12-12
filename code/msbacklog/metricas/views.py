@@ -2,7 +2,8 @@
 from __future__ import unicode_literals
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect
 from microservicios.models import MicroservicioApp, Microservicio, Microservicio_Historia
-from historiasUsuario.models import Dependencia_Historia
+from historiasUsuario.models import Dependencia_Historia, HistoriaUsuario
+from algoritmosAgrupamiento.models import Clustering
 from django.core.urlresolvers import reverse_lazy
 from django.contrib import messages
 from django.db import IntegrityError
@@ -27,6 +28,7 @@ class MetricasEditarView(UpdateView):
 
     def get_context_data(self, **kwargs):
         msapp = get_object_or_404(MicroservicioApp, id=self.kwargs['pk'])
+        listaHu = HistoriaUsuario.objects.filter(proyecto= msapp.proyecto)
         #if msapp.metodo == 3 :
         listaDep = Dependencia_Historia.objects.filter(historia__proyecto = msapp.proyecto)   
         dependencias=[]
@@ -38,8 +40,12 @@ class MetricasEditarView(UpdateView):
         totalHistorias = msapp.proyecto.getNumeroHistorias()
         totalPuntos = msapp.proyecto.getTotalPuntos()
 
+        lenguaje = msapp.proyecto.idioma        
+        cluster = Clustering(lenguaje, 'md')         
+        similitud = cluster.calcularDiccionarioSimilitud(listaHu, 'lemma')
+
         metrica = Metrica()
-        metrica.calcularMetricasMSApp(msapp, dependencias, penalizaCx, totalHistorias, totalPuntos)
+        metrica.calcularMetricasMSApp(msapp, dependencias, penalizaCx, totalHistorias, totalPuntos, similitud)
         self.microservicios = Microservicio.objects.filter(aplicacion = msapp)        
         context = super(MetricasEditarView, self).get_context_data(**kwargs)              
         context['microservicios'] = self.microservicios
@@ -48,6 +54,7 @@ class MetricasEditarView(UpdateView):
 
     def get_initial(self):
         msapp = get_object_or_404(MicroservicioApp, id=self.kwargs['pk'])        
+        listaHu = HistoriaUsuario.objects.filter(proyecto= msapp.proyecto)
         #if msapp.metodo == 3 :
         listaDep = Dependencia_Historia.objects.filter(historia__proyecto = msapp.proyecto)   
         dependencias=[]
@@ -59,8 +66,12 @@ class MetricasEditarView(UpdateView):
         totalHistorias = msapp.proyecto.getNumeroHistorias()
         totalPuntos = msapp.proyecto.getTotalPuntos()
 
+        lenguaje = msapp.proyecto.idioma        
+        cluster = Clustering(lenguaje, 'md')         
+        similitud = cluster.calcularDiccionarioSimilitud(listaHu, 'lemma')
+
         metrica = Metrica()
-        metrica.calcularMetricasMSApp(msapp, dependencias, penalizaCx, totalHistorias, totalPuntos)
+        metrica.calcularMetricasMSApp(msapp, dependencias, penalizaCx, totalHistorias, totalPuntos, similitud)
         self.microservicios = Microservicio.objects.filter(aplicacion = msapp)
         return { 'microservicios': self.microservicios, 'msapp': msapp }
             

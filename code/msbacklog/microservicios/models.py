@@ -18,6 +18,19 @@ class MetodoDescomposicion (models.Model):
         ordering = ["nombre"]
         default_permissions = ('add', 'change', 'delete', 'view')
 
+
+    @classmethod
+    def crear_metodos_descomposicion(cls):
+        if not cls.objects.count():
+            cls.objects.create(
+                    nombre="algoritmo-genetico",
+                    descripcion="algoritmo-genetico"
+            )
+            cls.objects.create(
+                    nombre="clustering-algoritmo",
+                    descripcion="clustering-algoritmo"
+            )
+
 class MicroservicioApp (models.Model):
     nombre = models.CharField(max_length=255)    
     descripcion = models.CharField(max_length=500, null= True)

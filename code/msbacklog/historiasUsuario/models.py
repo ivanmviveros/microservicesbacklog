@@ -11,6 +11,17 @@ class Usuario(models.Model):
     direccion = models.TextField()
     telefono = models.CharField(max_length=12)
 
+    @classmethod
+    def crear_primer_usuario(cls):
+        if not cls.objects.count():
+            cls.objects.create(
+                    nombre="admin",
+                    password="password",
+                    email="a@a.es.es",
+                    direccion="1",
+                    telefono="1"
+            )
+
 class Proyecto (models.Model):
     nombre = models.CharField(max_length=255)
     sigla = models.CharField(max_length=20)

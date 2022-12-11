@@ -1,6 +1,6 @@
 from .base import *
 
-ALLOWED_HOSTS = ['localhost','.localhost']
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS += [
     'django_extensions',

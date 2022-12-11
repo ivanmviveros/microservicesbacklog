@@ -3,7 +3,7 @@ from .views import (
     algoritmoClustering,
     clusteringCalls,
     algoritmoGenetico,
-    compararDescomposiciones,
+    compararDescomposiciones, algoritmoGeneticoInteroperabilidad,
 )  
 
 urlpatterns = [
@@ -12,4 +12,6 @@ urlpatterns = [
     url(r'^clustering-calls/(?P<pk>\d+)$', clusteringCalls, name='clustering-calls'),    
     url(r'^algortimo-genetico/(?P<pk>\d+)$', algoritmoGenetico, name='algoritmo-genetico'),
     url(r'^compare-descompositions/(?P<pk>\d+)$', compararDescomposiciones, name='compare-descompositions'),
+    url(r'^algortimo-genetico-interoperabilidad$', algoritmoGeneticoInteroperabilidad, name='algoritmo-genetico-interoperabilidad'),
+    url(r'^algortimo-genetico-interoperabilidad/(?P<pk>\d+)$', algoritmoGeneticoInteroperabilidad, name='algoritmo-genetico-interoperabilidad'),
 ]

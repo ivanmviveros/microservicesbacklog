@@ -70,6 +70,20 @@ class HistoriaUsuario (models.Model):
         ordering = ["prioridad"]
         default_permissions = ('add', 'change', 'delete', 'view')
 
+    def get_json(self):
+        return {
+            "id": str(self.id),
+            "name": self.nombre,
+            "actor": "",
+            "description": self.descripcion,
+            "priority": str(self.prioridad),
+            "points": self.puntos_estimados,
+            "estimated_time": self.tiempo_estimado,
+            "dependencies": [],
+            "project": ""
+        }
+
+
 class Dependencia_Historia(models.Model):
     historia = models.ForeignKey(HistoriaUsuario, on_delete=models.PROTECT, related_name='historia_usuario',  
                                     db_column='historia_usuario')

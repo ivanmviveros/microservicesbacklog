@@ -164,6 +164,14 @@ class Microservicio (models.Model):
         historias = Microservicio_Historia.objects.filter(microservicio = self)
         return historias        
 
+
+    def get_json(self):
+        return {
+            "id": self.nombre,
+            "userStories": [mshistoria.historia.get_json() for mshistoria in self.getHistorias()]
+        }
+
+
 class Operacion (models.Model):
     nombre = models.CharField(max_length=255)    
     descripcion = models.CharField(max_length=500)

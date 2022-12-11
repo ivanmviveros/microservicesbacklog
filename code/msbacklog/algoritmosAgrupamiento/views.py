@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect
 from django.core.urlresolvers import reverse_lazy
 from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
+
 from microservicios.models import MicroservicioApp, Microservicio, Microservicio_Historia
 from historiasUsuario.models import HistoriaUsuario, Dependencia_Historia
 from .models import Clustering, Individuo, AlgoritmoGenetico
@@ -563,5 +565,127 @@ def compararDescomposiciones(request, **kwargs):
             mensaje = "There are not microservices decompositions."
         
         return JsonResponse({ 'content': { 'message': mensaje } })
+
+
+@csrf_exempt
+def algoritmoGeneticoInteroperabilidad(request, **kwargs):
+    if request.method == "GET":
+        msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
+        microservicios = Microservicio.objects.filter(aplicacion = msapp)
+        data = []
+
+        for microservicio in microservicios:
+            data.append(microservicio.get_json())
+        return JsonResponse(data, safe=False)
+
+    if request.method == 'POST':
+        proyecto = Proyecto.objects.create(nombre="Interoperabilidad", usuario=Usuario.objects.first())
+        msapp = MicroservicioApp.objects.create(nombre="Interoperabilidad", proyecto=proyecto)
+        body_unicode = request.body.decode('utf-8')
+        json_data = json.loads(body_unicode)
+        historias_crear = []
+        for historia in json_data["historias"]:
+            try:
+                historias_crear.append(
+                    HistoriaUsuario(
+                        identificador=historia["id"],
+                        nombre=historia["nombre"],
+                        descripcion=historia.get("descripcion",""),
+                        prioridad=historia.get("prioridad",1),
+                        puntos_estimados=historia.get("puntos_estimados",1),
+                        tiempo_estimado=historia.get("tiempo_estimado",1),
+                        proyecto=proyecto
+                ))
+            except Exception:
+                print(historia["id"])
+        HistoriaUsuario.objects.bulk_create(historias_crear)
+
+        listaHu = HistoriaUsuario.objects.filter(proyecto=msapp.proyecto)
+
+        listaDep = Dependencia_Historia.objects.filter(historia__proyecto=msapp.proyecto)
+        dependencias = []
+        for dephu in listaDep:
+            vector = [dephu.historia.id, dephu.dependencia.id]
+            dependencias.append(vector)
+
+
+        startime = time()
+        lenguaje = msapp.proyecto.idioma
+        cluster = Clustering(lenguaje, 'md')
+        similitud = cluster.calcularDiccionarioSimilitud(listaHu, 'lemma')
+        dura = time() - startime
+        print("---- Calcular similitud semantica: " + str(dura))
+
+        poblcacion = json_data.get('poblacion',100)
+        iteraciones = json_data.get('iteraciones',10)
+        hijos = json_data.get('hijos',10)
+        mutaciones = json_data.get('mutaciones',5)
+        penalizaCx = json_data.get('penalizaCx', 2)
+        #
+        # <option value="coupling">Coupling</option>
+        # <option value="cohesion">Cohesion</option>
+        # <option value="complexity">Complexity</option>
+        # <option value="wsict">User stories  (WSICT)</option>
+        # <option value="semantic">Semantic Similarity</option>
+        variables = json_data.get('objetivo',"semantic")
+
+        totalHistorias = msapp.proyecto.getNumeroHistorias()
+        totalPuntos = msapp.proyecto.getTotalPuntos()
+        startime = time()
+        genetico = AlgoritmoGenetico(int(poblcacion), int(iteraciones), int(hijos), int(mutaciones), variables, listaHu, dependencias, penalizaCx, totalHistorias, totalPuntos, similitud)
+
+        ind = genetico.ejecutar()
+
+        dura = time() - startime
+        print("---- Ejecutar algoritmo genetico: " + str(dura))
+
+        metricas = ind.metricas
+        app = metricas[0]
+        datos = metricas[1]
+        # app= msapp
+
+        # Borrar las historias de los microservicios
+        lista = Microservicio.objects.filter(aplicacion=msapp)
+        for ms in lista:
+            Microservicio_Historia.objects.filter(microservicio=ms).delete()
+
+        # Borrar los microservicios que estaban antes
+        if lista:
+            Microservicio.objects.filter(aplicacion=msapp).delete()
+
+        msapp.tiempo_estimado_desarrollo = app.tiempo_estimado_desarrollo
+        msapp.coupling = app.coupling
+        msapp.aist = app.aist
+        msapp.adst = app.adst
+        msapp.siyt = app.siyt
+
+        msapp.cohesion = app.cohesion
+        msapp.wsict = app.wsict
+
+        msapp.avg_calls = app.avg_calls
+        msapp.avg_requet = app.avg_request
+        msapp.valor_GM = ind.valorFuncion
+        msapp.numero_microservicios = app.numero_microservicios
+        msapp.complejidad_cognitiva = app.complejidad_cognitiva
+        msapp.similitud_semantica = app.similitud_semantica
+
+        msapp.save()
+
+        for dato in datos:
+            micro = dato[0]
+            micro.aplicacion = msapp
+            micro.save()
+
+            for hu in dato[1]:
+                ms_hu = Microservicio_Historia(
+                        microservicio=micro,
+                        historia=hu
+                )
+                ms_hu.save()
+                # mensaje += hu.identificador + " - " + hu.nombre + "<br>"
+
+        return JsonResponse({'result': "{0}://{1}{2}".format(request.scheme, request.get_host(), reverse_lazy('algoritmos:algoritmo-genetico-interoperabilidad', kwargs={"pk":msapp.pk}))})
+
+    return JsonResponse({'result':''})
 
 

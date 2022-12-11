@@ -21,3 +21,4 @@ social-auth-app-django
 social-auth-core
 django-rest-framework
 spacy==2.3.1
+django-cors-headers==3.2.1

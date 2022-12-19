@@ -569,6 +569,8 @@ def compararDescomposiciones(request, **kwargs):
 
 @csrf_exempt
 def algoritmoGeneticoInteroperabilidad(request, **kwargs):
+    PRIORIDADES = ['Very low', 'Low', 'Medium', 'High', 'Very high']
+
     if request.method == "GET":
         msapp = get_object_or_404(MicroservicioApp, id=kwargs['pk'])
         microservicios = Microservicio.objects.filter(aplicacion = msapp)
@@ -579,28 +581,38 @@ def algoritmoGeneticoInteroperabilidad(request, **kwargs):
         return JsonResponse(data, safe=False)
 
     if request.method == 'POST':
-        proyecto = Proyecto.objects.create(nombre="Interoperabilidad", usuario=Usuario.objects.first())
-        msapp = MicroservicioApp.objects.create(nombre="Interoperabilidad", proyecto=proyecto)
-        body_unicode = request.body.decode('utf-8')
+        body_unicode = request.body.decode('ascii', 'ignore').encode('ascii', 'ignore').decode('utf-8')
         json_data = json.loads(body_unicode)
+        proyecto = Proyecto.objects.create(nombre=json_data["userStories"][0].get("project","Interoperabilidad"), usuario=Usuario.objects.first())
+        msapp = MicroservicioApp.objects.create(nombre=json_data["userStories"][0].get("project","Interoperabilidad"), proyecto=proyecto)
         historias_crear = []
-        for historia in json_data["historias"]:
-            try:
-                historias_crear.append(
-                    HistoriaUsuario(
-                        identificador=historia["id"],
-                        nombre=historia["nombre"],
-                        descripcion=historia.get("descripcion",""),
-                        prioridad=historia.get("prioridad",1),
-                        puntos_estimados=historia.get("puntos_estimados",1),
-                        tiempo_estimado=historia.get("tiempo_estimado",1),
-                        proyecto=proyecto
-                ))
-            except Exception:
-                print(historia["id"])
+        for historia in json_data["userStories"]:
+            historias_crear.append(
+                HistoriaUsuario(
+                    identificador=historia["id"],
+                    nombre=historia["id"],
+                    descripcion=historia.get("name"),
+                    prioridad=PRIORIDADES.index(historia.get("priority",'Low'))+1,
+                    puntos_estimados=historia.get("points",1),
+                    tiempo_estimado=historia.get("tiempo_estimado",1),
+                    proyecto=proyecto,
+                    observaciones=historia.get("actor","")
+            ))
         HistoriaUsuario.objects.bulk_create(historias_crear)
 
         listaHu = HistoriaUsuario.objects.filter(proyecto=msapp.proyecto)
+
+        dependencias_crear = []
+        for historia in json_data["userStories"]:
+            for dependencia in historia["dependencies"]:
+                dependencias_crear.append(
+                    Dependencia_Historia(
+                        historia=HistoriaUsuario.objects.get(identificador=historia["id"], proyecto=proyecto),
+                        dependencia=HistoriaUsuario.objects.get(identificador=dependencia["id"], proyecto=proyecto)
+                    )
+                )
+        Dependencia_Historia.objects.bulk_create(dependencias_crear)
+
 
         listaDep = Dependencia_Historia.objects.filter(historia__proyecto=msapp.proyecto)
         dependencias = []

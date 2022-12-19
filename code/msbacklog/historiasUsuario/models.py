@@ -70,17 +70,18 @@ class HistoriaUsuario (models.Model):
         ordering = ["prioridad"]
         default_permissions = ('add', 'change', 'delete', 'view')
 
-    def get_json(self):
+    def get_json(self, include_dependencies=True):
+        PRIORIDADES = ['Very low', 'Low', 'Medium', 'High', 'Very high']
         return {
-            "id": str(self.id),
-            "name": self.nombre,
-            "actor": "",
-            "description": self.descripcion,
-            "priority": str(self.prioridad),
+            "id": self.nombre,
+            "name": self.descripcion,
+            "actor": self.observaciones,
+            "description": "",
+            "priority": PRIORIDADES[self.prioridad-1] if self.prioridad-1 < len(PRIORIDADES) and self.prioridad-1 > 0 else "Very Low",
             "points": self.puntos_estimados,
             "estimated_time": self.tiempo_estimado,
-            "dependencies": [],
-            "project": ""
+            "dependencies": [] if not include_dependencies else [dependencia_historia.dependencia.get_json(dependencia_historia.dependencia != self and dependencia_historia.historia != self) for dependencia_historia in self.historia_usuario.all()],
+            "project": self.proyecto.nombre
         }
 
 

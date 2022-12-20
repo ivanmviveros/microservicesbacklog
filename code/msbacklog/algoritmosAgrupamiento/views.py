@@ -628,7 +628,7 @@ def algoritmoGeneticoInteroperabilidad(request, **kwargs):
         dura = time() - startime
         print("---- Calcular similitud semantica: " + str(dura))
 
-        poblcacion = json_data.get('poblacion',100)
+        poblcacion = json_data.get('poblacion',500)
         iteraciones = json_data.get('iteraciones',10)
         hijos = json_data.get('hijos',10)
         mutaciones = json_data.get('mutaciones',5)
@@ -639,7 +639,7 @@ def algoritmoGeneticoInteroperabilidad(request, **kwargs):
         # <option value="complexity">Complexity</option>
         # <option value="wsict">User stories  (WSICT)</option>
         # <option value="semantic">Semantic Similarity</option>
-        variables = json_data.get('objetivo',"semantic")
+        variables = json_data.get('objetivo',["coupling", "complexity", "semantic"])
 
         totalHistorias = msapp.proyecto.getNumeroHistorias()
         totalPuntos = msapp.proyecto.getTotalPuntos()

@@ -168,6 +168,14 @@ class Microservicio (models.Model):
     def get_json(self):
         return {
             "id": self.nombre,
+            "points": self.total_puntos,
+            "complexity": self.complejidad_cognitiva,
+            "cohesionLack": self.lack,
+            "cohesionGrade": self.grado_cohesion,
+            "couplingADS": self.ads,
+            "couplingAIS": self.ais,
+            "couplingSIY": self.siy,
+            "semanticSimilarity": self.similitud_semantica,
             "userStories": [mshistoria.historia.get_json() for mshistoria in self.getHistorias()]
         }
 

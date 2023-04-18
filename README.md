@@ -1,2 +1,2 @@
 # microservicesbacklog
-# Genetic algorithm to generate solutions from the Microservices Backlog
+# Genetic algorithm for generating Microservices Backlog solutions from the Product Backlog
